@@ -31,6 +31,12 @@ export type ParseResult = { ok: true; value: EditResponse } | { ok: false; error
 
 /** Validates raw editor output. Error text is written to be fed back to the LLM on retry. */
 export function parseEditResponse(raw: unknown): ParseResult {
+  if (raw === undefined) {
+    return {
+      ok: false,
+      error: 'No submit_edits tool call was made. Call submit_edits exactly once.',
+    };
+  }
   const result = EditResponseSchema.safeParse(raw);
   if (!result.success) {
     const details = result.error.issues

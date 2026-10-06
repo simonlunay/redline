@@ -23,3 +23,12 @@ export type {
   StopReason,
   TokenUsage,
 } from './types.js';
+export {
+  DEFAULT_EFFORT,
+  DEFAULT_MODEL,
+  createAnthropicEditor,
+  submitEditsTool,
+  toStrictSchema,
+} from './editors/anthropic.js';
+export type { AnthropicEditorOptions, Effort } from './editors/anthropic.js';
+export { SUBMIT_TOOL_NAME, buildSystemPrompt, buildUserMessage, layoutTable } from './prompt.js';
