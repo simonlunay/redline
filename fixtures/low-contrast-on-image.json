@@ -1,0 +1,84 @@
+{
+  "version": "0.1",
+  "name": "White text on a pale sky photo",
+  "canvas": {
+    "width": 1080,
+    "height": 1080,
+    "background": "#ffffff"
+  },
+  "elements": [
+    {
+      "id": "photo",
+      "type": "image",
+      "role": "background",
+      "src": "images/sky.png",
+      "naturalWidth": 1080,
+      "naturalHeight": 1080,
+      "fit": "cover",
+      "x": 0,
+      "y": 0,
+      "width": 1080,
+      "height": 1080,
+      "zIndex": 0
+    },
+    {
+      "id": "headline",
+      "type": "text",
+      "role": "headline",
+      "content": "Summer Breeze",
+      "x": 90,
+      "y": 380,
+      "width": 900,
+      "height": 110,
+      "fontSize": 96,
+      "fontWeight": 900,
+      "lineHeight": 1.1,
+      "color": "#ffffff",
+      "align": "center",
+      "zIndex": 1
+    },
+    {
+      "id": "subheading",
+      "type": "text",
+      "role": "subheading",
+      "content": "Light linen shirts for long days",
+      "x": 140,
+      "y": 530,
+      "width": 800,
+      "height": 50,
+      "fontSize": 36,
+      "fontWeight": 600,
+      "color": "#f1f5f9",
+      "align": "center",
+      "zIndex": 1
+    },
+    {
+      "id": "cta-button",
+      "type": "shape",
+      "role": "cta",
+      "kind": "rect",
+      "x": 390,
+      "y": 880,
+      "width": 300,
+      "height": 90,
+      "fill": "#1e3a8a",
+      "cornerRadius": 45,
+      "zIndex": 1
+    },
+    {
+      "id": "cta-label",
+      "type": "text",
+      "role": "cta",
+      "content": "Shop now",
+      "x": 410,
+      "y": 905,
+      "width": 260,
+      "height": 40,
+      "fontSize": 32,
+      "fontWeight": 700,
+      "color": "#ffffff",
+      "align": "center",
+      "zIndex": 2
+    }
+  ]
+}

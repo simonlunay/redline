@@ -1,0 +1,1225 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fixtures (Node env: real fonts + image pixels) > clean-poster.json matches its report snapshot 1`] = `
+{
+  "issues": [],
+  "passed": true,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 100,
+  "summary": {
+    "errors": 0,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > competing-headline.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "subheading",
+        "headline",
+      ],
+      "fix": [
+        {
+          "elementId": "subheading",
+          "fontSize": 47,
+          "op": "setFontSize",
+        },
+      ],
+      "measured": 1.19,
+      "message": "subheading "subheading" (80px/800) is more prominent than the headline "headline" (72px/700).",
+      "ruleId": "hierarchy",
+      "severity": "error",
+      "threshold": 0.9,
+      "unit": "x headline prominence",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 1,
+      "ruleId": "hierarchy",
+      "score": 84,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 84,
+  "summary": {
+    "errors": 1,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > low-contrast-on-image.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "headline",
+      ],
+      "fix": [
+        {
+          "color": "#878787",
+          "elementId": "headline",
+          "op": "setColor",
+        },
+      ],
+      "measured": 1.16,
+      "message": "headline "headline" has a contrast of 1.16:1 against what is behind it; large text needs 3:1.",
+      "ruleId": "text-contrast",
+      "severity": "error",
+      "threshold": 3,
+      "unit": ":1",
+    },
+    {
+      "elementIds": [
+        "subheading",
+      ],
+      "fix": [
+        {
+          "color": "#5f8cba",
+          "elementId": "subheading",
+          "op": "setColor",
+        },
+      ],
+      "measured": 1.03,
+      "message": "subheading "subheading" has a contrast of 1.03:1 against what is behind it; large text needs 3:1.",
+      "ruleId": "text-contrast",
+      "severity": "error",
+      "threshold": 3,
+      "unit": ":1",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 2,
+      "ruleId": "text-contrast",
+      "score": 58,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 58,
+  "summary": {
+    "errors": 2,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > misaligned.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "subheading",
+        "logo",
+      ],
+      "fix": [
+        {
+          "dx": -7,
+          "dy": 0,
+          "elementId": "subheading",
+          "op": "move",
+        },
+      ],
+      "measured": 7,
+      "message": "subheading "subheading" left edge is 7px off the left edge of "logo"; this looks accidental.",
+      "ruleId": "alignment",
+      "severity": "warning",
+      "threshold": 8.64,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "product",
+        "headline",
+      ],
+      "fix": [
+        {
+          "dx": -5,
+          "dy": 0,
+          "elementId": "product",
+          "op": "move",
+        },
+      ],
+      "measured": 5,
+      "message": "product "product" horizontal center is 5px off the horizontal center of "headline"; this looks accidental.",
+      "ruleId": "alignment",
+      "severity": "warning",
+      "threshold": 8.64,
+      "unit": "px",
+    },
+  ],
+  "passed": true,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 2,
+      "ruleId": "alignment",
+      "score": 94,
+      "weight": 1,
+    },
+  ],
+  "score": 94,
+  "summary": {
+    "errors": 0,
+    "infos": 0,
+    "warnings": 2,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > off-canvas.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "sale-badge",
+      ],
+      "fix": [
+        {
+          "dx": -190,
+          "dy": 0,
+          "elementId": "sale-badge",
+          "op": "move",
+        },
+      ],
+      "measured": 100,
+      "message": "shape "sale-badge" is completely outside the canvas and will not be visible.",
+      "ruleId": "off-canvas",
+      "severity": "error",
+      "threshold": 0,
+      "unit": "% outside",
+    },
+    {
+      "elementIds": [
+        "logo",
+      ],
+      "fix": [
+        {
+          "dx": -100,
+          "dy": 0,
+          "elementId": "logo",
+          "op": "move",
+        },
+      ],
+      "measured": 33.33,
+      "message": "logo "logo" is 33% outside the canvas and will be cut off.",
+      "ruleId": "off-canvas",
+      "severity": "warning",
+      "threshold": 0,
+      "unit": "% outside",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 2,
+      "ruleId": "off-canvas",
+      "score": 79,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 79,
+  "summary": {
+    "errors": 1,
+    "infos": 0,
+    "warnings": 1,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > overlap-headline-product.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "headline",
+      ],
+      "fix": [
+        {
+          "color": "#858585",
+          "elementId": "headline",
+          "op": "setColor",
+        },
+      ],
+      "measured": 1.23,
+      "message": "headline "headline" has a contrast of 1.23:1 against what is behind it; large text needs 3:1.",
+      "ruleId": "text-contrast",
+      "severity": "error",
+      "threshold": 3,
+      "unit": ":1",
+    },
+    {
+      "elementIds": [
+        "headline",
+        "product",
+      ],
+      "fix": [
+        {
+          "dx": 0,
+          "dy": -101.6,
+          "elementId": "headline",
+          "op": "move",
+        },
+      ],
+      "measured": 32.32,
+      "message": "headline "headline" overlaps product "product" (text overlaps an image, 32% of the smaller element).",
+      "ruleId": "unintended-overlap",
+      "severity": "error",
+      "threshold": 0,
+      "unit": "% overlap",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 1,
+      "ruleId": "text-contrast",
+      "score": 76,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 1,
+      "ruleId": "unintended-overlap",
+      "score": 76,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 58,
+  "summary": {
+    "errors": 2,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > stretched-image.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "product",
+      ],
+      "fix": [
+        {
+          "elementId": "product",
+          "height": 466.67,
+          "op": "resize",
+          "width": 700,
+        },
+      ],
+      "measured": 16.67,
+      "message": "product "product" is stretched horizontally by 16.67% (box 1.75:1 vs image 1.5:1).",
+      "ruleId": "image-aspect-ratio",
+      "severity": "error",
+      "threshold": 2,
+      "unit": "% distortion",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 1,
+      "ruleId": "image-aspect-ratio",
+      "score": 84,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 84,
+  "summary": {
+    "errors": 1,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > text-overflow.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "body",
+      ],
+      "fix": [
+        {
+          "elementId": "body",
+          "height": 108,
+          "op": "resize",
+          "width": 700,
+        },
+      ],
+      "measured": 108,
+      "message": "body "body" needs 108px (3 lines at 30px x 1.2) but its box is 40px tall.",
+      "ruleId": "text-overflow",
+      "severity": "error",
+      "threshold": 40,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "cta-label",
+      ],
+      "fix": [
+        {
+          "elementId": "cta-label",
+          "height": 77,
+          "op": "resize",
+          "width": 260,
+        },
+      ],
+      "measured": 76.8,
+      "message": "cta "cta-label" needs 76.8px (2 lines at 32px x 1.2) but its box is 40px tall.",
+      "ruleId": "text-overflow",
+      "severity": "error",
+      "threshold": 40,
+      "unit": "px",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 2,
+      "ruleId": "text-overflow",
+      "score": 58,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 58,
+  "summary": {
+    "errors": 2,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > tiny-text.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "legal",
+      ],
+      "fix": [
+        {
+          "elementId": "legal",
+          "fontSize": 22,
+          "op": "setFontSize",
+        },
+      ],
+      "measured": 12,
+      "message": "body "legal" is 12px, below the 21.6px minimum for a 1080x1350 canvas.",
+      "ruleId": "min-text-size",
+      "severity": "error",
+      "threshold": 21.6,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "body",
+      ],
+      "fix": [
+        {
+          "elementId": "body",
+          "fontSize": 22,
+          "op": "setFontSize",
+        },
+      ],
+      "measured": 17,
+      "message": "body "body" is 17px, below the 21.6px minimum for a 1080x1350 canvas.",
+      "ruleId": "min-text-size",
+      "severity": "warning",
+      "threshold": 21.6,
+      "unit": "px",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 2,
+      "ruleId": "min-text-size",
+      "score": 79,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 79,
+  "summary": {
+    "errors": 1,
+    "infos": 0,
+    "warnings": 1,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > worst.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "headline",
+      ],
+      "fix": [
+        {
+          "color": "#000000",
+          "elementId": "headline",
+          "op": "setColor",
+        },
+      ],
+      "measured": 1.24,
+      "message": "headline "headline" has a contrast of 1.24:1 against what is behind it; large text needs 3:1.",
+      "ruleId": "text-contrast",
+      "severity": "error",
+      "threshold": 3,
+      "unit": ":1",
+    },
+    {
+      "elementIds": [
+        "subheading",
+      ],
+      "fix": [
+        {
+          "color": "#9a7c03",
+          "elementId": "subheading",
+          "op": "setColor",
+        },
+      ],
+      "measured": 1.02,
+      "message": "subheading "subheading" has a contrast of 1.02:1 against what is behind it; large text needs 3:1.",
+      "ruleId": "text-contrast",
+      "severity": "error",
+      "threshold": 3,
+      "unit": ":1",
+    },
+    {
+      "elementIds": [
+        "body",
+      ],
+      "fix": [
+        {
+          "color": "#586a84",
+          "elementId": "body",
+          "op": "setColor",
+        },
+      ],
+      "measured": 1.41,
+      "message": "body "body" has a contrast of 1.41:1 against what is behind it; large text needs 3:1.",
+      "ruleId": "text-contrast",
+      "severity": "error",
+      "threshold": 3,
+      "unit": ":1",
+    },
+    {
+      "elementIds": [
+        "legal",
+      ],
+      "fix": [
+        {
+          "color": "#3c4f67",
+          "elementId": "legal",
+          "op": "setColor",
+        },
+      ],
+      "measured": 1.23,
+      "message": "text "legal" has a contrast of 1.23:1 against what is behind it; normal text needs 4.5:1.",
+      "ruleId": "text-contrast",
+      "severity": "error",
+      "threshold": 4.5,
+      "unit": ":1",
+    },
+    {
+      "elementIds": [
+        "cta-label",
+      ],
+      "fix": [
+        {
+          "color": "#595959",
+          "elementId": "cta-label",
+          "op": "setColor",
+        },
+      ],
+      "measured": 2.26,
+      "message": "cta "cta-label" has a contrast of 2.26:1 against what is behind it; large text needs 3:1.",
+      "ruleId": "text-contrast",
+      "severity": "error",
+      "threshold": 3,
+      "unit": ":1",
+    },
+    {
+      "elementIds": [
+        "legal",
+      ],
+      "fix": [
+        {
+          "elementId": "legal",
+          "fontSize": 22,
+          "op": "setFontSize",
+        },
+      ],
+      "measured": 11,
+      "message": "text "legal" is 11px, below the 21.6px minimum for a 1080x1080 canvas.",
+      "ruleId": "min-text-size",
+      "severity": "error",
+      "threshold": 21.6,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "product",
+      ],
+      "fix": [
+        {
+          "elementId": "product",
+          "height": 400,
+          "op": "resize",
+          "width": 600,
+        },
+      ],
+      "measured": 23.08,
+      "message": "product "product" is stretched vertically by 23.08% (box 1.15:1 vs image 1.5:1).",
+      "ruleId": "image-aspect-ratio",
+      "severity": "error",
+      "threshold": 2,
+      "unit": "% distortion",
+    },
+    {
+      "elementIds": [
+        "subheading",
+        "headline",
+      ],
+      "fix": [
+        {
+          "elementId": "subheading",
+          "fontSize": 36,
+          "op": "setFontSize",
+        },
+      ],
+      "measured": 1.37,
+      "message": "subheading "subheading" (72px/800) is more prominent than the headline "headline" (56px/700).",
+      "ruleId": "hierarchy",
+      "severity": "error",
+      "threshold": 0.9,
+      "unit": "x headline prominence",
+    },
+    {
+      "elementIds": [
+        "headline",
+        "product",
+      ],
+      "fix": [
+        {
+          "dx": 0,
+          "dy": -61.6,
+          "elementId": "headline",
+          "op": "move",
+        },
+      ],
+      "measured": 34.29,
+      "message": "headline "headline" overlaps product "product" (text overlaps an image, 34% of the smaller element).",
+      "ruleId": "unintended-overlap",
+      "severity": "error",
+      "threshold": 0,
+      "unit": "% overlap",
+    },
+    {
+      "elementIds": [
+        "subheading",
+      ],
+      "fix": [
+        {
+          "elementId": "subheading",
+          "fontSize": 71,
+          "op": "setFontSize",
+        },
+      ],
+      "measured": 172.8,
+      "message": "subheading "subheading" needs 172.8px (2 lines at 72px x 1.2) but its box is 90px tall.",
+      "ruleId": "text-overflow",
+      "severity": "error",
+      "threshold": 90,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "body",
+      ],
+      "fix": [
+        {
+          "elementId": "body",
+          "height": 87,
+          "op": "resize",
+          "width": 500,
+        },
+      ],
+      "measured": 86.4,
+      "message": "body "body" needs 86.4px (3 lines at 24px x 1.2) but its box is 40px tall.",
+      "ruleId": "text-overflow",
+      "severity": "error",
+      "threshold": 40,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "logo",
+      ],
+      "fix": [
+        {
+          "dx": -120,
+          "dy": 0,
+          "elementId": "logo",
+          "op": "move",
+        },
+      ],
+      "measured": 46.15,
+      "message": "logo "logo" is 46% outside the canvas and will be cut off.",
+      "ruleId": "off-canvas",
+      "severity": "warning",
+      "threshold": 0,
+      "unit": "% outside",
+    },
+    {
+      "elementIds": [
+        "legal",
+      ],
+      "fix": [
+        {
+          "dx": 34,
+          "dy": -44,
+          "elementId": "legal",
+          "op": "move",
+        },
+      ],
+      "measured": 10,
+      "message": "text "legal" is 10px from the left and bottom edge; keep at least 54px (5% of the shorter side).",
+      "ruleId": "safe-margins",
+      "severity": "warning",
+      "threshold": 54,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "subheading",
+        "headline",
+      ],
+      "fix": [
+        {
+          "dx": -6,
+          "dy": 0,
+          "elementId": "subheading",
+          "op": "move",
+        },
+      ],
+      "measured": 6,
+      "message": "subheading "subheading" left edge is 6px off the left edge of "headline"; this looks accidental.",
+      "ruleId": "alignment",
+      "severity": "warning",
+      "threshold": 8.64,
+      "unit": "px",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 5,
+      "ruleId": "text-contrast",
+      "score": 25,
+      "weight": 3,
+    },
+    {
+      "issues": 1,
+      "ruleId": "off-canvas",
+      "score": 94,
+      "weight": 2,
+    },
+    {
+      "issues": 1,
+      "ruleId": "min-text-size",
+      "score": 84,
+      "weight": 2,
+    },
+    {
+      "issues": 1,
+      "ruleId": "image-aspect-ratio",
+      "score": 84,
+      "weight": 2,
+    },
+    {
+      "issues": 1,
+      "ruleId": "safe-margins",
+      "score": 97,
+      "weight": 1,
+    },
+    {
+      "issues": 1,
+      "ruleId": "hierarchy",
+      "score": 84,
+      "weight": 2,
+    },
+    {
+      "issues": 1,
+      "ruleId": "unintended-overlap",
+      "score": 76,
+      "weight": 3,
+    },
+    {
+      "issues": 2,
+      "ruleId": "text-overflow",
+      "score": 58,
+      "weight": 3,
+    },
+    {
+      "issues": 1,
+      "ruleId": "alignment",
+      "score": 97,
+      "weight": 1,
+    },
+  ],
+  "score": 6,
+  "summary": {
+    "errors": 11,
+    "infos": 0,
+    "warnings": 3,
+  },
+}
+`;
