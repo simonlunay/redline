@@ -121,5 +121,6 @@ export function gridPoints(r: Rect, cols: number, rows: number): Point[] {
 
 /** Rounds to 2 decimals so reports and snapshots are stable and readable. */
 export function round2(n: number): number {
-  return Math.round(n * 100) / 100;
+  // `|| 0` turns -0 into 0, which otherwise shows up in snapshots and deep equality.
+  return Math.round(n * 100) / 100 || 0;
 }

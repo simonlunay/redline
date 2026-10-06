@@ -1,5 +1,20 @@
 import { parseDesign } from '../src/core/schema.js';
 import type { Design, DesignInput } from '../src/core/schema.js';
+import { heuristicMeasurer } from '../src/core/text-measure.js';
+import type { Rule, RuleContext, RuleIssue } from '../src/core/types.js';
+
+/** Runs one rule directly with its defaults merged with `options`. */
+export function runRule<O extends object>(
+  rule: Rule<O>,
+  design: Design,
+  options: Partial<O> = {},
+  ctx: Partial<RuleContext> = {},
+): RuleIssue[] {
+  return rule.check(
+    { design, measurer: heuristicMeasurer, ...ctx },
+    { ...rule.defaultOptions, ...options },
+  );
+}
 
 type ElementInput = DesignInput['elements'][number];
 type Without<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
