@@ -7,14 +7,18 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', ignoreRestSiblings: true },
+      ],
       '@typescript-eslint/consistent-type-imports': 'error',
     },
   },
   {
     // The core must run in the browser too, so Node built-ins are banned there.
     // This turns "isomorphic" from a convention into something CI enforces.
-    files: ['packages/checker/src/core/**/*.ts'],
+    files: ['packages/checker/src/core/**/*.ts', 'packages/agent/src/**/*.ts'],
+    ignores: ['packages/agent/src/node/**'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -22,7 +26,7 @@ export default tseslint.config(
           patterns: [
             {
               group: ['node:*', 'fs', 'path', 'url', 'os', 'child_process', 'buffer', '@napi-rs/*'],
-              message: 'src/core must stay isomorphic. Put Node-specific code in src/node.',
+              message: 'This code must stay isomorphic. Put Node-specific code in src/node.',
             },
           ],
         },

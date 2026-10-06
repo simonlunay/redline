@@ -1,0 +1,36 @@
+{
+  "name": "@simonlunay/redline-agent",
+  "version": "0.1.0",
+  "description": "AI fix loop for Redline: check a design, let an LLM repair it, re-check, repeat.",
+  "license": "MIT",
+  "author": "Simon Lunay",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "eval": "tsx eval/run.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@simonlunay/redline": "^0.1.0",
+    "zod": "^4.6.5"
+  }
+}
