@@ -1,21 +1,15 @@
 import type { RGBA } from './color.js';
+import type { Fix } from './fixes.js';
 import type { Design } from './schema.js';
 import type { TextMeasurer } from './text-measure.js';
 
 export type Severity = 'error' | 'warning' | 'info';
 
 /**
- * A machine-readable repair suggestion. An AI agent (or a "fix all" button) can apply
- * these directly to the design JSON without understanding the rule that produced them.
- * Values are absolute targets (color, fontSize, width/height) or deltas (move), whichever is
- * least ambiguous for that operation.
+ * A machine-readable repair suggestion (see fixes.ts for the schema and applyFixes). An AI
+ * agent or a "fix all" button can apply these directly to the design JSON.
  */
-export type Fix =
-  | { op: 'move'; elementId: string; dx: number; dy: number }
-  | { op: 'resize'; elementId: string; width: number; height: number }
-  | { op: 'setColor'; elementId: string; color: string }
-  | { op: 'setFontSize'; elementId: string; fontSize: number }
-  | { op: 'setFontWeight'; elementId: string; fontWeight: number };
+export type { Fix } from './fixes.js';
 
 export interface Issue {
   ruleId: string;
@@ -47,11 +41,35 @@ export interface ImageSampler {
   sample(src: string, u: number, v: number): RGBA | null;
 }
 
+/** Raw RGBA pixels (4 bytes per pixel, row-major). Same layout as canvas ImageData. */
+export interface RasterImage {
+  width: number;
+  height: number;
+  data: Uint8ClampedArray;
+}
+
+/** Capabilities a rule can require. Rules whose requirements are missing are skipped. */
+export type RuleRequirement = 'render';
+
 export interface RuleContext {
   design: Design;
   measurer: TextMeasurer;
   sampler?: ImageSampler;
+  /**
+   * Renders the current design to pixels (lazy, at most once per check). Only available in
+   * checkAsync() when a renderer is provided, e.g. for a future saliency/attention rule.
+   */
+  render?: () => Promise<RasterImage>;
 }
+
+/** Richer rule output: issues plus optional per-element scores (e.g. attention share). */
+export interface RuleResult {
+  issues: RuleIssue[];
+  /** elementId -> score, reported as-is in the rule's RuleScore. */
+  elementScores?: Record<string, number>;
+}
+
+export type RuleOutput = RuleIssue[] | RuleResult;
 
 export interface Rule<O extends object = object> {
   id: string;
@@ -60,7 +78,13 @@ export interface Rule<O extends object = object> {
   /** How much each issue of this rule costs: an error removes 8% x weight of the score. */
   weight: number;
   defaultOptions: O;
-  check(ctx: RuleContext, options: O): RuleIssue[];
+  /** Capabilities the rule needs; it is skipped (and listed in report.skipped) without them. */
+  requires?: RuleRequirement[];
+  /**
+   * Sync rules work with check() and checkAsync(). Async rules (returning a Promise, e.g. a
+   * model call) only run in checkAsync(); check() skips them.
+   */
+  check(ctx: RuleContext, options: O): RuleOutput | Promise<RuleOutput>;
 }
 
 /** Erased rule type used in registries (options are validated per rule at run time). */
@@ -77,6 +101,12 @@ export interface RuleScore {
   score: number;
   weight: number;
   issues: number;
+  elementScores?: Record<string, number>;
+}
+
+export interface SkippedRule {
+  ruleId: string;
+  reason: string;
 }
 
 export interface Report {
@@ -87,4 +117,6 @@ export interface Report {
   summary: { errors: number; warnings: number; infos: number };
   rules: RuleScore[];
   issues: Issue[];
+  /** Rules that could not run (async rule in check(), missing renderer). Omitted when empty. */
+  skipped?: SkippedRule[];
 }

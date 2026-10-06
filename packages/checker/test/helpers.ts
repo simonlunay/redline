@@ -10,10 +10,12 @@ export function runRule<O extends object>(
   options: Partial<O> = {},
   ctx: Partial<RuleContext> = {},
 ): RuleIssue[] {
-  return rule.check(
+  const output = rule.check(
     { design, measurer: heuristicMeasurer, ...ctx },
     { ...rule.defaultOptions, ...options },
   );
+  if (output instanceof Promise) throw new Error('runRule only supports sync rules');
+  return Array.isArray(output) ? output : output.issues;
 }
 
 type ElementInput = DesignInput['elements'][number];

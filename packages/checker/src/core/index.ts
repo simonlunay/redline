@@ -1,6 +1,10 @@
 // Isomorphic public API: safe to import in Node and in the browser.
-export { check } from './check.js';
-export type { CheckOptions } from './check.js';
+export { check, checkAsync } from './check.js';
+export type { CheckAsyncOptions, CheckOptions } from './check.js';
+export { FixSchema, applyFixes } from './fixes.js';
+export type { ApplyFixesResult, FixOp, RejectedFix } from './fixes.js';
+export { designJsonSchema, fixJsonSchema } from './json-schema.js';
+export type { JsonSchema } from './json-schema.js';
 export { DesignSchema, DesignValidationError, FORMAT_VERSION, parseDesign } from './schema.js';
 export type {
   Canvas,
@@ -34,12 +38,17 @@ export type {
   Fix,
   ImageSampler,
   Issue,
+  RasterImage,
   Report,
   Rule,
   RuleContext,
   RuleIssue,
+  RuleOutput,
+  RuleRequirement,
+  RuleResult,
   RuleScore,
   Severity,
+  SkippedRule,
 } from './types.js';
 export { heuristicMeasurer, layoutText, wrapText } from './text-measure.js';
 export type { FontSpec, TextLayout, TextMeasurer } from './text-measure.js';
