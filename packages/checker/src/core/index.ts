@@ -14,7 +14,20 @@ export type {
 } from './schema.js';
 export { ConfigSchema, resolveRules } from './config.js';
 export type { RedlineConfig, RuleSetting } from './config.js';
-export { builtinRules, getRule } from './rules/index.js';
+export {
+  builtinRules,
+  getRule,
+  alignment,
+  hierarchy,
+  imageAspectRatio,
+  minTextSize,
+  offCanvas,
+  safeMargins,
+  textContrast,
+  textOverflow,
+  unintendedOverlap,
+} from './rules/index.js';
+export { backdropAt, imageUV } from './backdrop.js';
 export { defineRule } from './types.js';
 export type {
   AnyRule,
