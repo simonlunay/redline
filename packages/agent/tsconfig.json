@@ -2,12 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "types": ["node"],
-    "noEmit": true,
-    "paths": {
-      "@simonlunay/redline": ["../checker/src/core/index.ts"],
-      "@simonlunay/redline/node": ["../checker/src/node/index.ts"]
-    },
-    "allowImportingTsExtensions": true
+    "noEmit": true
   },
   "include": ["src", "test", "eval"]
 }

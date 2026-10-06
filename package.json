@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "eval": "npm run eval -w packages/agent --"
+    "eval": "npm run eval -w packages/agent --",
+    "redline": "tsx --conditions=@simonlunay/source packages/checker/src/cli.ts"
   },
   "engines": {
     "node": ">=20"

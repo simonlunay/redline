@@ -24,11 +24,15 @@ function pngSize(buf: Buffer) {
 
 function runCli(args: string[]): { code: number; stdout: string; stderr: string } {
   try {
-    const stdout = execFileSync(process.execPath, ['--import', 'tsx', CLI, ...args], {
-      encoding: 'utf8',
-      env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
+    const stdout = execFileSync(
+      process.execPath,
+      ['--conditions=@simonlunay/source', '--import', 'tsx', CLI, ...args],
+      {
+        encoding: 'utf8',
+        env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' },
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+    );
     return { code: 0, stdout, stderr: '' };
   } catch (err) {
     const e = err as { status: number; stdout: string; stderr: string };
@@ -129,6 +133,23 @@ describe('cli', () => {
     expect(code).toBe(0);
     expect(pngSize(readFileSync(out)).width).toBe(1080);
     expect(pngSize(readFileSync(annotated)).width).toBe(1080);
+  });
+
+  it('delegates `redline fix` to the agent package', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'redline-'));
+    const out = join(dir, 'fixed.json');
+    const { code, stdout } = runCli([
+      'fix',
+      FIXTURES + 'stretched-image.json',
+      '--editor',
+      'suggested',
+      '--out',
+      out,
+    ]);
+    expect(code).toBe(0);
+    expect(stdout).toContain('redline fix');
+    expect(JSON.parse(readFileSync(out, 'utf8')).version).toBe('0.1');
+    expect(runCli(['fix']).code).toBe(2);
   });
 
   it('exits 2 for invalid designs and usage errors', () => {

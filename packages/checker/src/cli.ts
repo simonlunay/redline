@@ -23,6 +23,7 @@ ${pc.bold('redline')} - ESLint for designs
 ${pc.bold('Usage')}
   redline check <design.json> [options]
   redline rules                      List built-in rules and their defaults
+  redline fix <design.json> [...]    AI fix loop (needs @simonlunay/redline-agent; see fix --help)
 
 ${pc.bold('Options')}
   --format <pretty|json>   Output format (default: pretty)
@@ -98,7 +99,46 @@ async function runCheck(file: string, values: Record<string, string | boolean | 
 
 class UsageError extends Error {}
 
+interface AgentModule {
+  runFixCommand(argv: string[]): Promise<number>;
+  UsageError: new (...args: never[]) => Error;
+  FIX_HELP: string;
+}
+
+/**
+ * `redline fix` lives in the optional @simonlunay/redline-agent package so that checker-only
+ * installs don't pull in an LLM SDK. A variable specifier keeps TypeScript from requiring it.
+ */
+async function runFix(argv: string[]): Promise<number> {
+  const specifier = '@simonlunay/redline-agent/node';
+  let agent: AgentModule;
+  try {
+    agent = (await import(specifier)) as AgentModule;
+  } catch (err) {
+    // Only "the agent isn't installed" gets the install hint; anything else is a real error.
+    const missing =
+      (err as { code?: string }).code === 'ERR_MODULE_NOT_FOUND' &&
+      String((err as Error).message).includes('redline-agent');
+    if (!missing) throw err;
+    console.error(
+      pc.red('redline fix needs the agent package: npm install @simonlunay/redline-agent'),
+    );
+    return EXIT_USAGE;
+  }
+  try {
+    return await agent.runFixCommand(argv);
+  } catch (err) {
+    if (err instanceof agent.UsageError) {
+      console.error(pc.red(err.message));
+      console.error(agent.FIX_HELP);
+      return EXIT_USAGE;
+    }
+    throw err;
+  }
+}
+
 async function main(argv: string[]): Promise<number> {
+  if (argv[0] === 'fix') return runFix(argv.slice(1));
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,

@@ -25,10 +25,12 @@
   ],
   "exports": {
     ".": {
+      "@simonlunay/source": "./src/core/index.ts",
       "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.js"
     },
     "./node": {
+      "@simonlunay/source": "./src/node/index.ts",
       "types": "./dist/node/index.d.ts",
       "import": "./dist/node/index.js"
     },
@@ -60,5 +62,13 @@
     "@napi-rs/canvas": "^1.0.10",
     "picocolors": "^1.1.1",
     "zod": "^4.6.5"
+  },
+  "peerDependencies": {
+    "@simonlunay/redline-agent": "^0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@simonlunay/redline-agent": {
+      "optional": true
+    }
   }
 }

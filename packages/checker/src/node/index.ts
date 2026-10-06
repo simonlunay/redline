@@ -85,5 +85,5 @@ export { createFontMeasurer } from './font-measurer.js';
 export { registerFont } from './fonts.js';
 export { createImageSampler, loadDesignImages } from './image-sampler.js';
 export { renderAnnotatedPng, renderPng, renderRaster } from './render.js';
-export { formatPretty } from './report-format.js';
+export { formatFix, formatPretty } from './report-format.js';
 export * from '../core/index.js';

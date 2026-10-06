@@ -17,6 +17,7 @@
     "verbatimModuleSyntax": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "customConditions": ["@simonlunay/source"]
   }
 }
