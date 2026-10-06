@@ -5,6 +5,7 @@ import { imageAspectRatio } from './image-aspect-ratio.js';
 import { minTextSize } from './min-text-size.js';
 import { offCanvas } from './off-canvas.js';
 import { safeMargins } from './safe-margins.js';
+import { unintendedOverlap } from './unintended-overlap.js';
 
 /** All built-in rules, in report order. */
 export const builtinRules: AnyRule[] = [
@@ -13,6 +14,7 @@ export const builtinRules: AnyRule[] = [
   imageAspectRatio,
   safeMargins,
   hierarchy,
+  unintendedOverlap,
   alignment,
 ];
 
