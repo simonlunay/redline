@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import pc from 'picocolors';
 import { ZodError } from 'zod';
-import { check } from './core/check.js';
+import { checkAsync } from './core/check.js';
 import { builtinRules } from './core/rules/index.js';
 import { DesignValidationError } from './core/schema.js';
 import { createNodeEnv, loadConfig, loadDesign } from './node/index.js';
@@ -67,10 +67,11 @@ async function runCheck(file: string, values: Record<string, string | boolean | 
   const config = values.config ? await loadConfig(values.config as string) : undefined;
   const loaded = await loadDesign(file);
   const env = await createNodeEnv(loaded);
-  const report = check(loaded.design, {
+  const report = await checkAsync(loaded.design, {
     config,
     measurer: env.measurer,
     sampler: env.sampler,
+    render: env.render,
   });
 
   if (values.render) {

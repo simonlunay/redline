@@ -142,3 +142,16 @@ describe('cli', () => {
     expect(runCli(['check', FIXTURES + 'clean-poster.json', '--format', 'xml']).code).toBe(2);
   });
 });
+
+describe('render capability', () => {
+  it('createNodeEnv provides a raster renderer for checkAsync rules', async () => {
+    const loaded = await loadDesign(FIXTURES + 'clean-poster.json');
+    const env = await createNodeEnv(loaded);
+    const raster = await env.render(loaded.design);
+    expect(raster.width).toBe(1080);
+    expect(raster.height).toBe(1350);
+    expect(raster.data.length).toBe(1080 * 1350 * 4);
+    // Top-left pixel is the poster's #0f172a background.
+    expect([...raster.data.subarray(0, 4)]).toEqual([15, 23, 42, 255]);
+  });
+});

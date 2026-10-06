@@ -4,7 +4,7 @@ import { round2, shortSide } from '../core/geometry.js';
 import type { Design, DesignElement, ImageElement } from '../core/schema.js';
 import { paintOrder } from '../core/rules/util.js';
 import { fontOf, wrapText } from '../core/text-measure.js';
-import type { Issue, Report, Severity } from '../core/types.js';
+import type { Issue, RasterImage, Report, Severity } from '../core/types.js';
 import { createFontMeasurer } from './font-measurer.js';
 import { cssFont, registerBundledFonts } from './fonts.js';
 
@@ -117,6 +117,13 @@ function renderToCanvas(design: Design, options: RenderOptions, headerHeight = 0
     drawElement(ctx, el, options.images ?? new Map(), measurer);
   }
   return { canvas, ctx };
+}
+
+/** Renders the design to raw RGBA pixels (the RuleContext.render format). */
+export function renderRaster(design: Design, options: RenderOptions = {}): RasterImage {
+  const { canvas, ctx } = renderToCanvas(design, options);
+  const { width, height, data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  return { width, height, data };
 }
 
 /** Renders the design to a PNG buffer. */

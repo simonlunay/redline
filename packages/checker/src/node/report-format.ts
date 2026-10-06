@@ -43,6 +43,8 @@ export function formatFix(fix: Fix): string {
       return `set ${fix.elementId} font size to ${fix.fontSize}px`;
     case 'setFontWeight':
       return `set ${fix.elementId} font weight to ${fix.fontWeight}`;
+    case 'insertShape':
+      return `insert ${fix.kind} ${fix.fill} (opacity ${fix.opacity}) behind ${fix.behindElementId} at ${fix.x},${fix.y} ${fix.width}x${fix.height}`;
   }
 }
 
