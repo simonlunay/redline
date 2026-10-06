@@ -79,3 +79,97 @@ save('landscape.png', 1200, 800, (ctx) => {
   // A perfect circle makes distortion easy to see when the image is stretched.
   circle(ctx, 300, 640, 70, '#facc15');
 });
+
+// ---- Images for the messier, ad-like fixtures (phase 2 eval) ----
+
+// A busy mid-tone "street" photo: neither black nor white text reads well everywhere on it.
+save('street.png', 1080, 1080, (ctx) => {
+  const g = ctx.createLinearGradient(0, 0, 1080, 1080);
+  g.addColorStop(0, '#8a8f99');
+  g.addColorStop(0.5, '#b7a99a');
+  g.addColorStop(1, '#5d6470');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 1080, 1080);
+  const colors = ['#d9d4cc', '#4b525c', '#a39280', '#e8e2d8', '#6f7884'];
+  for (let i = 0; i < 18; i++) {
+    ctx.fillStyle = colors[i % colors.length]!;
+    ctx.fillRect(i * 60, 200 + ((i * 97) % 300), 48, 1080);
+  }
+  ctx.fillStyle = '#f2efe9';
+  ctx.fillRect(0, 820, 1080, 40);
+});
+
+// A sneaker on a light backdrop, 3:2.
+save('sneaker.png', 900, 600, (ctx) => {
+  ctx.fillStyle = '#eef2f7';
+  ctx.fillRect(0, 0, 900, 600);
+  ctx.fillStyle = '#e11d48';
+  ctx.beginPath();
+  ctx.moveTo(150, 420);
+  ctx.quadraticCurveTo(200, 230, 380, 250);
+  ctx.quadraticCurveTo(480, 300, 600, 330);
+  ctx.quadraticCurveTo(760, 350, 760, 420);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#111827';
+  ctx.fillRect(140, 420, 640, 40);
+  ctx.fillStyle = '#ffffff';
+  for (let i = 0; i < 5; i++) ctx.fillRect(330 + i * 28, 270 + i * 8, 14, 50);
+});
+
+// A concert stage, 9:16: dark, with bright spotlights and haze through the middle.
+save('stage.png', 1080, 1920, (ctx) => {
+  ctx.fillStyle = '#0b0b1a';
+  ctx.fillRect(0, 0, 1080, 1920);
+  const beams = ['#ff3ea5', '#3ec5ff', '#ffe03e'];
+  beams.forEach((color, i) => {
+    const x = 200 + i * 340;
+    const g = ctx.createLinearGradient(x, 0, x, 1400);
+    g.addColorStop(0, color);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x - 30, 0);
+    ctx.lineTo(x + 30, 0);
+    ctx.lineTo(x + 260, 1400);
+    ctx.lineTo(x - 260, 1400);
+    ctx.fill();
+  });
+  const haze = ctx.createLinearGradient(0, 700, 0, 1200);
+  haze.addColorStop(0, 'rgba(255,255,255,0)');
+  haze.addColorStop(0.5, 'rgba(230,230,255,0.75)');
+  haze.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = haze;
+  ctx.fillRect(0, 700, 1080, 500);
+  ctx.fillStyle = '#05050d';
+  ctx.fillRect(0, 1500, 1080, 420);
+});
+
+// A product "screenshot" for the SaaS banner, 16:10.
+save('dashboard.png', 800, 500, (ctx) => {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 800, 500);
+  ctx.fillStyle = '#1e1b4b';
+  ctx.fillRect(0, 0, 160, 500);
+  ctx.fillStyle = '#e0e7ff';
+  for (let i = 0; i < 3; i++) ctx.fillRect(190 + i * 200, 30, 180, 90);
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(200, 420);
+  [360, 300, 340, 220, 260, 170].forEach((y, i) => ctx.lineTo(260 + i * 95, y));
+  ctx.stroke();
+});
+
+// A top-down bowl of food on a warm table, square.
+save('food.png', 1000, 1000, (ctx) => {
+  ctx.fillStyle = '#c2703d';
+  ctx.fillRect(0, 0, 1000, 1000);
+  ctx.fillStyle = '#d9894f';
+  for (let i = 0; i < 10; i++) ctx.fillRect(0, i * 100, 1000, 40);
+  circle(ctx, 500, 500, 380, '#f5f0e6');
+  circle(ctx, 500, 500, 300, '#f2c14e');
+  circle(ctx, 420, 430, 80, '#3f7d20');
+  circle(ctx, 590, 470, 70, '#d64933');
+  circle(ctx, 500, 600, 90, '#fff8dc');
+});
