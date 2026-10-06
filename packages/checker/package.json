@@ -1,0 +1,52 @@
+{
+  "name": "@simonlunay/redline",
+  "version": "0.1.0",
+  "description": "ESLint for designs: score posters, social posts and ads against real design rules and get machine-readable fixes.",
+  "license": "MIT",
+  "author": "Simon Lunay",
+  "type": "module",
+  "keywords": [
+    "design",
+    "lint",
+    "accessibility",
+    "contrast",
+    "wcag",
+    "layout",
+    "ai"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "redline": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "fonts",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "fixture-images": "tsx scripts/make-fixture-images.ts",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.10",
+    "picocolors": "^1.1.1",
+    "zod": "^4.6.5"
+  }
+}
