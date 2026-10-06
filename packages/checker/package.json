@@ -4,6 +4,15 @@
   "description": "ESLint for designs: score posters, social posts and ads against real design rules and get machine-readable fixes.",
   "license": "MIT",
   "author": "Simon Lunay",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonlunay/redline.git",
+    "directory": "packages/checker"
+  },
+  "homepage": "https://github.com/simonlunay/redline#readme",
+  "bugs": {
+    "url": "https://github.com/simonlunay/redline/issues"
+  },
   "type": "module",
   "keywords": [
     "design",
@@ -35,6 +44,9 @@
     "LICENSE"
   ],
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
