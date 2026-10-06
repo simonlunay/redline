@@ -57,7 +57,7 @@ export interface Rule<O extends object = object> {
   id: string;
   description: string;
   defaultSeverity: Severity;
-  /** Relative importance in the overall score. */
+  /** How much each issue of this rule costs: an error removes 8% x weight of the score. */
   weight: number;
   defaultOptions: O;
   check(ctx: RuleContext, options: O): RuleIssue[];
@@ -80,7 +80,7 @@ export interface RuleScore {
 }
 
 export interface Report {
-  /** 0-100, weighted mean of the enabled rules' scores. */
+  /** 0-100, the product of the enabled rules' scores (see scoring.ts). */
   score: number;
   /** False when at least one error was found. Drives the CLI exit code. */
   passed: boolean;

@@ -39,7 +39,7 @@ export const textContrast = defineRule({
   description:
     'WCAG 2.x contrast between text and what is actually behind it (canvas, shapes and image pixels, composited in z-order). 4.5:1 for normal text, 3:1 for large text.',
   defaultSeverity: 'error',
-  weight: 4,
+  weight: 3,
   defaultOptions: {
     normalRatio: 4.5,
     largeRatio: 3,

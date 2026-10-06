@@ -45,4 +45,4 @@ export { heuristicMeasurer, layoutText, wrapText } from './text-measure.js';
 export type { FontSpec, TextLayout, TextMeasurer } from './text-measure.js';
 export { contrastRatio, parseHex, relativeLuminance, toHex } from './color.js';
 export type { RGB, RGBA } from './color.js';
-export { SEVERITY_PENALTY } from './scoring.js';
+export { SEVERITY_POINTS, overallScore, ruleScore } from './scoring.js';

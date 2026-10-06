@@ -34,6 +34,7 @@ export function check(input: unknown, options: CheckOptions = {}): Report {
 
   const issues: Issue[] = [];
   const rules: RuleScore[] = [];
+  const exactScores: number[] = [];
   for (const { rule, options: ruleOptions, weight, severityOverride } of resolved) {
     const ruleIssues: Issue[] = rule.check(ctx, ruleOptions).map((raw) => ({
       ruleId: rule.id,
@@ -41,9 +42,14 @@ export function check(input: unknown, options: CheckOptions = {}): Report {
       severity: severityOverride ?? raw.severity ?? rule.defaultSeverity,
     }));
     issues.push(...ruleIssues);
+    const score = ruleScore(
+      ruleIssues.map((i) => i.severity),
+      weight,
+    );
+    exactScores.push(score);
     rules.push({
       ruleId: rule.id,
-      score: ruleScore(ruleIssues),
+      score: Math.round(score),
       weight,
       issues: ruleIssues.length,
     });
@@ -59,7 +65,7 @@ export function check(input: unknown, options: CheckOptions = {}): Report {
   };
 
   return {
-    score: overallScore(rules),
+    score: overallScore(exactScores),
     passed: summary.errors === 0,
     summary,
     rules,

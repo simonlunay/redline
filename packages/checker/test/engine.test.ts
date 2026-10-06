@@ -37,10 +37,11 @@ describe('check engine', () => {
   it('scores rules, weights the overall score and sorts errors first', () => {
     const report = check(design, { rules });
     expect(report.rules).toEqual([
-      { ruleId: 'every-text', score: 80, weight: 1, issues: 2 },
-      { ruleId: 'always-error', score: 70, weight: 3, issues: 1 },
+      { ruleId: 'every-text', score: 94, weight: 1, issues: 2 },
+      { ruleId: 'always-error', score: 76, weight: 3, issues: 1 },
     ]);
-    expect(report.score).toBe(Math.round((80 * 1 + 70 * 3) / 4));
+    // Two warnings at weight 1 (x0.97 each) times one error at weight 3 (x0.76).
+    expect(report.score).toBe(Math.round(100 * 0.97 * 0.97 * 0.76));
     expect(report.issues[0]!.severity).toBe('error');
     expect(report.passed).toBe(false);
     expect(report.summary).toEqual({ errors: 1, warnings: 2, infos: 0 });
@@ -56,7 +57,7 @@ describe('check engine', () => {
         },
       },
     });
-    expect(report.rules).toEqual([{ ruleId: 'every-text', score: 98, weight: 2, issues: 1 }]);
+    expect(report.rules).toEqual([{ ruleId: 'every-text', score: 99, weight: 2, issues: 1 }]);
     expect(report.issues[0]!.severity).toBe('info');
     expect(report.passed).toBe(true);
   });
