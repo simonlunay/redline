@@ -39,7 +39,7 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "fixture-images": "tsx scripts/make-fixture-images.ts",
-    "prepack": "npm run build"
+    "prepack": "npm run build && node -e \"for (const f of ['README.md','LICENSE']) require('fs').copyFileSync('../../' + f, f)\""
   },
   "engines": {
     "node": ">=20"
