@@ -1,0 +1,3354 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-07T00:01:45.172Z",
+  "git": {
+    "commit": "4f31275dd196b0cb1459bce6933027c00e527dee",
+    "dirty": false
+  },
+  "node": "v24.19.0",
+  "settings": {
+    "target": 90,
+    "maxIterations": 4,
+    "effort": "medium",
+    "runs": 1,
+    "vision": true,
+    "models": ["claude-sonnet-5-5", "claude-opus-5-5"],
+    "llmSkipped": null
+  },
+  "durationMs": 102696,
+  "summary": {
+    "before": {
+      "meanScore": 55.1,
+      "totalErrors": 46,
+      "reachedGoal": 2
+    },
+    "rulesOnce": {
+      "meanScore": 72.9,
+      "totalErrors": 21,
+      "reachedGoal": 7
+    },
+    "rulesLoop": {
+      "meanScore": 80,
+      "totalErrors": 14,
+      "reachedGoal": 9
+    },
+    "claude-sonnet-5-5": {
+      "meanScore": 99.1,
+      "totalErrors": 0,
+      "reachedGoal": 14,
+      "costUsd": 0.2024
+    },
+    "claude-opus-5-5": {
+      "meanScore": 99.4,
+      "totalErrors": 0,
+      "reachedGoal": 14,
+      "costUsd": 0.4346
+    }
+  },
+  "fixtures": [
+    {
+      "fixture": "ad-sneaker-sale",
+      "before": {
+        "score": 11,
+        "errors": 7,
+        "warnings": 7,
+        "reachedGoal": false,
+        "failingRules": [
+          "alignment",
+          "image-aspect-ratio",
+          "min-text-size",
+          "off-canvas",
+          "safe-margins",
+          "text-contrast",
+          "text-overflow",
+          "unintended-overlap"
+        ]
+      },
+      "rulesOnce": {
+        "score": 28,
+        "errors": 4,
+        "warnings": 5,
+        "reachedGoal": false,
+        "failingRules": [
+          "alignment",
+          "image-aspect-ratio",
+          "min-text-size",
+          "off-canvas",
+          "safe-margins",
+          "text-contrast",
+          "text-overflow",
+          "unintended-overlap"
+        ]
+      },
+      "rulesLoop": {
+        "score": 35,
+        "errors": 4,
+        "warnings": 2,
+        "reachedGoal": false,
+        "failingRules": ["min-text-size", "safe-margins", "text-contrast", "unintended-overlap"],
+        "iterations": 4,
+        "calls": 4,
+        "stopReason": "no-improvement",
+        "rolledBack": 2,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 83,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 11,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 28,
+            "edits": 8
+          },
+          {
+            "iteration": 2,
+            "status": "accepted",
+            "score": 35,
+            "edits": 6
+          },
+          {
+            "iteration": 3,
+            "status": "rolled-back",
+            "score": 26,
+            "edits": 3,
+            "note": "Score dropped from 35 to 26, so the attempt was rolled back. It introduced: [unintended-overlap] text \"badge-label\" overlaps product \"product\" (text overlaps an image, 18% of the smaller element).; [alignment] text \"badge-label\" right edge is 6px off the right edge of \"legal\"; this looks accidental."
+          },
+          {
+            "iteration": 4,
+            "status": "rolled-back",
+            "score": 26,
+            "edits": 3,
+            "note": "Score dropped from 35 to 26, so the attempt was rolled back. It introduced: [unintended-overlap] text \"badge-label\" overlaps product \"product\" (text overlaps an image, 18% of the smaller element).; [alignment] text \"badge-label\" right edge is 6px off the right edge of \"legal\"; this looks accidental."
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 2.41:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] subheading \"subheading\" has a contrast of 1.19:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] text \"legal\" has a contrast of 1:1 against what is behind it; normal text needs 4.5:1."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[unintended-overlap] product \"product\" overlaps subheading \"subheading\" (text overlaps an image, 60% of the smaller element)."
+          },
+          {
+            "iteration": 1,
+            "op": "setFontSize",
+            "reason": "[text-overflow] text \"badge-label\" has a word that is 10.7px wider than its 130px box."
+          },
+          {
+            "iteration": 1,
+            "op": "resize",
+            "reason": "[text-overflow] cta \"cta-label\" needs 81.6px (2 lines at 34px x 1.2) but its box is 44px tall."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[off-canvas] shape \"badge\" is 25% outside the canvas and will be cut off."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[safe-margins] logo \"logo\" is 36px from the left and top edge; keep at least 54px (5% of the shorter side)."
+          },
+          {
+            "iteration": 2,
+            "op": "setColor",
+            "reason": "[text-contrast] cta \"cta-label\" has a contrast of 1.29:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 2,
+            "op": "setColor",
+            "reason": "[text-contrast] text \"legal\" has a contrast of 2.66:1 against what is behind it; normal text needs 4.5:1."
+          },
+          {
+            "iteration": 2,
+            "op": "move",
+            "reason": "[off-canvas] text \"badge-label\" is 12% outside the canvas and will be cut off."
+          },
+          {
+            "iteration": 2,
+            "op": "resize",
+            "reason": "[image-aspect-ratio] product \"product\" is stretched vertically by 2.56% (box 1.46:1 vs image 1.5:1)."
+          },
+          {
+            "iteration": 2,
+            "op": "setFontSize",
+            "reason": "[text-overflow] headline \"headline\" needs 124.8px (1 line at 104px x 1.2) but its box is 120px tall."
+          },
+          {
+            "iteration": 2,
+            "op": "move",
+            "reason": "[alignment] subheading \"subheading\" left edge is 6px off the left edge of \"headline\"; this looks accidental."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 97,
+            "errors": 0,
+            "warnings": 1,
+            "reachedGoal": true,
+            "failingRules": ["safe-margins"],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "target-reached",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 4275,
+              "outputTokens": 1625,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.02573,
+            "durationMs": 14420,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 11,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 97,
+                "edits": 17
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "scrim for headline/subheading contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "safe margin"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit text"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "align with headline"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "restore aspect ratio"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "clear subheading"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "bring on canvas"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "fit"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit word"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "center on badge"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "fit on one line"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit on one line"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "center in button"
+              },
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "contrast scrim"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "min size"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "safe margin"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 4275,
+              "outputTokens": 1943,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.05689,
+            "durationMs": 23113,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 11,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 15
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Safe margins and align with left edge x=80."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Headline text overflow."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Align with headline left edge."
+              },
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "Scrim for headline and subheading contrast."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fix aspect ratio and make room."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Clear subheading overlap."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Bring badge on-canvas, clear of product."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Center label in moved badge."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fix word overflow."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Room for single-line CTA label."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit CTA label on one line."
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Min text size."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Safe bottom margin, align with CTA."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit larger font."
+              },
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "Contrast backing for legal text."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "banner-saas",
+      "before": {
+        "score": 27,
+        "errors": 5,
+        "warnings": 4,
+        "reachedGoal": false,
+        "failingRules": [
+          "alignment",
+          "hierarchy",
+          "image-aspect-ratio",
+          "min-text-size",
+          "safe-margins",
+          "text-contrast",
+          "text-overflow"
+        ]
+      },
+      "rulesOnce": {
+        "score": 88,
+        "errors": 0,
+        "warnings": 3,
+        "reachedGoal": false,
+        "failingRules": ["alignment", "min-text-size", "safe-margins"]
+      },
+      "rulesLoop": {
+        "score": 97,
+        "errors": 0,
+        "warnings": 1,
+        "reachedGoal": true,
+        "failingRules": ["safe-margins"],
+        "iterations": 2,
+        "calls": 2,
+        "stopReason": "target-reached",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 51,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 27,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 88,
+            "edits": 5
+          },
+          {
+            "iteration": 2,
+            "status": "accepted",
+            "score": 97,
+            "edits": 2
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 2.27:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] text \"legal\" has a contrast of 2.27:1 against what is behind it; normal text needs 4.5:1."
+          },
+          {
+            "iteration": 1,
+            "op": "resize",
+            "reason": "[image-aspect-ratio] product \"screenshot\" is stretched vertically by 26.14% (box 1.18:1 vs image 1.6:1)."
+          },
+          {
+            "iteration": 1,
+            "op": "setFontSize",
+            "reason": "[hierarchy] subheading \"subheading\" (52px/800) is more prominent than the headline \"headline\" (48px/700)."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[safe-margins] logo \"logo\" is 12px from the left and top edge; keep at least 31.4px (5% of the shorter side)."
+          },
+          {
+            "iteration": 2,
+            "op": "setFontSize",
+            "reason": "[min-text-size] text \"legal\" is 11px, below the 12.6px minimum for a 1200x628 canvas."
+          },
+          {
+            "iteration": 2,
+            "op": "move",
+            "reason": "[alignment] subheading \"subheading\" left edge is 2px off the left edge of \"cta-button\"; this looks accidental."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 2,
+            "calls": 2,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 5937,
+              "outputTokens": 1231,
+              "cacheReadTokens": 9300,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.026044,
+            "durationMs": 12859,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 27,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 76,
+                "edits": 14
+              },
+              {
+                "iteration": 2,
+                "status": "accepted",
+                "score": 100,
+                "edits": 1
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "align left edge at 64"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "headline more prominent"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontWeight",
+                "reason": "hierarchy"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "differentiate"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "align at 64 and sit under headline"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit one line"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "align at 64"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "safe margin"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "natural aspect"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "center vertically"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "min size"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "safe margin"
+              },
+              {
+                "iteration": 2,
+                "op": "setColor",
+                "reason": "Raise contrast above 4.5:1 on the light background"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 97,
+            "errors": 0,
+            "warnings": 1,
+            "reachedGoal": true,
+            "failingRules": ["alignment"],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "target-reached",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3394,
+              "outputTokens": 1211,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.038726,
+            "durationMs": 16947,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 27,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 97,
+                "edits": 15
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Headline contrast too low"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Align to x=64 left edge, tighten spacing"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Subheading must not outrank headline"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontWeight",
+                "reason": "Reduce subheading prominence"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Differentiate subheading from headline"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Box fits one line at 30px"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Align to x=64 left edge"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Align to x=64 and place under subheading"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Ensure body contrast above 4.5:1"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Restore natural 1.6:1 aspect"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Vertically center screenshot"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Safe margin and left alignment"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Meet min text size"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Legal contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Safe bottom margin and align to x=64"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "clean-poster",
+      "before": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": []
+      },
+      "rulesOnce": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": []
+      },
+      "rulesLoop": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": [],
+        "iterations": 0,
+        "calls": 0,
+        "stopReason": "no-issues",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 8,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 100,
+            "edits": 0
+          }
+        ],
+        "edits": []
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 0,
+            "calls": 0,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0,
+            "durationMs": 9,
+            "modelsSeen": [],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 100,
+                "edits": 0
+              }
+            ],
+            "edits": []
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 0,
+            "calls": 0,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0,
+            "durationMs": 10,
+            "modelsSeen": [],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 100,
+                "edits": 0
+              }
+            ],
+            "edits": []
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "competing-headline",
+      "before": {
+        "score": 84,
+        "errors": 1,
+        "warnings": 0,
+        "reachedGoal": false,
+        "failingRules": ["hierarchy"]
+      },
+      "rulesOnce": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": []
+      },
+      "rulesLoop": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": [],
+        "iterations": 1,
+        "calls": 1,
+        "stopReason": "no-issues",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 16,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 84,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 100,
+            "edits": 1
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setFontSize",
+            "reason": "[hierarchy] subheading \"subheading\" (80px/800) is more prominent than the headline \"headline\" (72px/700)."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 2995,
+              "outputTokens": 531,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.01223,
+            "durationMs": 5367,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 84,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 7
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "headline most prominent"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontWeight",
+                "reason": "stronger headline"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit larger text"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "reduce below headline"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontWeight",
+                "reason": "lighter secondary"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit text"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "avoid overlap with headline"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 2995,
+              "outputTokens": 429,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 4650
+            },
+            "costUsd": 0.04381,
+            "durationMs": 5273,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 84,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 3
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Make headline the most prominent text; still fits its 110px box."
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Subheading was louder than headline (hierarchy error)."
+              },
+              {
+                "iteration": 1,
+                "op": "setFontWeight",
+                "reason": "Lighter weight further subordinates the subheading."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "low-contrast-on-image",
+      "before": {
+        "score": 58,
+        "errors": 2,
+        "warnings": 0,
+        "reachedGoal": false,
+        "failingRules": ["text-contrast"]
+      },
+      "rulesOnce": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": []
+      },
+      "rulesLoop": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": [],
+        "iterations": 1,
+        "calls": 1,
+        "stopReason": "no-issues",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 15,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 58,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 100,
+            "edits": 2
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 1.16:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] subheading \"subheading\" has a contrast of 1.03:1 against what is behind it; large text needs 3:1."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 2232,
+              "outputTokens": 379,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.009184,
+            "durationMs": 4471,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 58,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 1
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "Backing scrim to raise text contrast"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 2232,
+              "outputTokens": 344,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.016738,
+            "durationMs": 4478,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 58,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 2
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "White headline on pale sky fails contrast; navy matches the CTA and passes easily."
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Near-white subheading is invisible on pale sky; dark slate passes contrast."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "misaligned",
+      "before": {
+        "score": 94,
+        "errors": 0,
+        "warnings": 2,
+        "reachedGoal": true,
+        "failingRules": ["alignment"]
+      },
+      "rulesOnce": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": []
+      },
+      "rulesLoop": {
+        "score": 94,
+        "errors": 0,
+        "warnings": 2,
+        "reachedGoal": true,
+        "failingRules": ["alignment"],
+        "iterations": 0,
+        "calls": 0,
+        "stopReason": "target-reached",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 12,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 94,
+            "edits": 0
+          }
+        ],
+        "edits": []
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 94,
+            "errors": 0,
+            "warnings": 2,
+            "reachedGoal": true,
+            "failingRules": ["alignment"],
+            "iterations": 0,
+            "calls": 0,
+            "stopReason": "target-reached",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0,
+            "durationMs": 11,
+            "modelsSeen": [],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 94,
+                "edits": 0
+              }
+            ],
+            "edits": []
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 94,
+            "errors": 0,
+            "warnings": 2,
+            "reachedGoal": true,
+            "failingRules": ["alignment"],
+            "iterations": 0,
+            "calls": 0,
+            "stopReason": "target-reached",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0,
+            "durationMs": 9,
+            "modelsSeen": [],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 94,
+                "edits": 0
+              }
+            ],
+            "edits": []
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "off-canvas",
+      "before": {
+        "score": 79,
+        "errors": 1,
+        "warnings": 1,
+        "reachedGoal": false,
+        "failingRules": ["off-canvas"]
+      },
+      "rulesOnce": {
+        "score": 97,
+        "errors": 0,
+        "warnings": 1,
+        "reachedGoal": true,
+        "failingRules": ["safe-margins"]
+      },
+      "rulesLoop": {
+        "score": 97,
+        "errors": 0,
+        "warnings": 1,
+        "reachedGoal": true,
+        "failingRules": ["safe-margins"],
+        "iterations": 1,
+        "calls": 1,
+        "stopReason": "target-reached",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 34,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 79,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 97,
+            "edits": 2
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[off-canvas] shape \"sale-badge\" is completely outside the canvas and will not be visible."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[off-canvas] logo \"logo\" is 33% outside the canvas and will be cut off."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3237,
+              "outputTokens": 481,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.012214,
+            "durationMs": 5731,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 79,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 2
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "bring logo fully on canvas"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "bring badge onto canvas without overlapping text/product"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3237,
+              "outputTokens": 486,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.023598,
+            "durationMs": 6320,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 79,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 2
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Center the logo on the canvas axis so it is fully visible and aligned with the centered layout."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Bring the badge fully on-canvas with a ~54px right margin, clear of the product and text."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "overlap-headline-product",
+      "before": {
+        "score": 58,
+        "errors": 2,
+        "warnings": 0,
+        "reachedGoal": false,
+        "failingRules": ["text-contrast", "unintended-overlap"]
+      },
+      "rulesOnce": {
+        "score": 76,
+        "errors": 1,
+        "warnings": 0,
+        "reachedGoal": false,
+        "failingRules": ["unintended-overlap"]
+      },
+      "rulesLoop": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": [],
+        "iterations": 2,
+        "calls": 2,
+        "stopReason": "no-issues",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 46,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 58,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 76,
+            "edits": 1
+          },
+          {
+            "iteration": 2,
+            "status": "accepted",
+            "score": 100,
+            "edits": 1
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 1.23:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 2,
+            "op": "move",
+            "reason": "[unintended-overlap] headline \"headline\" overlaps product \"product\" (text overlaps an image, 32% of the smaller element)."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3102,
+              "outputTokens": 306,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.010194,
+            "durationMs": 4218,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 58,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 1
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Clear the product image to fix the overlap and the contrast against the light image."
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3102,
+              "outputTokens": 320,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.019738,
+            "durationMs": 4327,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 58,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 1
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Fixes the overlap with the product and the low contrast by placing the headline on the dark background above the subheading."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "promo-food",
+      "before": {
+        "score": 11,
+        "errors": 8,
+        "warnings": 3,
+        "reachedGoal": false,
+        "failingRules": [
+          "image-aspect-ratio",
+          "min-text-size",
+          "safe-margins",
+          "text-contrast",
+          "text-overflow",
+          "unintended-overlap"
+        ]
+      },
+      "rulesOnce": {
+        "score": 27,
+        "errors": 5,
+        "warnings": 1,
+        "reachedGoal": false,
+        "failingRules": ["min-text-size", "safe-margins", "unintended-overlap"]
+      },
+      "rulesLoop": {
+        "score": 27,
+        "errors": 5,
+        "warnings": 1,
+        "reachedGoal": false,
+        "failingRules": ["min-text-size", "safe-margins", "unintended-overlap"],
+        "iterations": 3,
+        "calls": 3,
+        "stopReason": "no-improvement",
+        "rolledBack": 2,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 59,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 11,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 27,
+            "edits": 7
+          },
+          {
+            "iteration": 2,
+            "status": "rolled-back",
+            "score": 19,
+            "edits": 5,
+            "note": "Score dropped from 27 to 19, so the attempt was rolled back. It introduced: [text-contrast] cta \"cta-label\" has a contrast of 1.06:1 against what is behind it; large text needs 3:1.; [unintended-overlap] text \"price\" overlaps body \"body\" (text overlaps text, 77% of the smaller element).; [unintended-overlap] subheading \"chef\" overlaps body \"body\" (text overlaps text, 97% of the smaller element).; [unintended-overlap] cta \"cta-button\" overlaps body \"body\" (text partly overlaps a shape, 85% of the smaller element).; [unintended-overlap] cta \"cta-label\" overlaps text \"legal\" (text overlaps text, 54% of the smaller element)."
+          },
+          {
+            "iteration": 3,
+            "status": "rolled-back",
+            "score": 19,
+            "edits": 5,
+            "note": "Score dropped from 27 to 19, so the attempt was rolled back. It introduced: [text-contrast] cta \"cta-label\" has a contrast of 1.06:1 against what is behind it; large text needs 3:1.; [unintended-overlap] text \"price\" overlaps body \"body\" (text overlaps text, 77% of the smaller element).; [unintended-overlap] subheading \"chef\" overlaps body \"body\" (text overlaps text, 97% of the smaller element).; [unintended-overlap] cta \"cta-button\" overlaps body \"body\" (text partly overlaps a shape, 85% of the smaller element).; [unintended-overlap] cta \"cta-label\" overlaps text \"legal\" (text overlaps text, 54% of the smaller element)."
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] text \"price\" has a contrast of 2.21:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] subheading \"chef\" has a contrast of 1.14:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] text \"legal\" has a contrast of 1.59:1 against what is behind it; normal text needs 4.5:1."
+          },
+          {
+            "iteration": 1,
+            "op": "resize",
+            "reason": "[image-aspect-ratio] product \"dish\" is stretched horizontally by 18.42% (box 1.18:1 vs image 1:1)."
+          },
+          {
+            "iteration": 1,
+            "op": "setFontSize",
+            "reason": "[text-overflow] cta \"cta-label\" needs 81.6px (2 lines at 34px x 1.2) but its box is 44px tall."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[unintended-overlap] body \"body\" overlaps headline \"headline\" (text overlaps text, 10% of the smaller element)."
+          },
+          {
+            "iteration": 1,
+            "op": "setFontSize",
+            "reason": "[text-overflow] headline \"headline\" needs 132px (1 line at 110px x 1.2) but its box is 120px tall."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3950,
+              "outputTokens": 1515,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.02398,
+            "durationMs": 14124,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 11,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 16
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "room"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit 132px line"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "separate from headline"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "move off photo"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast on cream"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "move off photo"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast on cream"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "reposition"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "restore 1:1"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "up"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "up"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "fit one line"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "min size"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit text"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "safe margin"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3950,
+              "outputTokens": 1952,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.05577,
+            "durationMs": 23061,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 11,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 18
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Make room and keep top margin."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fix headline overflow."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Sit below headline without overlap."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit two lines tightly."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Move price off the dish image."
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Contrast on cream background."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Move chef label off the dish, aligned with dish left edge."
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Contrast on cream background."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Center the square dish."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Restore 1:1 aspect ratio."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Center wider button."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit label on one line."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Center label in button."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fix label overflow."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Safe bottom margin and centering."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit larger text."
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Minimum text size."
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Contrast on cream background."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "story-concert",
+      "before": {
+        "score": 22,
+        "errors": 5,
+        "warnings": 4,
+        "reachedGoal": false,
+        "failingRules": [
+          "hierarchy",
+          "off-canvas",
+          "safe-margins",
+          "text-contrast",
+          "text-overflow"
+        ]
+      },
+      "rulesOnce": {
+        "score": 40,
+        "errors": 3,
+        "warnings": 4,
+        "reachedGoal": false,
+        "failingRules": ["hierarchy", "safe-margins", "text-contrast", "text-overflow"]
+      },
+      "rulesLoop": {
+        "score": 67,
+        "errors": 1,
+        "warnings": 2,
+        "reachedGoal": false,
+        "failingRules": ["safe-margins", "text-contrast", "text-overflow"],
+        "iterations": 4,
+        "calls": 4,
+        "stopReason": "max-iterations",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 190,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 22,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 40,
+            "edits": 5
+          },
+          {
+            "iteration": 2,
+            "status": "accepted",
+            "score": 54,
+            "edits": 4
+          },
+          {
+            "iteration": 3,
+            "status": "accepted",
+            "score": 67,
+            "edits": 4
+          },
+          {
+            "iteration": 4,
+            "status": "accepted",
+            "score": 67,
+            "edits": 1
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 1.63:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] subheading \"artist\" has a contrast of 2.08:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "resize",
+            "reason": "[text-overflow] body \"lineup\" needs 129.6px (3 lines at 36px x 1.2) but its box is 90px tall."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[off-canvas] subheading \"date\" is 50% outside the canvas and will be cut off."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[off-canvas] logo \"logo\" is 15% outside the canvas and will be cut off."
+          },
+          {
+            "iteration": 2,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 1.63:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 2,
+            "op": "setFontSize",
+            "reason": "[hierarchy] subheading \"artist\" (132px/900) is more prominent than the headline \"headline\" (120px/900)."
+          },
+          {
+            "iteration": 2,
+            "op": "move",
+            "reason": "[safe-margins] subheading \"date\" is 0px from the bottom edge; keep at least 54px (5% of the shorter side)."
+          },
+          {
+            "iteration": 2,
+            "op": "move",
+            "reason": "[safe-margins] logo \"logo\" is 0px from the right edge; keep at least 54px (5% of the shorter side)."
+          },
+          {
+            "iteration": 3,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 1.63:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 3,
+            "op": "move",
+            "reason": "[unintended-overlap] cta \"cta-button\" overlaps subheading \"date\" (text partly overlaps a shape, 4% of the smaller element)."
+          },
+          {
+            "iteration": 3,
+            "op": "setFontSize",
+            "reason": "[text-overflow] subheading \"artist\" needs 199.2px (2 lines at 83px x 1.2) but its box is 180px tall."
+          },
+          {
+            "iteration": 3,
+            "op": "move",
+            "reason": "[alignment] logo \"logo\" right edge is 6px off the right edge of \"artist\"; this looks accidental."
+          },
+          {
+            "iteration": 4,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 1.63:1 against what is behind it; large text needs 3:1."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 4251,
+              "outputTokens": 1541,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.024842,
+            "durationMs": 13103,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 22,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 14
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "top margin"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit line"
+              },
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "headline must dominate"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit 2 lines"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "position"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit 3 lines"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "spacing"
+              },
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "onto canvas"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "make room for date"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "follow button"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "onto canvas"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "avoid wrap"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 4251,
+              "outputTokens": 1440,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.046734,
+            "durationMs": 17659,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 22,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 13
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Safe top margin."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fix overflow."
+              },
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "Contrast against bright spotlights."
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Headline must be most prominent."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Room for two lines."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit two lines at 96px."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Spacing below artist."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit three lines."
+              },
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "Contrast against bright haze."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Make room for date."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Keep label on button."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Bring date fully on canvas within margins."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Bring logo on canvas, centered."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "stretched-image",
+      "before": {
+        "score": 84,
+        "errors": 1,
+        "warnings": 0,
+        "reachedGoal": false,
+        "failingRules": ["image-aspect-ratio"]
+      },
+      "rulesOnce": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": []
+      },
+      "rulesLoop": {
+        "score": 100,
+        "errors": 0,
+        "warnings": 0,
+        "reachedGoal": true,
+        "failingRules": [],
+        "iterations": 1,
+        "calls": 1,
+        "stopReason": "no-issues",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 15,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 84,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 100,
+            "edits": 1
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "resize",
+            "reason": "[image-aspect-ratio] product \"product\" is stretched horizontally by 16.67% (box 1.75:1 vs image 1.5:1)."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3017,
+              "outputTokens": 290,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.009864,
+            "durationMs": 3416,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 84,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 2
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Match natural 3:2 aspect ratio"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Recenter on glow ellipse"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3017,
+              "outputTokens": 291,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.018818,
+            "durationMs": 13573,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 84,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 2
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Match the image's natural 3:2 ratio so it isn't stretched."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Keep the image centered on the canvas axis after narrowing it."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "text-overflow",
+      "before": {
+        "score": 58,
+        "errors": 2,
+        "warnings": 0,
+        "reachedGoal": false,
+        "failingRules": ["text-overflow"]
+      },
+      "rulesOnce": {
+        "score": 53,
+        "errors": 2,
+        "warnings": 1,
+        "reachedGoal": false,
+        "failingRules": ["text-contrast", "unintended-overlap"]
+      },
+      "rulesLoop": {
+        "score": 58,
+        "errors": 2,
+        "warnings": 0,
+        "reachedGoal": false,
+        "failingRules": ["text-overflow"],
+        "iterations": 2,
+        "calls": 2,
+        "stopReason": "no-improvement",
+        "rolledBack": 2,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 60,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 58,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "rolled-back",
+            "score": 53,
+            "edits": 2,
+            "note": "Score dropped from 58 to 53, so the attempt was rolled back. It introduced: [text-contrast] cta \"cta-label\" has a contrast of 1.01:1 against what is behind it; large text needs 3:1.; [unintended-overlap] cta \"cta-label\" overlaps cta \"cta-button\" (text partly overlaps a shape, 84% of the smaller element).; [unintended-overlap] cta \"cta-button\" overlaps body \"body\" (text partly overlaps a shape, 9% of the smaller element)."
+          },
+          {
+            "iteration": 2,
+            "status": "rolled-back",
+            "score": 53,
+            "edits": 2,
+            "note": "Score dropped from 58 to 53, so the attempt was rolled back. It introduced: [text-contrast] cta \"cta-label\" has a contrast of 1.01:1 against what is behind it; large text needs 3:1.; [unintended-overlap] cta \"cta-label\" overlaps cta \"cta-button\" (text partly overlaps a shape, 84% of the smaller element).; [unintended-overlap] cta \"cta-button\" overlaps body \"body\" (text partly overlaps a shape, 9% of the smaller element)."
+          }
+        ],
+        "edits": []
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3129,
+              "outputTokens": 570,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.012888,
+            "durationMs": 5719,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 58,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 6
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "center wider box"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit 2 lines"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "widen centered"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit label"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "align with button"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "one line"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3129,
+              "outputTokens": 797,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.029386,
+            "durationMs": 8764,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 58,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 6
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Make room for the taller body box above the CTA."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit 3 wrapped lines (fixes text-overflow)."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Recentre the widened button and clear the body text."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Wider button so the label fits on one line."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Keep the label centred on the button."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Wider label box so the text fits on one line (fixes text-overflow)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "tiny-text",
+      "before": {
+        "score": 79,
+        "errors": 1,
+        "warnings": 1,
+        "reachedGoal": false,
+        "failingRules": ["min-text-size"]
+      },
+      "rulesOnce": {
+        "score": 91,
+        "errors": 0,
+        "warnings": 1,
+        "reachedGoal": true,
+        "failingRules": ["text-overflow"]
+      },
+      "rulesLoop": {
+        "score": 91,
+        "errors": 0,
+        "warnings": 1,
+        "reachedGoal": true,
+        "failingRules": ["text-overflow"],
+        "iterations": 1,
+        "calls": 1,
+        "stopReason": "target-reached",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 20,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 79,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 91,
+            "edits": 2
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setFontSize",
+            "reason": "[min-text-size] body \"legal\" is 12px, below the 21.6px minimum for a 1080x1350 canvas."
+          },
+          {
+            "iteration": 1,
+            "op": "setFontSize",
+            "reason": "[min-text-size] body \"body\" is 17px, below the 21.6px minimum for a 1080x1350 canvas."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3301,
+              "outputTokens": 383,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.011362,
+            "durationMs": 4381,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 79,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 3
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "meet min text size"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "meet min text size"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit larger text"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 3301,
+              "outputTokens": 528,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.024694,
+            "durationMs": 5535,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 79,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 4
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Legal text is below the minimum readable size."
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Make the box tall enough for 22px text so it doesn't overflow."
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Keep a comfortable bottom margin and a clear gap below the CTA."
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Body text is below the minimum readable size."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "worst",
+      "before": {
+        "score": 6,
+        "errors": 11,
+        "warnings": 3,
+        "reachedGoal": false,
+        "failingRules": [
+          "alignment",
+          "hierarchy",
+          "image-aspect-ratio",
+          "min-text-size",
+          "off-canvas",
+          "safe-margins",
+          "text-contrast",
+          "text-overflow",
+          "unintended-overlap"
+        ]
+      },
+      "rulesOnce": {
+        "score": 21,
+        "errors": 6,
+        "warnings": 3,
+        "reachedGoal": false,
+        "failingRules": [
+          "alignment",
+          "hierarchy",
+          "min-text-size",
+          "safe-margins",
+          "text-contrast",
+          "text-overflow",
+          "unintended-overlap"
+        ]
+      },
+      "rulesLoop": {
+        "score": 54,
+        "errors": 2,
+        "warnings": 2,
+        "reachedGoal": false,
+        "failingRules": ["alignment", "safe-margins", "text-contrast", "unintended-overlap"],
+        "iterations": 4,
+        "calls": 4,
+        "stopReason": "max-iterations",
+        "rolledBack": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheWriteTokens": 0
+        },
+        "costUsd": null,
+        "durationMs": 124,
+        "modelsSeen": [],
+        "steps": [
+          {
+            "iteration": 0,
+            "status": "initial",
+            "score": 6,
+            "edits": 0
+          },
+          {
+            "iteration": 1,
+            "status": "accepted",
+            "score": 21,
+            "edits": 7
+          },
+          {
+            "iteration": 2,
+            "status": "accepted",
+            "score": 49,
+            "edits": 5
+          },
+          {
+            "iteration": 3,
+            "status": "accepted",
+            "score": 51,
+            "edits": 3
+          },
+          {
+            "iteration": 4,
+            "status": "accepted",
+            "score": 54,
+            "edits": 2
+          }
+        ],
+        "edits": [
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 1.24:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] subheading \"subheading\" has a contrast of 1.02:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] body \"body\" has a contrast of 1.41:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] text \"legal\" has a contrast of 1.23:1 against what is behind it; normal text needs 4.5:1."
+          },
+          {
+            "iteration": 1,
+            "op": "setColor",
+            "reason": "[text-contrast] cta \"cta-label\" has a contrast of 2.26:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 1,
+            "op": "resize",
+            "reason": "[image-aspect-ratio] product \"product\" is stretched vertically by 23.08% (box 1.15:1 vs image 1.5:1)."
+          },
+          {
+            "iteration": 1,
+            "op": "move",
+            "reason": "[off-canvas] logo \"logo\" is 46% outside the canvas and will be cut off."
+          },
+          {
+            "iteration": 2,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 2.17:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 2,
+            "op": "setFontSize",
+            "reason": "[min-text-size] text \"legal\" is 11px, below the 21.6px minimum for a 1080x1080 canvas."
+          },
+          {
+            "iteration": 2,
+            "op": "setFontSize",
+            "reason": "[hierarchy] subheading \"subheading\" (72px/800) is more prominent than the headline \"headline\" (56px/700)."
+          },
+          {
+            "iteration": 2,
+            "op": "resize",
+            "reason": "[text-overflow] body \"body\" needs 86.4px (3 lines at 24px x 1.2) but its box is 40px tall."
+          },
+          {
+            "iteration": 2,
+            "op": "move",
+            "reason": "[safe-margins] logo \"logo\" is 0px from the top and right edge; keep at least 54px (5% of the shorter side)."
+          },
+          {
+            "iteration": 3,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 2.17:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 3,
+            "op": "move",
+            "reason": "[safe-margins] text \"legal\" is 10px from the left and bottom edge; keep at least 54px (5% of the shorter side)."
+          },
+          {
+            "iteration": 3,
+            "op": "move",
+            "reason": "[alignment] subheading \"subheading\" left edge is 6px off the left edge of \"headline\"; this looks accidental."
+          },
+          {
+            "iteration": 4,
+            "op": "setColor",
+            "reason": "[text-contrast] headline \"headline\" has a contrast of 2.17:1 against what is behind it; large text needs 3:1."
+          },
+          {
+            "iteration": 4,
+            "op": "resize",
+            "reason": "[text-overflow] text \"legal\" needs 26.4px (1 line at 22px x 1.2) but its box is 20px tall."
+          }
+        ]
+      },
+      "llm": {
+        "claude-sonnet-5-5": [
+          {
+            "score": 97,
+            "errors": 0,
+            "warnings": 1,
+            "reachedGoal": true,
+            "failingRules": ["safe-margins"],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "target-reached",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 4227,
+              "outputTokens": 1445,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.023834,
+            "durationMs": 12518,
+            "modelsSeen": ["claude-sonnet-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 6,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 97,
+                "edits": 18
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "bring on canvas with margin"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "headline most prominent"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "move above product"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit larger text"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast on light sky"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "below headline"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit one line"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "align left and place under headline"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "restore aspect ratio"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "place below product"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit 3 lines"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "min size"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "safe margins"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "fit text"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "contrast on orange"
+              }
+            ]
+          }
+        ],
+        "claude-opus-5-5": [
+          {
+            "score": 100,
+            "errors": 0,
+            "warnings": 0,
+            "reachedGoal": true,
+            "failingRules": [],
+            "iterations": 1,
+            "calls": 1,
+            "stopReason": "no-issues",
+            "rolledBack": 0,
+            "usage": {
+              "inputTokens": 4227,
+              "outputTokens": 2094,
+              "cacheReadTokens": 4650,
+              "cacheWriteTokens": 0
+            },
+            "costUsd": 0.059718,
+            "durationMs": 20261,
+            "modelsSeen": ["claude-opus-5-5"],
+            "steps": [
+              {
+                "iteration": 0,
+                "status": "initial",
+                "score": 6,
+                "edits": 0
+              },
+              {
+                "iteration": 1,
+                "status": "accepted",
+                "score": 100,
+                "edits": 20
+              }
+            ],
+            "edits": [
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Bring logo fully on canvas within margins"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Headline at top, clear of product"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit larger headline"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Headline most prominent"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontWeight",
+                "reason": "Headline most prominent"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Align left edge with headline, place below it"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Fix hierarchy and overflow"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontWeight",
+                "reason": "Fix hierarchy"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit single line"
+              },
+              {
+                "iteration": 1,
+                "op": "insertShape",
+                "reason": "Dark scrim for headline and subheading contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Restore natural aspect ratio"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Center product below the text block"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Place body under product"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fix body overflow"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Body contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "White CTA label contrast"
+              },
+              {
+                "iteration": 1,
+                "op": "setFontSize",
+                "reason": "Minimum text size"
+              },
+              {
+                "iteration": 1,
+                "op": "resize",
+                "reason": "Fit larger legal text"
+              },
+              {
+                "iteration": 1,
+                "op": "move",
+                "reason": "Safe margins"
+              },
+              {
+                "iteration": 1,
+                "op": "setColor",
+                "reason": "Legal contrast"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

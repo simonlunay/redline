@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs, stripVTControlCharacters } from 'node:util';
 import Anthropic from '@anthropic-ai/sdk';
 import { applyFixes } from '@simonlunay/redline';
-import type { Report } from '@simonlunay/redline';
+import type { Design, Report } from '@simonlunay/redline';
 import pc from 'picocolors';
 import { DEFAULT_EFFORT, DEFAULT_MODEL, createAnthropicEditor } from '../src/editors/anthropic.js';
 import type { Effort } from '../src/editors/anthropic.js';
@@ -91,6 +91,8 @@ interface LoopOutcome extends Outcome {
   modelsSeen: string[];
   steps: { iteration: number; status: string; score: number; edits: number; note?: string }[];
   edits: { iteration: number; op: string; reason: string }[];
+  /** The best design the loop produced, so results can be inspected/rendered without rerunning. */
+  bestDesign: Design;
   error?: string;
 }
 
@@ -129,6 +131,7 @@ function loopOutcome(result: LoopResult, model?: string): LoopOutcome {
     edits: accepted.flatMap((h) =>
       h.edits.map((e) => ({ iteration: h.iteration, op: e.op, reason: e.reason })),
     ),
+    bestDesign: result.best.design,
     ...(result.error ? { error: result.error } : {}),
   };
 }
