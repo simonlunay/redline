@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { createScriptedEditor, createSuggestedFixesEditor } from '@simonlunay/redline-agent';
 import { loadDesign } from '@simonlunay/redline/node';
 import { describe, expect, it } from 'vitest';
-import { createTemplateArtDirector } from '../src/director/template.js';
+import { createTemplateArtDirector, templatePlan } from '../src/director/template.js';
 import { createBackdropKeyRemover } from '../src/node/cutout.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
 import { generateDesign } from '../src/node/pipeline.js';
@@ -120,7 +120,7 @@ describe('generateDesign (template director, mock images, offline editor)', () =
     expect(b.result.candidates.map((c) => c.score)).toEqual(
       a.result.candidates.map((c) => c.score),
     );
-  });
+  }, 20_000); // two full runs; ~5 s on a loaded machine
 
   it('switches to the mock provider when a paid image would break the spend cap', async () => {
     const mock = createMockImageProvider({ megapixels: 0.1 });
@@ -239,5 +239,70 @@ describe('generateDesign (template director, mock images, offline editor)', () =
     });
     expect(result.loop.history[1]!.status).toBe('invalid');
     expect(editor.requests[0]!.regeneration).toBeUndefined();
+  });
+
+  it('flags invented facts with copy-grounded, and the fix loop replaces them with placeholders', async () => {
+    const invented = 'Charity 5K · Saturday, June 14 · City Park';
+    const director = {
+      name: 'inventive',
+      async plan(b: Parameters<typeof templatePlan>[0]) {
+        const plan = templatePlan(b);
+        plan.copy.subheading = invented;
+        for (const layout of plan.layouts)
+          for (const el of layout.elements)
+            if (el.kind === 'text' && el.role === 'subheading') el.content = invented;
+        return { plan, calls: 1 };
+      },
+    };
+    const editor = createScriptedEditor([
+      {
+        summary: 'Replace the invented date and venue with placeholders.',
+        edits: [
+          {
+            op: 'replaceText',
+            elementId: 'subheading',
+            find: 'Saturday, June 14',
+            replace: '[Date]',
+            reason: 'invented date',
+          },
+          {
+            op: 'replaceText',
+            elementId: 'subheading',
+            find: 'City Park',
+            replace: '[Venue]',
+            reason: 'invented venue',
+          },
+          // Not a flagged fact: refused, the rest still applies.
+          {
+            op: 'replaceText',
+            elementId: 'subheading',
+            find: 'Charity 5K',
+            replace: '[Event]',
+            reason: 'try to rewrite real copy',
+          },
+        ],
+      },
+    ]);
+    const { result } = await run(tempDir(), {
+      director,
+      editor,
+      candidates: 1,
+      layouts: 1,
+      maxIterations: 1,
+      maxRegenerations: 0,
+      target: 101,
+    });
+    const winner = result.candidates[0]!;
+    const flagged = winner.report.issues.filter((i) => i.ruleId === 'copy-grounded');
+    expect(flagged).toHaveLength(1);
+    expect(flagged[0]).toMatchObject({ severity: 'error', elementIds: ['subheading'] });
+
+    const step = result.loop.history[1]!;
+    expect(step.status).toBe('accepted');
+    expect(step.copyEdits?.map((c) => c.status)).toEqual(['applied', 'applied', 'rejected']);
+    const sub = result.final.design.elements.find((e) => e.id === 'subheading');
+    expect(sub?.type === 'text' && sub.content).toBe('Charity 5K · [Date] · [Venue]');
+    expect(result.final.report.issues.filter((i) => i.ruleId === 'copy-grounded')).toEqual([]);
+    expect(result.final.report.score).toBeGreaterThan(winner.score);
   });
 });

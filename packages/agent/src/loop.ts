@@ -4,6 +4,7 @@ import { parseEditResponse, protectedFieldViolations, toFix } from './edits.js';
 import type { EditResponse } from './edits.js';
 import type {
   AttemptFeedback,
+  CopyEditRecord,
   DesignEditor,
   DesignImage,
   EditorResponse,
@@ -12,6 +13,7 @@ import type {
   RegenerableImage,
   RegeneratedImage,
   RegenerationRecord,
+  ReplaceTextEdit,
   StopReason,
   TokenUsage,
 } from './types.js';
@@ -39,6 +41,15 @@ export interface RegenerateOptions {
   }) => Promise<RegeneratedImage>;
 }
 
+/**
+ * Generation mode: lets the editor replace parts of the (generated) copy, e.g. an invented date
+ * with a placeholder. `redline fix` never sets it, so user copy stays untouchable there.
+ */
+export interface CopyEditOptions {
+  /** Why this replacement isn't allowed, or null to allow it. Called on the current design. */
+  check: (edit: ReplaceTextEdit, design: Design) => string | null;
+}
+
 export interface LoopOptions {
   editor: DesignEditor;
   /** Checks a design. Async so slow rules (e.g. a future saliency model) fit in. */
@@ -55,6 +66,8 @@ export interface LoopOptions {
   onIteration?: (record: IterationRecord) => void;
   /** Generation mode only: allow regenerateImage edits. */
   regenerate?: RegenerateOptions;
+  /** Generation mode only: allow replaceText edits that pass this check. */
+  copy?: CopyEditOptions;
 }
 
 /** Fields every iteration record shares, known before the edits are applied. */
@@ -125,6 +138,8 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
   let regenerationsUsed = 0;
   /** Elements whose src was changed by an accepted regeneration. */
   const regeneratedIds = new Set<string>();
+  /** Text elements whose content was changed by an accepted replaceText. */
+  const rewrittenIds = new Set<string>();
 
   const initialDesign = parseDesign(input);
   const initialReport = await options.check(initialDesign);
@@ -189,8 +204,9 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
               },
             }
           : {}),
+        ...(options.copy ? { copyEdits: true } : {}),
       };
-      const parseOptions = { regenerate: Boolean(regen) };
+      const parseOptions = { regenerate: Boolean(regen), copy: Boolean(options.copy) };
       response = await options.editor.proposeEdits(request);
       stepCalls++;
       addUsage(stepUsage, response.usage);
@@ -247,16 +263,22 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
     const { iteration } = common;
     const edits = response.edits;
     const regenerations: RegenerationRecord[] = [];
+    const copyEdits: CopyEditRecord[] = [];
     const finish = (r: StepOutcome) =>
       record({
         ...common,
         ...r,
         summary: response.summary,
         ...(regenerations.length > 0 ? { regenerations } : {}),
+        ...(copyEdits.length > 0 ? { copyEdits } : {}),
         durationMs: Date.now() - stepStarted,
       });
 
-    if (edits.length === 0 && response.regenerations.length === 0) {
+    if (
+      edits.length === 0 &&
+      response.regenerations.length === 0 &&
+      response.copyEdits.length === 0
+    ) {
       const note = 'The editor proposed no edits.';
       attempts.push({ iteration, outcome: 'no-edits', message: note });
       finish({
@@ -338,11 +360,47 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
       });
     }
 
+    // Copy fixes next (generation mode): exact substring replacements the pipeline allows.
+    const stepRewritten = new Set<string>();
+    for (const c of response.copyEdits) {
+      const base = { elementId: c.elementId, find: c.find, replace: c.replace, reason: c.reason };
+      const el = working.elements.find((e) => e.id === c.elementId);
+      const problem = !options.copy
+        ? 'Text replacement is only available in generation mode.'
+        : el?.type !== 'text'
+          ? `"${c.elementId}" is not a text element.`
+          : !el.content.includes(c.find)
+            ? `"${c.find}" does not occur in the text of "${c.elementId}" (match it exactly).`
+            : options.copy.check(c, working);
+      if (problem || el?.type !== 'text') {
+        copyEdits.push({ ...base, status: 'rejected', note: problem ?? 'not a text element' });
+        continue;
+      }
+      const content = el.content.replace(c.find, () => c.replace);
+      working = {
+        ...working,
+        elements: working.elements.map((e) => (e.id === el.id ? { ...el, content } : e)),
+      };
+      stepRewritten.add(el.id);
+      copyEdits.push({ ...base, status: 'applied' });
+    }
+    const rejectedCopy = copyEdits.filter((c) => c.status === 'rejected');
+    if (rejectedCopy.length > 0) {
+      attempts.push({
+        iteration,
+        outcome: 'rejected-edits',
+        message: `${rejectedCopy.length} text replacement(s) were refused: ${rejectedCopy
+          .map((c) => `${c.elementId} "${c.find}": ${c.note}`)
+          .join('; ')}`,
+      });
+    }
+
     const applied = applyFixes(working, edits.map(toFix));
     const violations = protectedFieldViolations(
       initialDesign,
       applied.design,
       new Set([...regeneratedIds, ...stepRegenerated]),
+      new Set([...rewrittenIds, ...stepRewritten]),
     );
     const candidateReport = await options.check(applied.design);
     const step = {
@@ -367,7 +425,7 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
     }
 
     let rollback: string | null = null;
-    if (applied.applied.length === 0 && stepRegenerated.size === 0) {
+    if (applied.applied.length === 0 && stepRegenerated.size === 0 && stepRewritten.size === 0) {
       rollback = 'None of the edits could be applied.';
     } else if (violations.length > 0) {
       rollback = `Guardrail violation: ${violations.join('; ')}.`;
@@ -388,6 +446,7 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
       candidateReport.summary.errors < current.report.summary.errors;
     current = { design: applied.design, report: candidateReport };
     for (const id of stepRegenerated) regeneratedIds.add(id);
+    for (const id of stepRewritten) rewrittenIds.add(id);
     if (isBetter(candidateReport, best.report)) best = { ...current, iteration };
     finish({ ...step, status: 'accepted' });
     return improved ? 0 : stale + 1;

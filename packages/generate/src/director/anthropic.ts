@@ -9,6 +9,8 @@ import type { Effort, TokenUsage } from '@simonlunay/redline-agent';
 import { builtinRules } from '@simonlunay/redline';
 import { z } from 'zod';
 import { ToolDesignPlanSchema, parsePlan } from '../plan.js';
+import type { PlanParseResult } from '../plan.js';
+import { planFactProblems } from '../grounding.js';
 import type { SpendLedger } from '../spend.js';
 import { worstCaseLlmCallUsd } from '../spend.js';
 import type { ArtDirector, CreativeBrief, DirectorResult } from './types.js';
@@ -58,7 +60,7 @@ Each layout lists its elements in three arrays: texts, shapes and images. Every 
 # Text
 - Text is ALWAYS rendered as separate, editable text elements. Never ask an image model to draw words, letters, numbers or logos, and never put the copy in an image brief.
 - Copy: a short, punchy headline (2-6 words), an optional subheading (one line), an optional short body, and a 1-3 word CTA. Put the same strings in the copy fields and in the text elements.
-- Never invent facts the prompt doesn't give: no dates, times, places, prices, discounts, phone numbers, URLs or names. If the design needs one, leave it out or write generic copy ("This Saturday" only if the prompt says so). Invented details look finished but would ship wrong.
+- Never invent facts the prompt doesn't give: no dates, times, places, prices, discounts, numbers, phone numbers, URLs or names. If the design needs one (an event usually needs a date and a venue), use a bracketed placeholder the user will fill in, e.g. "[Date] · [Venue]", or leave it out. Invented details look finished but would ship wrong, and the checker fails them.
 - Size boxes so the text fits: a line is about fontSize x lineHeight tall, and bold text averages about 0.58 x fontSize per character. Leave a little slack.
 - Minimum font size: 2% of the canvas's shorter side for any text; headlines much larger (7-12% of the shorter side). The CTA label is clearly smaller than the headline.
 - Fonts: use only the families listed as available. Weights 400, 600, 700, 900.
@@ -190,18 +192,36 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
         userImageIds: (brief.userImages ?? []).map((u) => u.id),
         layouts: brief.layouts,
       };
+      const sources = [
+        brief.prompt,
+        ...(brief.userImages ?? []).flatMap((u) => (u.description ? [u.description] : [])),
+      ];
+      /** Invented facts are worth a retry; if they survive it, the checker flags them. */
+      const factProblems = (p: PlanParseResult) => (p.ok ? planFactProblems(p.plan, sources) : []);
       const first = await call(brief);
       let parsed = parsePlan(first.raw, ctx);
+      const invented = factProblems(parsed);
       const usage = { ...first.usage };
       let calls = 1;
       let last = first;
       let retriedAfter: string | undefined;
-      if (!parsed.ok) {
-        retriedAfter = parsed.error;
-        last = await call(brief, parsed.error);
+      if (!parsed.ok || invented.length > 0) {
+        const firstPlan = parsed;
+        retriedAfter = parsed.ok
+          ? `The copy states facts the prompt doesn't give:\n${invented.map((p) => `- ${p}`).join('\n')}`
+          : parsed.error;
+        last = await call(brief, retriedAfter);
         calls++;
         for (const key of Object.keys(usage) as (keyof TokenUsage)[]) usage[key] += last.usage[key];
         parsed = parsePlan(last.raw, ctx);
+        // A retry for facts alone must not lose a usable first plan.
+        if (!parsed.ok && firstPlan.ok) {
+          parsed = firstPlan;
+          last = first;
+        } else if (parsed.ok && firstPlan.ok && factProblems(parsed).length > invented.length) {
+          parsed = firstPlan;
+          last = first;
+        }
       }
       if (!parsed.ok)
         throw new Error(`The art director's plan was invalid twice.\n${parsed.error}`);

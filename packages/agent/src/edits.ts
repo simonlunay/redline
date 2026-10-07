@@ -1,7 +1,7 @@
 import { FixSchema } from '@simonlunay/redline';
 import type { Design } from '@simonlunay/redline';
 import { z } from 'zod';
-import type { Edit, RegenerateEdit } from './types.js';
+import type { Edit, RegenerateEdit, ReplaceTextEdit } from './types.js';
 
 /** Hard cap per response, so one runaway answer can't rewrite the whole design. */
 export const MAX_EDITS_PER_RESPONSE = 25;
@@ -42,28 +42,54 @@ export const RegenerateImageEditSchema = z.object({
     .describe('One short sentence: which issue this fixes and why layout edits would not'),
 });
 
-/** The submit_edits input in generation mode: layout edits plus image regenerations. */
+/**
+ * Generation mode only: replace part of a generated text, e.g. an invented fact with a
+ * placeholder. Like regenerateImage it is not part of EditSchema; the loop decides which
+ * replacements are allowed (LoopOptions.copy).
+ */
+export const ReplaceTextEditSchema = z.object({
+  op: z.literal('replaceText'),
+  elementId: z.string().describe('Id of the text element'),
+  find: z.string().min(1).describe('The exact substring of its content to replace'),
+  replace: z
+    .string()
+    .describe('The replacement: a bracketed placeholder such as "[Date]", or "" to remove it'),
+  reason: z.string().describe('One short sentence: which issue this fixes'),
+});
+
+/** The submit_edits input in generation mode: layout edits, image regenerations, copy fixes. */
 export const GenerationEditResponseSchema = z.object({
   summary: z.string().describe('One or two sentences: the plan for this iteration'),
   edits: z
-    .array(z.discriminatedUnion('op', [...EditSchema.options, RegenerateImageEditSchema]))
+    .array(
+      z.discriminatedUnion('op', [
+        ...EditSchema.options,
+        RegenerateImageEditSchema,
+        ReplaceTextEditSchema,
+      ]),
+    )
     .describe(
       `Edits to apply in order (at most ${MAX_EDITS_PER_RESPONSE}). Regenerations run first. Empty if done.`,
     ),
 });
 
-export type EditResponse = { summary: string; edits: Edit[]; regenerations: RegenerateEdit[] };
+export type EditResponse = {
+  summary: string;
+  edits: Edit[];
+  regenerations: RegenerateEdit[];
+  copyEdits: ReplaceTextEdit[];
+};
 
 export type ParseResult = { ok: true; value: EditResponse } | { ok: false; error: string };
 
 /**
  * Validates raw editor output. Error text is written to be fed back to the LLM on retry.
- * `regenerate: true` (generation mode) also accepts regenerateImage ops; otherwise they fail
- * validation like any unknown op.
+ * Generation mode: `regenerate: true` also accepts regenerateImage ops and `copy: true`
+ * replaceText ops; otherwise they fail validation like any unknown op.
  */
 export function parseEditResponse(
   raw: unknown,
-  options: { regenerate?: boolean } = {},
+  options: { regenerate?: boolean; copy?: boolean } = {},
 ): ParseResult {
   if (raw === undefined) {
     return {
@@ -71,7 +97,21 @@ export function parseEditResponse(
       error: 'No submit_edits tool call was made. Call submit_edits exactly once.',
     };
   }
-  const schema = options.regenerate ? GenerationEditResponseSchema : EditResponseSchema;
+  const schema =
+    options.regenerate && options.copy
+      ? GenerationEditResponseSchema
+      : options.regenerate || options.copy
+        ? EditResponseSchema.extend({
+            edits: z
+              .array(
+                z.discriminatedUnion('op', [
+                  ...EditSchema.options,
+                  options.regenerate ? RegenerateImageEditSchema : ReplaceTextEditSchema,
+                ]),
+              )
+              .describe(GenerationEditResponseSchema.shape.edits.description ?? ''),
+          })
+        : EditResponseSchema;
   const result = schema.safeParse(raw);
   if (!result.success) {
     const details = result.error.issues
@@ -80,20 +120,26 @@ export function parseEditResponse(
       .join('\n');
     return { ok: false, error: `The response did not match the submit_edits schema:\n${details}` };
   }
-  const data = result.data as { summary: string; edits: (Edit | RegenerateEdit)[] };
+  const data = result.data as {
+    summary: string;
+    edits: (Edit | RegenerateEdit | ReplaceTextEdit)[];
+  };
   if (data.edits.length > MAX_EDITS_PER_RESPONSE) {
     return {
       ok: false,
       error: `Too many edits (${data.edits.length}); send at most ${MAX_EDITS_PER_RESPONSE}, most important first.`,
     };
   }
-  const isRegen = (e: Edit | RegenerateEdit): e is RegenerateEdit => e.op === 'regenerateImage';
+  type Any = Edit | RegenerateEdit | ReplaceTextEdit;
+  const isRegen = (e: Any): e is RegenerateEdit => e.op === 'regenerateImage';
+  const isCopy = (e: Any): e is ReplaceTextEdit => e.op === 'replaceText';
   return {
     ok: true,
     value: {
       summary: data.summary,
-      edits: data.edits.filter((e): e is Edit => !isRegen(e)),
+      edits: data.edits.filter((e): e is Edit => !isRegen(e) && !isCopy(e)),
       regenerations: data.edits.filter(isRegen),
+      copyEdits: data.edits.filter(isCopy),
     },
   };
 }
@@ -117,6 +163,8 @@ export function protectedFieldViolations(
   candidate: Design,
   /** Image elements whose `src` may differ (regenerated in generation mode). */
   allowSrcChange: ReadonlySet<string> = new Set(),
+  /** Text elements whose `content` may differ (replaceText in generation mode). */
+  allowContentChange: ReadonlySet<string> = new Set(),
 ): string[] {
   const violations: string[] = [];
   const after = new Map(candidate.elements.map((el) => [el.id, el]));
@@ -128,6 +176,7 @@ export function protectedFieldViolations(
     }
     for (const field of PROTECTED) {
       if (field === 'src' && allowSrcChange.has(el.id)) continue;
+      if (field === 'content' && allowContentChange.has(el.id)) continue;
       const a = (el as Record<string, unknown>)[field];
       const b = (next as Record<string, unknown>)[field];
       if (a !== b) violations.push(`"${el.id}".${field} changed`);

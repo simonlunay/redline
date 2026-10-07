@@ -15,6 +15,7 @@ import type { SlotImage } from '../assemble.js';
 import type { BackgroundRemover } from '../cutout.js';
 import { BUNDLED_FONTS } from '../director/types.js';
 import type { ArtDirector, DirectorResult, UserImageInfo } from '../director/types.js';
+import { checkFactReplacement, createCopyGroundedRule } from '../grounding.js';
 import { buildImagePrompt } from '../image-prompt.js';
 import type { DesignPlan, ImageSlot } from '../plan.js';
 import type { GeneratedImage, ImageProvider, ImageRequest } from '../providers/types.js';
@@ -188,6 +189,13 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const workspace =
     options.workspace ??
     (await createWorkspace(designDir, { attention: options.attention ?? true }));
+  // What the copy may state: the prompt and the descriptions of supplied images.
+  const sources = [
+    options.prompt,
+    ...(options.userImages ?? []).flatMap((u) => (u.description ? [u.description] : [])),
+  ];
+  const copyGrounded = createCopyGroundedRule(sources);
+  const check = (design: Design) => workspace.check(design, [copyGrounded]);
   const baseSeed =
     options.seed ?? seedFrom(`${options.prompt}|${options.canvas.width}x${options.canvas.height}`);
 
@@ -393,7 +401,7 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       `${layoutPlan.name} · candidate ${index + 1}`,
       measurer,
     );
-    const report = await workspace.check(design);
+    const report = await check(design);
     const shares = roleShares(report);
     const file = join(candidatesDir, `candidate-${index + 1}.json`);
     // Candidate files live one folder down, so their image paths get a ../ prefix.
@@ -476,12 +484,20 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   });
   const loop = await runFixLoop(winner.design, {
     editor,
-    check: workspace.check,
+    check,
     target: options.target ?? 95,
     maxIterations: options.maxIterations ?? 4,
     renderImages: options.vision === false ? undefined : workspace.renderImages,
     onIteration: (record) => emit({ type: 'iteration', record }),
     ...(maxRegenerations > 0 ? { regenerate: regenerateOptions() } : {}),
+    copy: {
+      check: (edit, design) => {
+        const el = design.elements.find((e) => e.id === edit.elementId);
+        return el?.type === 'text'
+          ? checkFactReplacement(el.content, edit.find, edit.replace, sources)
+          : `"${edit.elementId}" is not a text element.`;
+      },
+    },
   });
   if (loop.error) warn(`Fix loop stopped early: ${loop.error}`);
 

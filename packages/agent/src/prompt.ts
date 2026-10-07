@@ -37,7 +37,7 @@ All coordinates are canvas pixels, origin top-left. Every edit needs a short "re
 # Hard rules
 - You cannot and must not change text content, font family or image sources. Only layout and styling.${
     options.generation
-      ? ' Exception (generation mode): images listed as regenerable can be replaced with regenerateImage.'
+      ? ' Exceptions (generation mode): images listed as regenerable can be replaced with regenerateImage, and facts flagged by copy-grounded can be replaced with placeholders with replaceText.'
       : ''
   }
 - Use only element ids that exist in the design (or ids created by your insertShape edits, which are reported back).
@@ -73,6 +73,11 @@ This design was generated: its background and subject images were made by an ima
 When to use it: only when the problem comes from the image content itself and a layout edit would be clearly worse. Typical cases: text contrast fails because the photo is busy or bright exactly where the text must sit, or attention-competition flags a background region (a face, a bright sun, a high-contrast detail) that steals attention from the headline or CTA. Prefer layout edits (a translucent scrim, moving text to a calm area, a backing panel) when they solve it cleanly; they are free and predictable.
 How to write the brief: keep the subject, style and mood of the current brief, and change only what causes the problem, stated concretely and spatially, e.g. "... keep the top-left third plain, dark and low in detail for the headline; move the bright sun to the lower right". Never ask for text, letters or logos in the image.
 Limits: regenerations are capped per run (the remaining count is in the request) and cost money even if the result is rolled back, so use at most one per response, and only when it is likely to help. A new image is random: it can fix the problem or create a new one, and the score decides.
+
+# Generation mode: invented facts
+The copy was written by an AI art director, which sometimes invents specifics the user never gave (a date, a venue, a price, a website). The copy-grounded rule flags them as errors, because they would ship wrong. Fix each one with:
+- replaceText {elementId, find, replace, reason}: replaces the exact substring \`find\` of that text's content. \`replace\` must be a bracketed placeholder for the user to fill in ("[Date]", "[Time]", "[Venue]", "[Price]", "[Website]", "[Name]", "[Phone]") or "" to drop it. \`find\` may include the separator next to the fact (" · City Park") so nothing dangles. Only flagged facts can be replaced; any other change to the copy is refused.
+Prefer a placeholder when the design clearly needs that detail (an event without a date), and removal when it was decoration. After replacing, check that the text still fits its box.
 
 `;
 

@@ -1,5 +1,5 @@
 import { attentionRules, builtinRules, checkAsync } from '@simonlunay/redline';
-import type { Design, RedlineConfig, Report, SaliencyModel } from '@simonlunay/redline';
+import type { AnyRule, Design, RedlineConfig, Report, SaliencyModel } from '@simonlunay/redline';
 import {
   createFontMeasurer,
   createImageSampler,
@@ -27,7 +27,8 @@ export interface Workspace {
   saliency?: SaliencyModel;
   /** Loads any image of the design that isn't loaded yet. */
   ensure(design: Design): Promise<void>;
-  check(design: Design): Promise<Report>;
+  /** Checks with the built-in (and attention) rules plus any extra ones, e.g. copy-grounded. */
+  check(design: Design, extraRules?: AnyRule[]): Promise<Report>;
   renderImages(design: Design, report: Report): Promise<DesignImage[]>;
   renderAnnotated(design: Design, report: Report, scale?: number): Promise<Buffer>;
   renderHeatmap?(design: Design): Promise<Buffer>;
@@ -76,11 +77,11 @@ export async function createWorkspace(
     attention,
     ...(saliency ? { saliency } : {}),
     ensure,
-    async check(design) {
+    async check(design, extraRules = []) {
       await ensure(design);
       return checkAsync(design, {
         config: options.config,
-        rules: attention ? [...builtinRules, ...attentionRules] : builtinRules,
+        rules: [...builtinRules, ...(attention ? attentionRules : []), ...extraRules],
         measurer,
         sampler,
         render,

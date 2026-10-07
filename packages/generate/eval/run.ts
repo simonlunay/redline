@@ -134,7 +134,7 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
       remover,
       editor: offline
         ? createSuggestedFixesEditor()
-        : createAnthropicEditor({ model, effort, generation: maxRegenerations > 0 }),
+        : createAnthropicEditor({ model, effort, generation: true }),
       ...(offline ? {} : { editorModel: model }),
       candidates,
       target,

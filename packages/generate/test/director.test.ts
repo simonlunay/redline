@@ -12,6 +12,15 @@ import { brief } from './helpers.js';
 
 type CreateParams = Anthropic.MessageCreateParamsNonStreaming;
 
+/** A template plan whose subheading (copy and text elements) says `text`. */
+function withSubheading(plan: ReturnType<typeof templatePlan>, text: string) {
+  plan.copy.subheading = text;
+  for (const layout of plan.layouts)
+    for (const el of layout.elements)
+      if (el.kind === 'text' && el.role === 'subheading') el.content = text;
+  return plan;
+}
+
 /** Fake Anthropic client: returns queued JSON plans as text and records every request. */
 function fakeClient(inputs: unknown[]) {
   const requests: CreateParams[] = [];
@@ -78,6 +87,24 @@ describe('Claude art director', () => {
     expect(result.calls).toBe(2);
     expect(result.retriedAfter).toMatch(/contains the copy "charity 5k"/);
     expect(JSON.stringify(requests[1]!.messages)).toContain('Your previous plan was invalid');
+  });
+
+  it('retries once when the copy invents facts, and keeps a usable first plan if the retry is worse', async () => {
+    const invented = withSubheading(templatePlan(brief()), 'Saturday, June 14 · City Park');
+    const fixed = withSubheading(templatePlan(brief()), '[Date] · [Venue]');
+    const retry = fakeClient([invented, fixed]);
+    const result = await createAnthropicArtDirector({ client: retry.client }).plan(brief());
+    expect(result.calls).toBe(2);
+    expect(result.retriedAfter).toMatch(
+      /facts the prompt doesn't give[\s\S]*"City Park" \(place\)/,
+    );
+    expect(result.plan.copy.subheading).toBe('[Date] · [Venue]');
+
+    // The retry is broken: the first plan is still usable, and the checker will flag its facts.
+    const broken = fakeClient([invented, undefined]);
+    const kept = await createAnthropicArtDirector({ client: broken.client }).plan(brief());
+    expect(kept.calls).toBe(2);
+    expect(kept.plan.copy.subheading).toBe('Saturday, June 14 · City Park');
   });
 
   it('fails after two invalid plans, and treats an empty or broken response as invalid', async () => {

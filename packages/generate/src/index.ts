@@ -71,3 +71,14 @@ export {
   designPlanSchema,
 } from './director/anthropic.js';
 export type { AnthropicDirectorOptions } from './director/anthropic.js';
+export {
+  checkFactReplacement,
+  createCopyGroundedRule,
+  describeFacts,
+  extractFacts,
+  findUngroundedFacts,
+  isGrounded,
+  placeholderFor,
+  planFactProblems,
+} from './grounding.js';
+export type { Fact, FactKind } from './grounding.js';

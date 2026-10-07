@@ -11,6 +11,28 @@ export interface RegenerateEdit {
   reason: string;
 }
 
+/**
+ * Generation mode only: replace part of a text's content, e.g. an invented date with a
+ * placeholder. Which replacements are allowed is decided by LoopOptions.copy.
+ */
+export interface ReplaceTextEdit {
+  op: 'replaceText';
+  elementId: string;
+  find: string;
+  replace: string;
+  reason: string;
+}
+
+/** One replaceText attempt, recorded in history. */
+export interface CopyEditRecord {
+  elementId: string;
+  find: string;
+  replace: string;
+  reason: string;
+  status: 'applied' | 'rejected';
+  note?: string;
+}
+
 /** An image the editor may regenerate (generation mode), with the brief it was made from. */
 export interface RegenerableImage {
   elementId: string;
@@ -73,6 +95,8 @@ export interface EditRequest {
   images?: DesignImage[];
   /** Generation mode: images the editor may regenerate, and how many regenerations are left. */
   regeneration?: { images: RegenerableImage[]; remaining: number; max: number };
+  /** Generation mode: replaceText is available (for the copy problems the checker reports). */
+  copyEdits?: boolean;
 }
 
 export interface EditorResponse {
@@ -113,6 +137,8 @@ export interface IterationRecord {
   insertedIds: string[];
   /** Generation mode: image regenerations requested in this step (they cost money even if rolled back). */
   regenerations?: RegenerationRecord[];
+  /** Generation mode: text replacements requested in this step. */
+  copyEdits?: CopyEditRecord[];
   /** Why a step was rolled back or invalid. */
   note?: string;
   usage?: TokenUsage;

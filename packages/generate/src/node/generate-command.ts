@@ -280,7 +280,7 @@ export async function runGenerateCommand(
         throw new GenerateUsageError(
           'ANTHROPIC_API_KEY is not set (needed by --editor anthropic).',
         );
-      editor = createAnthropicEditor({ model, effort, generation: maxRegenerations > 0 });
+      editor = createAnthropicEditor({ model, effort, generation: true });
       editorModel = model;
     } else throw new GenerateUsageError(`Unknown --editor "${editorName}"`);
   }
