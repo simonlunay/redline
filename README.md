@@ -53,14 +53,17 @@ Node 20+. Rendering uses [`@napi-rs/canvas`](https://github.com/Brooooooklyn/can
 redline check <design.json> [options]
 redline fix <design.json> [options]    # AI fix loop, see below
 redline rules                          # list rules, defaults and weights
+redline setup attention                # download the saliency model (50 MB, once)
 ```
 
-| Option                  | Description                                                 |
-| ----------------------- | ----------------------------------------------------------- |
-| `--format pretty\|json` | Coloured report (default) or JSON for tools and CI          |
-| `--config <path>`       | JSON config file (see [Configuration](#configuration))      |
-| `--render <out.png>`    | Render the design to PNG                                    |
-| `--annotate <out.png>`  | Render with numbered issue boxes and the score drawn on top |
+| Option                  | Description                                                                         |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| `--format pretty\|json` | Coloured report (default) or JSON for tools and CI                                  |
+| `--config <path>`       | JSON config file (see [Configuration](#configuration))                              |
+| `--render <out.png>`    | Render the design to PNG                                                            |
+| `--annotate <out.png>`  | Render with numbered issue boxes and the score drawn on top                         |
+| `--attention`           | Also run the [attention check](#attention-check) (needs `onnxruntime-node`)         |
+| `--heatmap <out.png>`   | Write a predicted-attention overlay with per-element shares (implies `--attention`) |
 
 **Exit codes:** `0` means no errors, `1` means errors were found (so it can gate CI), and `2` means invalid input or usage.
 
@@ -249,7 +252,8 @@ type Fix =
   | { op: 'resize'; elementId: string; width: number; height: number }
   | { op: 'setColor'; elementId: string; color: string }
   | { op: 'setFontSize'; elementId: string; fontSize: number }
-  | { op: 'setFontWeight'; elementId: string; fontWeight: number };
+  | { op: 'setFontWeight'; elementId: string; fontWeight: number }
+  | { op: 'setOpacity'; elementId: string; opacity: number };
 ```
 
 ```ts
@@ -259,6 +263,7 @@ type Fix =
 ```
 
 - **`setColor`** sets the text colour on text and the fill on shapes.
+- **`setOpacity`** tones an element down, e.g. a decoration that steals attention.
 - **`insertShape`** adds a `decoration` shape painted directly behind an element, with a generated id like `headline-backing`. A translucent dark scrim behind white text on a photo is usually a much better contrast fix than recolouring the text grey.
 
 Each issue has `measured` and `threshold` values (e.g. `1.24` vs `3`, unit `:1`), so an agent can tell _how far off_ the design is, not only that it failed.
@@ -338,6 +343,84 @@ This is how the planned attention/saliency rule will plug in.
 - A weighted average would let eight passing rules hide a real error: a design with a stretched image would still score 97. With a product, every failing rule pulls the total down, the score never goes negative, and issue order doesn't matter.
 - `passed` is `false` whenever there's at least one error.
 
+## Attention check
+
+The layout rules check that a design is _correct_. The attention check asks whether people will _notice_ the parts that matter. A visual saliency model predicts where viewers will look on the rendered design. Redline turns that prediction into per-element attention shares, and flags ads whose CTA, headline or product get too little of it.
+
+```bash
+npx redline setup attention                                   # once: downloads + verifies the model
+npx redline check ad.json --attention --heatmap heatmap.png   # rules + overlay
+npx redline fix ad.json --attention --render-steps steps/     # heatmap per iteration too
+```
+
+It's **one optional set of rules** (`attentionRules`), not part of the default check:
+
+- It needs a render and an ML model, so it runs only through `checkAsync()`. The browser-friendly `check()` is unchanged.
+- It needs `onnxruntime-node`, an optional peer dependency (`npm install onnxruntime-node`).
+
+### How it works
+
+1. **Render and predict.** The design is rendered and fed to MSI-Net (below), which returns a heatmap that sums to 1.
+   - Preprocessing is exactly the model card's: keep aspect ratio, zero-pad to 320×320, 240×320 or 320×240, and crop the padding back off.
+   - It takes about 0.2–0.3 s per design on a laptop CPU.
+   - Predictions are cached by a hash of the render's pixels, so the fix loop and eval never predict the same design twice.
+2. **Attribute attention to elements.** Each heatmap cell goes to the **top-most visible element** at that point, in paint order, exactly like the renderer:
+   - A button label beats its button, and a headline beats the photo behind it.
+   - Uncovered canvas and `background`-role elements count as background, which is also split into a 4×4 grid of named regions to find hot spots.
+   - Role shares sum their elements, so a CTA's button and label count together.
+3. **Predict the viewing order** by each key role's **peak** attention. This is the classic winner-take-all proxy for where the first fixation lands. A sum would just favour big elements.
+4. **Report.** `report.rules[i].elementScores` holds the share per element, and `details` holds role shares, viewing order and background share.
+
+### Rules
+
+| Rule                     | Flags                                                                                                                                                    | Fix suggestions                                                                                  |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `attention-key-elements` | CTA, headline or product (when present) below its minimum share. Error below half the minimum.                                                           | Grow the element(s) around their centre by `√(min/share)` (1.1–1.4×), and raise contrast/size    |
+| `attention-competition`  | A `decoration`, or a background region, that gets more attention than the headline or CTA (minimum 5% share). Backing panels behind content don't count. | `setOpacity` + shrink the decoration, or an `insertShape` scrim (35% black) over the busy region |
+
+Example message: _"CTA gets 1.1% of predicted attention; minimum is 5%. Make it larger, higher-contrast or more isolated (predicted viewing order: headline → product → cta)."_
+
+### Attention calibration
+
+The minimums aren't guesses. `npm run calibrate-attention -w packages/agent` runs the model over all fixtures plus the 84 LLM-fixed designs from the phase 2 eval. The 86 designs with **no layout errors** form the reference set. Each minimum is the **10th percentile** of that role's share, rounded down:
+
+| Role     | n   | min  | p10   | p20   | median | max   | **Minimum** |
+| -------- | --- | ---- | ----- | ----- | ------ | ----- | ----------- |
+| headline | 86  | 7.5% | 19.5% | 21.3% | 25.8%  | 53.0% | **19%**     |
+| CTA      | 86  | 4.6% | 5.4%  | 9.1%  | 10.1%  | 22.9% | **5%**      |
+| product  | 74  | 4.7% | 13.7% | 15.1% | 16.7%  | 23.4% | **13%**     |
+
+**Tradeoff:**
+
+- At the 10th percentile, **17 of 86** layout-clean designs get at least one attention flag.
+- At the 20th percentile (21% / 9% / 15%), **34 of 86** would.
+- The union over three roles flags more than 10% of designs, because a design fails if any one role is low.
+
+These numbers calibrate against "designs that pass the layout rules", not against human ratings. The reference set also contains several fixed versions of each fixture, so the samples aren't independent. Raw data is in `packages/agent/eval/results/attention-calibration.json`, and thresholds are configurable:
+
+```json
+{ "rules": { "attention-key-elements": { "options": { "minShare": { "cta": 0.08 } } } } }
+```
+
+### Model and license
+
+- **Model:** [MSI-Net](https://github.com/alexanderkroner/saliency) (Kroner et al., _Neural Networks_ 2020), the SALICON-trained weights from [Hugging Face](https://huggingface.co/alexanderkroner/MSI-Net) at commit `d950b35`. MIT License, © 2019 Alexander Kroner.
+- **Conversion:** converted to ONNX with float16 weights by `packages/checker/scripts/convert-msi-net.py`. The output matches TensorFlow within 0.0007 on a 0–1 scale, with correlation 1.000000.
+- **Hosting:** the 50 MB file is hosted as a [GitHub release asset](https://github.com/simonlunay/redline/releases/tag/saliency-msi-net-v1), **never in git**.
+- **Pinned and verified:** the code pins the URL, size (50,041,285 bytes) and SHA-256 (`9a6d3605…59cb0f`). The model downloads on first use to `%LOCALAPPDATA%\redline` or `~/.cache/redline` (override with `REDLINE_CACHE_DIR`, or use a local file with `REDLINE_SALIENCY_MODEL`). It's written to a temp file and only renamed into place after verification.
+- **Why MSI-Net:** I compared it with UNISAL and UMSI. UMSI is trained on graphic designs but is licensed for non-commercial research only. UNISAL is much smaller, but its weights were partly trained on movie clips and YouTube videos. MSI-Net had the cleanest license.
+- **Training-data caveats** (see [NOTICE](NOTICE); get a legal review before any commercial use):
+  - SALICON's annotation license couldn't be confirmed on its official site; secondary sources say CC BY 4.0.
+  - Its images are MS COCO / Flickr photos under mixed per-image licenses.
+  - The encoder started from ImageNet-pretrained VGG16, and ImageNet's image terms are research-only.
+
+### Limits
+
+- **It's a prediction, not eye tracking.** MSI-Net was trained on mouse-tracking "attention" over _natural photos_, not on graphic designs or real ad viewing.
+- **It's strongly drawn to text.** Large flat shapes, like a bright red burst, attract less predicted attention than a person might give them. It does respond to faces, contrast and isolation.
+- **Thin banners get squeezed.** Extreme aspect ratios (728×90, 300×1050) are letterboxed into the model's input, so they're predicted at low resolution.
+- **The thresholds come from 86 designs**, calibrated against the layout rules, not against conversion data.
+
 ## AI fix loop
 
 ```
@@ -398,6 +481,13 @@ result.best.design; // the fixed design
 result.history; // every step, replayable
 ```
 
+**With `--attention`:**
+
+- Attention issues are just more issues for the loop.
+- The model also receives the heatmap overlay as a second image.
+- The prompt explains what a share means and the good fixes: grow the CTA or give it contrast and space, fade or shrink a competing decoration (`setOpacity`), or add a scrim over a busy area.
+- `--render-steps` writes `NN-status.heatmap.png` for every iteration, so you can watch attention move. For example, on `hard-story-hero` the CTA went from 1.1% to 7.9% of predicted attention in two iterations, and the predicted viewing order changed from headline → product → CTA to headline → CTA → product.
+
 `DesignEditor` is a one-method interface (`proposeEdits(request) → { raw, usage, model }`), so other LLM providers plug in without touching the loop. Validation, guardrails and rollback all live in the loop, so every provider is treated the same. `createSuggestedFixesEditor()` is the deterministic, offline editor used in tests and as the eval's rules-only baseline.
 
 ## Evaluation
@@ -407,7 +497,17 @@ npm run eval                                              # default model
 npm run eval -- --models claude-sonnet-5-5,claude-opus-5-5 --runs 3
 npm run eval -- --no-llm                                  # baselines only, free
 npm run eval -- --fixtures worst,promo-food --effort high
+npm run eval -- --strict --models claude-sonnet-5-5,claude-opus-5-5 --runs 3
+npm run eval -- --strict --fixtures 'hard-*'
 ```
+
+**`--strict`** is the harder benchmark:
+
+- target **100** (every warning counts)
+- the **attention rules on**
+- up to **5 iterations**
+
+It adds a second table with each fixture's CTA and headline share of predicted attention, how often the CTA is predicted to be seen first or second, and how many designs fall below the attention minimums. Rollbacks per run are reported too.
 
 Every fixture is measured four ways, all with the same precise checker the CLI uses:
 
@@ -429,16 +529,96 @@ Every fixture is measured four ways, all with the same precise checker the CLI u
 - token usage and estimated cost
 - the model ids the API returned
 
-**Fixtures:** 14 in total:
+**Fixtures:** 21 in total:
 
 - a clean poster
 - one fixture per rule
 - `worst.json`
 - four messy, ad-like designs, each failing 5–8 rules at once: `ad-sneaker-sale`, `story-concert`, `banner-saas`, `promo-food`
+- seven **hard** ones (`hard-*`):
+  - a busy photo with a tiny CTA
+  - a flyer with six competing stickers
+  - a 728×90 leaderboard
+  - a 300×1050 skyscraper
+  - a story whose hero face pulls attention from the CTA
+  - two designs that **pass every layout rule but fail attention** (`hard-attention-burst`, `hard-attention-badge`)
 
-### Results
+### Results: strict mode
 
-This run was at commit `c64f2d5`, on 2026-10-07:
+This run was at commit `db2a50f`, on 2026-10-07:
+
+- `--strict`: target 100, attention on, max 5 iterations
+- effort `medium`, vision on (annotated render + heatmap)
+- **3 runs per model**, 21 fixtures
+- raw data in `packages/agent/eval/results/2026-10-07T01-25-38-380Z_strict_*.json`
+
+Cells are score / errors. For the models, the score is the mean (min–max) over 3 runs, and the errors are the mean.
+
+| Fixture                    | Before  | Rules once | Rules loop | Sonnet 5.5         | Opus 5.5         |
+| -------------------------- | ------- | ---------- | ---------- | ------------------ | ---------------- |
+| ad-sneaker-sale            | 11 / 7  | 28 / 4     | 33 / 4     | 100 / 0            | 100 / 0          |
+| banner-saas                | 23 / 5  | 78 / 0     | 78 / 0     | 84.3 (79–88) / 0.3 | 92 (88–94) / 0   |
+| clean-poster               | 100 / 0 | 100 / 0    | 100 / 0    | 100 / 0            | 100 / 0          |
+| competing-headline         | 79 / 1  | 97 / 0     | 97 / 0     | 100 / 0            | 100 / 0          |
+| hard-attention-badge       | 88 / 0  | 71 / 1     | 88 / 0     | 100 / 0            | 100 / 0          |
+| hard-attention-burst       | 94 / 0  | 94 / 0     | 100 / 0    | 100 / 0            | 100 / 0          |
+| hard-busy-photo-tiny-cta   | 70 / 1  | 70 / 1     | 70 / 1     | 98 (94–100) / 0    | 100 / 0          |
+| hard-cluttered-flyer       | 63 / 1  | 94 / 0     | 94 / 0     | 100 / 0            | 98 (94–100) / 0  |
+| hard-leaderboard           | 79 / 1  | 88 / 0     | 88 / 0     | 96 (94–100) / 0    | 100 / 0          |
+| hard-skyscraper            | 88 / 0  | 70 / 1     | 88 / 0     | 100 / 0            | 100 / 0          |
+| hard-story-hero            | 79 / 1  | 79 / 1     | 100 / 0    | 100 / 0            | 100 / 0          |
+| low-contrast-on-image      | 58 / 2  | 100 / 0    | 100 / 0    | 100 / 0            | 100 / 0          |
+| misaligned                 | 94 / 0  | 100 / 0    | 100 / 0    | 100 / 0            | 100 / 0          |
+| off-canvas                 | 79 / 1  | 97 / 0     | 100 / 0    | 100 / 0            | 100 / 0          |
+| overlap-headline-product   | 46 / 3  | 60 / 2     | 94 / 0     | 100 / 0            | 100 / 0          |
+| promo-food                 | 11 / 8  | 26 / 5     | 26 / 5     | 100 / 0            | 100 / 0          |
+| story-concert              | 16 / 6  | 32 / 4     | 56 / 2     | 96 (94–100) / 0    | 100 / 0          |
+| stretched-image            | 84 / 1  | 100 / 0    | 100 / 0    | 100 / 0            | 100 / 0          |
+| text-overflow              | 58 / 2  | 53 / 2     | 58 / 2     | 100 / 0            | 100 / 0          |
+| tiny-text                  | 79 / 1  | 91 / 0     | 100 / 0    | 100 / 0            | 100 / 0          |
+| worst                      | 5 / 11  | 20 / 6     | 47 / 3     | 100 / 0            | 100 / 0          |
+| **Mean score**             | 62.1    | 73.7       | 81.8       | **98.8**           | **99.5**         |
+| **Reached goal**           | 1/21    | 4/21       | 8/21       | **55/63 runs**     | **59/63 runs**   |
+| **Rolled-back iterations** | –       | –          | –          | 12 (0.19 per run)  | 3 (0.05 per run) |
+| **Mean iterations**        | –       | –          | –          | 1.75               | 1.37             |
+| **Cost (3 runs)**          | –       | –          | –          | $1.94 (110 calls)  | $3.62 (86 calls) |
+
+Predicted attention: share of the best design's attention, with the mean over all fixtures and runs.
+
+| Attention                                 | Before | Rules loop | Sonnet 5.5 | Opus 5.5 |
+| ----------------------------------------- | ------ | ---------- | ---------- | -------- |
+| Designs with the CTA below the 5% minimum | 4/21   | 4/21       | **0/63**   | **0/63** |
+| Designs with the headline below 19%       | 5/21   | 5/21       | 2/63       | 1/63     |
+| CTA predicted to be seen 1st or 2nd       | 17/21  | 16/21      | 51/63      | 52/63    |
+| Mean CTA share                            | 9.4%   | 8.8%       | 9.6%       | 10.6%    |
+| Mean headline share                       | 25.4%  | 26.1%      | 29.1%      | 29.1%    |
+
+Selected CTA shares (mean, with min–max over 3 runs):
+
+| Fixture                  | Before | Rules loop | Sonnet 5.5        | Opus 5.5          |
+| ------------------------ | ------ | ---------- | ----------------- | ----------------- |
+| hard-busy-photo-tiny-cta | 0.1%   | 0.1%       | 8.7% (6.6–10.4)   | 7.7% (7.1–8.4)    |
+| hard-story-hero          | 1.1%   | 5.5%       | 6.0% (5.8–6.2)    | 8.9% (6.6–11.2)   |
+| hard-skyscraper          | 2.6%   | 2.6%       | 6.9% (6.9–7.0)    | 8.5% (7.3–10.1)   |
+| hard-leaderboard         | 4.2%   | 4.2%       | 7.8% (6.4–10.1)   | 9.5% (9.3–9.7)    |
+| hard-attention-badge     | 7.6%   | 7.6%       | 15.5% (13.1–18.3) | 16.0% (15.7–16.5) |
+
+**What the numbers show:**
+
+- **The strict benchmark separates the models where the normal one couldn't.**
+  - Opus reaches the goal in 59/63 runs and Sonnet in 55/63.
+  - Sonnet needs more iterations (1.75 vs 1.37 on average).
+  - The gap shows up on the hardest designs: `banner-saas` (Sonnet 84 vs Opus 92), the busy photo, the leaderboard and `story-concert`.
+  - Opus costs about 1.9× as much ($0.057 vs $0.031 per fixed design).
+- **Rollback now fires in real runs.** Sonnet had 12 rolled-back iterations (0.19 per run) and Opus 3. After each one the next attempt was steered by the "you broke X" feedback, and those runs still converged.
+- **Rules alone can't fix attention.** Looping the checker's suggestions leaves 4/21 CTAs below the minimum and doesn't change the mean CTA share. Both LLMs bring **every CTA above the minimum in every run**: the starved CTAs go from 0.1–4% to 6–16%.
+- **Mean CTA share is the wrong headline metric.** Over-attended CTAs (e.g. `low-contrast-on-image` at 29.8%) drop to a normal share as their layout problems are fixed, while starved ones rise. "Below the minimum" is what the rule enforces, and it's what to quote.
+- **The two layout-clean but attention-failing designs** (`hard-attention-badge`, `hard-attention-burst`) score 88 and 94 before. Every run fixes them to 100, mostly by boosting the CTA and toning down the decoration.
+- **`banner-saas` is still unsolved.** At 1200×628 with a long headline, the model gives the headline about 50% of attention, and the small CTA stays near the 5% line.
+
+### Phase 2 results (normal mode)
+
+This run was at commit `c64f2d5`, on 2026-10-07, before the hard fixtures and attention existed:
 
 - effort `medium`, target 90, max 4 iterations, vision on
 - **3 runs per model**, 14 fixtures
@@ -476,7 +656,7 @@ Each cell is score / errors. For the models, the score is the mean (min–max) o
 
 **Limitations to keep in mind:**
 
-- **The benchmark is saturated.** Both models solve every fixture, so it can't separate them, and no rollback fired in any run. It shows the loop works, not how far it can be pushed. Harder fixtures, a stricter target (`--target 100`), or the attention rule will make it informative again.
+- **The benchmark was saturated.** Both models solved every fixture, so it couldn't separate them, and no rollback fired. That's why `--strict` and the hard fixtures were added (see above).
 - **The checker is also the judge.** A high score means "passes these 9 rules", not "is a good design". I spot-checked the fixed renders (`redline fix --render-steps`), and they're genuine layout repairs rather than games played against the rules. A vision- or human-rated quality check would be the next step.
 - **LLM runs vary.** Results come from the requested model only (no fallbacks), but sampling isn't deterministic. That's why the table reports min–max over 3 runs.
 
@@ -492,7 +672,10 @@ npm run redline -- check fixtures/worst.json --annotate out/worst.png
 npm run redline -- fix fixtures/worst.json --editor suggested    # offline
 npm run eval -- --no-llm
 npm run fixture-images -w packages/checker   # regenerate placeholder images
+npm run calibrate-attention -w packages/agent  # re-derive attention thresholds
 ```
+
+**Reproducing the saliency model:** `packages/checker/scripts/convert-msi-net.py` (Python 3.11, TensorFlow 2.15.1, tf2onnx 1.16.1). On Windows, use a short venv path, because TensorFlow exceeds the 260-character path limit otherwise. A real-model smoke test runs only if the model is already in the cache, so CI never downloads it.
 
 `npm run redline` runs the CLI straight from TypeScript source through a custom `@simonlunay/source` export condition, so you don't have to build first. Published builds ignore that condition.
 
@@ -517,15 +700,11 @@ ESLint's `no-restricted-imports` rule forbids `node:*`, `fs`, `path` and `@napi-
 
 1. ~~**Checker**: rules, scoring, machine-readable fixes, CLI.~~ Done.
 2. ~~**AI fix loop**: check → LLM edits → re-check with rollback, plus an eval harness.~~ Done.
-3. **Attention check**: a rule that runs a visual saliency model on the rendered PNG to predict where viewers look. It will check that key elements (CTA, headline, logo, product) get enough of that attention, and report per-element attention shares. The plumbing is in place:
-   - async rules
-   - `requires: ['render']` with a lazy `ctx.render()`
-   - `elementScores` in reports
-   - `checkAsync` in the CLI and the fix loop
+3. ~~**Attention check**: a saliency model predicts where viewers look, key elements get per-element attention shares, and the fix loop improves them. Plus a harder `--strict` benchmark.~~ Done.
 4. **Generation**: produce designs in this format from a brief, then run them through the loop.
 5. **Resizing**: adapt a design across formats (Instagram post, story, banner) and re-check every version.
 6. **Web app**: a React canvas editor (`apps/web`) that runs the checker live in the browser and replays fix-loop histories.
 
 ## License
 
-MIT © Simon Lunay. The bundled Inter font is © The Inter Project Authors, licensed under the [SIL Open Font License 1.1](packages/checker/fonts/OFL.txt).
+MIT © Simon Lunay. The bundled Inter font is © The Inter Project Authors, licensed under the [SIL Open Font License 1.1](packages/checker/fonts/OFL.txt). The MSI-Net saliency model (downloaded on demand) is MIT-licensed. See [NOTICE](NOTICE) for attributions and training-data caveats.
