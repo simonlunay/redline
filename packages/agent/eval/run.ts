@@ -181,7 +181,7 @@ async function evalFixture(file: string): Promise<FixtureRow> {
       const result = await runFixLoop(design, {
         ...loopOptions,
         editor,
-        renderImage: vision ? session.renderImage : undefined,
+        renderImages: vision ? session.renderImages : undefined,
       });
       llm[model]!.push(loopOutcome(result, model));
       const line = `  ${name} · ${model} run ${run}: ${initial.score} → ${result.best.report.score}`;

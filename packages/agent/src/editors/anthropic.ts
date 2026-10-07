@@ -101,10 +101,11 @@ export function createAnthropicEditor(options: AnthropicEditorOptions = {}): Des
     name: `anthropic:${model}`,
     async proposeEdits(request): Promise<EditorResponse> {
       const content: Anthropic.ContentBlockParam[] = [];
-      if (request.image) {
+      for (const image of request.images ?? []) {
+        content.push({ type: 'text', text: `Image: ${image.label}` });
         content.push({
           type: 'image',
-          source: { type: 'base64', media_type: 'image/png', data: toBase64(request.image) },
+          source: { type: 'base64', media_type: 'image/png', data: toBase64(image.png) },
         });
       }
       content.push({ type: 'text', text: buildUserMessage(request) });

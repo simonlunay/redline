@@ -30,7 +30,7 @@ const request: EditRequest = {
   target: 90,
   iteration: 1,
   attempts: [{ iteration: 0, outcome: 'rolled-back', message: 'Score dropped from 50 to 40.' }],
-  image: new Uint8Array([137, 80, 78, 71]),
+  images: [{ label: 'annotated render', png: new Uint8Array([137, 80, 78, 71]) }],
 };
 
 type CreateParams = Anthropic.MessageCreateParamsNonStreaming;
@@ -87,7 +87,8 @@ describe('anthropic editor', () => {
     expect(params).not.toHaveProperty('fallbacks');
     expect(params).not.toHaveProperty('betas');
     const content = params.messages[0]!.content as Anthropic.ContentBlockParam[];
-    expect(content[0]).toMatchObject({
+    expect(content[0]).toEqual({ type: 'text', text: 'Image: annotated render' });
+    expect(content[1]).toMatchObject({
       type: 'image',
       source: { media_type: 'image/png', data: 'iVBORw==' },
     });

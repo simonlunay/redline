@@ -5,6 +5,7 @@ import type { EditResponse } from './edits.js';
 import type {
   AttemptFeedback,
   DesignEditor,
+  DesignImage,
   EditorResponse,
   IterationRecord,
   LoopResult,
@@ -22,8 +23,8 @@ export interface LoopOptions {
   maxIterations?: number;
   /** Stop after this many iterations in a row without improvement. Default 2. */
   maxStaleIterations?: number;
-  /** Optional: a PNG of the current design for vision-capable editors. */
-  renderImage?: (design: Design, report: Report) => Promise<Uint8Array>;
+  /** Optional: images of the current design for vision-capable editors. */
+  renderImages?: (design: Design, report: Report) => Promise<DesignImage[]>;
   /** Called after every iteration (including the initial check), e.g. for live output. */
   onIteration?: (record: IterationRecord) => void;
 }
@@ -136,8 +137,8 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
     let stepCalls = 0;
     const stepUsage = emptyUsage();
     try {
-      const image = options.renderImage
-        ? await options.renderImage(current.design, current.report)
+      const images = options.renderImages
+        ? await options.renderImages(current.design, current.report)
         : undefined;
       const request = {
         design: current.design,
@@ -145,7 +146,7 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
         target,
         iteration,
         attempts: attempts.slice(-4),
-        image,
+        images,
       };
       response = await options.editor.proposeEdits(request);
       stepCalls++;

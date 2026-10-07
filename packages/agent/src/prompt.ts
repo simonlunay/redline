@@ -1,4 +1,4 @@
-import { builtinRules, designJsonSchema } from '@simonlunay/redline';
+import { attentionRules, builtinRules, designJsonSchema } from '@simonlunay/redline';
 import type { Design, Fix, Issue } from '@simonlunay/redline';
 import { MAX_EDITS_PER_RESPONSE } from './edits.js';
 import type { EditRequest } from './types.js';
@@ -13,6 +13,12 @@ export function buildSystemPrompt(): string {
   const rules = builtinRules
     .map((r) => `- ${r.id} (weight ${r.weight}): ${r.description}`)
     .join('\n');
+  const attention = attentionRules
+    .map(
+      (r) =>
+        `- ${r.id} (weight ${r.weight}, only when the attention check is on): ${r.description}`,
+    )
+    .join('\n');
 
   return `You are a senior graphic designer repairing a design (poster, social post or ad) so it passes an automated design checker called Redline.
 
@@ -25,6 +31,7 @@ All coordinates are canvas pixels, origin top-left. Every edit needs a short "re
 - resize {elementId, width, height}: set the box size; the top-left corner stays put. For images, keep the natural aspect ratio (naturalWidth/naturalHeight) unless fit is "cover" or "contain".
 - setColor {elementId, color}: text color for text, fill for shapes. Hex only.
 - setFontSize {elementId, fontSize} and setFontWeight {elementId, fontWeight}.
+- setOpacity {elementId, opacity}: 0-1. Useful to tone down a decoration that steals attention.
 - insertShape {behindElementId, kind, x, y, width, height, fill, opacity, cornerRadius}: adds a decoration shape painted directly behind an element. Use it as a backing panel or translucent scrim behind text that sits on a photo (e.g. fill #000000, opacity 0.45-0.65, slightly larger than the text box with ~24px padding). This usually fixes contrast on images while keeping white text, which looks far better than recoloring the text to grey.
 
 # Hard rules
@@ -41,6 +48,13 @@ All coordinates are canvas pixels, origin top-left. Every edit needs a short "re
 
 # Checker rules
 ${rules}
+${attention}
+
+# Attention issues
+When the attention check is on, a saliency model (MSI-Net) predicts where viewers will look on the rendered design, and you also get a heatmap image. An element's "share" is the fraction of all predicted attention that lands on it (the top-most element at each point gets the credit; a CTA's button and label count together). It is a model of human eye movements on photos, so it responds to size, contrast, saturation, faces and text, and to isolation (a lone element in calm space draws the eye).
+- attention-key-elements: the CTA, headline or product gets too little attention. Good fixes: make it bigger (scale the CTA button and its label together, keeping them centered), raise its contrast or saturation against its surroundings (e.g. a bright CTA button on a dark area), give it calm space around it, or move it away from busy areas. Avoid shrinking other key elements to compensate.
+- attention-competition: a decoration or a background area draws more attention than the headline or CTA. Good fixes: shrink or fade the decoration (setOpacity 0.3-0.6, smaller size, a calmer color), or put a translucent dark scrim (insertShape behind the lowest content element) over a busy background area. Moving a key element into the hot area also works.
+- Attention changes are holistic: one strong change usually works better than many small ones. Check the heatmap after each iteration's result.
 
 Scoring: each issue removes (8 for errors, 3 for warnings, 0.5 for info) x rule weight percent of its rule's score; the overall score is the product of the rule scores, so every failing rule pulls it down.
 

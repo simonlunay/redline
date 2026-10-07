@@ -14,6 +14,7 @@ export { createScriptedEditor } from './editors/scripted.js';
 export type {
   AttemptFeedback,
   DesignEditor,
+  DesignImage,
   Edit,
   EditRequest,
   EditorResponse,

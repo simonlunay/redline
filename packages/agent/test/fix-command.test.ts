@@ -2,10 +2,11 @@ import { mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseDesign } from '@simonlunay/redline';
+import { createFakeSaliencyModel, parseDesign } from '@simonlunay/redline';
 import { describe, expect, it } from 'vitest';
 import { createScriptedEditor } from '../src/editors/scripted.js';
 import { UsageError, runFixCommand } from '../src/node/fix-command.js';
+import { buildSystemPrompt } from '../src/prompt.js';
 
 const FIXTURES = fileURLToPath(new URL('../../../fixtures/', import.meta.url));
 
@@ -103,5 +104,51 @@ describe('redline fix', () => {
       runFixCommand([FIXTURES + 'worst.json', '--effort', 'extreme'], io().io),
     ).rejects.toBeInstanceOf(UsageError);
     await expect(runFixCommand([], io().io)).rejects.toThrow(/Missing design file/);
+  });
+});
+
+describe('redline fix --attention', () => {
+  // Fake saliency: everything lands in the top third, so the bottom CTA gets ~nothing.
+  const saliency = createFakeSaliencyModel((_x, y) => (y < 0.33 ? 1 : 0.001));
+
+  it('adds attention issues, sends the heatmap to the editor, and writes heatmap steps', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'redline-fix-'));
+    const editor = createScriptedEditor([{ summary: 'nothing', edits: [] }]);
+    const { out, io: testIO } = io({ editor, saliency });
+    await runFixCommand(
+      [
+        FIXTURES + 'clean-poster.json',
+        '--attention',
+        '--max-iterations',
+        '1',
+        '--out',
+        join(dir, 'o.json'),
+        '--render-steps',
+        join(dir, 'steps'),
+      ],
+      testIO,
+    );
+    expect(out.join('\n')).toContain('attention on');
+    const request = editor.requests[0]!;
+    expect(request.report.issues.map((i) => i.ruleId)).toContain('attention-key-elements');
+    expect(request.images!.map((i) => i.label)).toEqual([
+      expect.stringMatching(/annotated|issues outlined/),
+      expect.stringMatching(/predicted attention heatmap/),
+    ]);
+    expect(readdirSync(join(dir, 'steps'))).toEqual([
+      '00-initial.heatmap.png',
+      '00-initial.png',
+      '01-no-edits.heatmap.png',
+      '01-no-edits.png',
+      'final.heatmap.png',
+      'final.png',
+    ]);
+  });
+
+  it('prompt explains attention issues and the setOpacity op', () => {
+    const prompt = buildSystemPrompt();
+    expect(prompt).toContain('# Attention issues');
+    expect(prompt).toContain('attention-competition');
+    expect(prompt).toContain('setOpacity');
   });
 });

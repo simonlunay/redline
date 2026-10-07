@@ -17,6 +17,13 @@ export interface AttemptFeedback {
   message: string;
 }
 
+/** A labeled image of the current design for vision-capable editors. */
+export interface DesignImage {
+  /** Short caption telling the model what it is looking at. */
+  label: string;
+  png: Uint8Array;
+}
+
 export interface EditRequest {
   design: Design;
   report: Report;
@@ -26,8 +33,8 @@ export interface EditRequest {
   attempts: AttemptFeedback[];
   /** Set on the retry after an invalid response: what was wrong with it. */
   validationError?: string;
-  /** Optional rendered PNG of the current design (with issue annotations). */
-  image?: Uint8Array;
+  /** Optional PNGs of the current design, e.g. the annotated render and an attention heatmap. */
+  images?: DesignImage[];
 }
 
 export interface EditorResponse {

@@ -8,6 +8,7 @@ import type { Effort } from '../editors/anthropic.js';
 import { createSuggestedFixesEditor } from '../editors/suggested.js';
 import { runFixLoop } from '../loop.js';
 import { estimateCostUsd } from '../pricing.js';
+import type { SaliencyModel } from '@simonlunay/redline';
 import type { DesignEditor, LoopResult } from '../types.js';
 import { formatHeader, formatIteration, formatSummary } from './format.js';
 import { createFixSession, loadDotEnv } from './session.js';
@@ -25,8 +26,9 @@ Options
                            fixes; offline, deterministic, no API key needed)
   --model <id>             Claude model (default ${DEFAULT_MODEL})
   --effort <level>         low | medium | high | xhigh | max (default ${DEFAULT_EFFORT})
-  --no-vision              Don't send the annotated render to the model
-  --render-steps <dir>     Write an annotated PNG for every iteration
+  --attention              Also run the attention rules (saliency model; needs onnxruntime-node)
+  --no-vision              Don't send the annotated render (and heatmap) to the model
+  --render-steps <dir>     Write an annotated PNG (and a heatmap with --attention) per iteration
   --config <path>          Checker config (same as redline check)
   --format <pretty|json>   Output format (default pretty)
 
@@ -54,6 +56,8 @@ export interface FixCommandIO {
   env?: Record<string, string | undefined>;
   /** .env file to load first (default ./.env); null to skip. */
   dotenvPath?: string | null;
+  /** Tests inject a fake saliency model instead of loading MSI-Net. */
+  saliency?: SaliencyModel;
 }
 
 const defaultIO: FixCommandIO = {
@@ -74,6 +78,7 @@ export async function runFixCommand(argv: string[], io: FixCommandIO = defaultIO
       model: { type: 'string' },
       effort: { type: 'string' },
       'no-vision': { type: 'boolean' },
+      attention: { type: 'boolean' },
       'render-steps': { type: 'string' },
       config: { type: 'string' },
       format: { type: 'string' },
@@ -119,11 +124,16 @@ export async function runFixCommand(argv: string[], io: FixCommandIO = defaultIO
   const usesLlm = editor.name.startsWith('anthropic');
 
   const config = values.config ? await loadConfig(values.config) : undefined;
-  const session = await createFixSession(file, { config });
+  const session = await createFixSession(file, {
+    config,
+    attention: Boolean(values.attention),
+    saliency: io.saliency,
+  });
   const pretty = format === 'pretty';
   if (pretty) {
     const who = usesLlm ? `${model} (${effort})` : editor.name;
-    io.stdout(formatHeader(file, `target ${target} · max ${maxIterations} · ${who}`));
+    const extra = session.attention ? ' · attention on' : '';
+    io.stdout(formatHeader(file, `target ${target} · max ${maxIterations} · ${who}${extra}`));
   }
 
   const result = await runFixLoop(session.loaded.design, {
@@ -131,7 +141,8 @@ export async function runFixCommand(argv: string[], io: FixCommandIO = defaultIO
     check: session.check,
     target,
     maxIterations,
-    renderImage: usesLlm && !values['no-vision'] ? session.renderImage : undefined,
+    // Real LLMs and injected test editors get images; the offline rules editor doesn't need them.
+    renderImages: (usesLlm || io.editor) && !values['no-vision'] ? session.renderImages : undefined,
     onIteration: pretty ? (r) => io.stdout(formatIteration(r)) : undefined,
   });
 
@@ -181,11 +192,20 @@ async function renderSteps(
   await mkdir(dir, { recursive: true });
   const images = { images: session.env.images };
   for (const step of result.history) {
-    const name = `${String(step.iteration).padStart(2, '0')}-${step.status}.png`;
-    await writeFile(join(dir, name), renderAnnotatedPng(step.design, step.report, images));
+    const name = `${String(step.iteration).padStart(2, '0')}-${step.status}`;
+    await writeFile(join(dir, `${name}.png`), renderAnnotatedPng(step.design, step.report, images));
+    if (session.renderHeatmap) {
+      await writeFile(join(dir, `${name}.heatmap.png`), await session.renderHeatmap(step.design));
+    }
   }
   await writeFile(
     join(dir, 'final.png'),
     renderAnnotatedPng(result.best.design, result.best.report, images),
   );
+  if (session.renderHeatmap) {
+    await writeFile(
+      join(dir, 'final.heatmap.png'),
+      await session.renderHeatmap(result.best.design),
+    );
+  }
 }
