@@ -64,10 +64,14 @@
     "zod": "^4.6.5"
   },
   "peerDependencies": {
-    "@simonlunay/redline-agent": "^0.1.0"
+    "@simonlunay/redline-agent": "^0.1.0",
+    "onnxruntime-node": "^1.20.0"
   },
   "peerDependenciesMeta": {
     "@simonlunay/redline-agent": {
+      "optional": true
+    },
+    "onnxruntime-node": {
       "optional": true
     }
   }

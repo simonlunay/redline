@@ -1,0 +1,63 @@
+Redline
+Copyright (c) 2026 Simon Lunay. Licensed under the MIT License (see LICENSE).
+
+This project uses or distributes the following third-party works.
+
+------------------------------------------------------------------------------
+Inter font (packages/checker/fonts/)
+------------------------------------------------------------------------------
+Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
+Licensed under the SIL Open Font License 1.1 (packages/checker/fonts/OFL.txt).
+
+------------------------------------------------------------------------------
+MSI-Net saliency model (used by the attention check; downloaded on first use,
+not stored in this repository)
+------------------------------------------------------------------------------
+File:    msi-net-salicon-d950b35.onnx  (50,041,285 bytes)
+SHA-256: 9a6d3605dff7846ecc8e180031787d8152d5269773db869aa11c21eb0b59cb0f
+Hosted:  https://github.com/simonlunay/redline/releases/tag/saliency-msi-net-v1
+
+Source:  "Contextual encoder-decoder network for visual saliency prediction",
+         Kroner, Senden, Driessens, Goebel, Neural Networks 129 (2020) 261-270.
+         Weights: https://huggingface.co/alexanderkroner/MSI-Net
+         at commit d950b35945db961ae63f84bc2b23f6bd578d0b8f (SALICON-trained model).
+         Code:    https://github.com/alexanderkroner/saliency
+
+Modifications: converted from the TensorFlow SavedModel to ONNX (opset 17) with
+tf2onnx 1.16.1, then to float16 weights with onnxconverter-common (float32 inputs
+and outputs kept). The output matches the original within 0.0007 (on a 0-1 scale).
+Conversion script: packages/checker/scripts/convert-msi-net.py
+
+MIT License
+
+Copyright (c) 2019 Alexander Kroner
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Training-data caveats (not legal advice; get a legal review before any
+commercial use):
+- The weights were trained on SALICON (mouse-tracking "attention" annotations
+  on MS COCO images). I could not confirm the SALICON annotation license on
+  the official site (salicon.net); secondary sources describe it as CC BY 4.0.
+  The underlying COCO images come from Flickr under a mix of per-image licenses.
+- The encoder was initialized from VGG16 weights pretrained on ImageNet, whose
+  image terms of access are for non-commercial research. How such terms apply
+  to models derived from those weights is legally unsettled.
+- The model predicts attention on natural photos; it was not trained on
+  graphic designs, and its output is a prediction, not measured eye tracking.
