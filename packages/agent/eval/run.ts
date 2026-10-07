@@ -15,7 +15,7 @@ import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs, stripVTControlCharacters } from 'node:util';
 import Anthropic from '@anthropic-ai/sdk';
-import { applyFixes } from '@simonlunay/redline';
+import { DEFAULT_ATTENTION_MINIMUMS, applyFixes } from '@simonlunay/redline';
 import type { Design, Report } from '@simonlunay/redline';
 import pc from 'picocolors';
 import { DEFAULT_EFFORT, DEFAULT_MODEL, createAnthropicEditor } from '../src/editors/anthropic.js';
@@ -255,6 +255,13 @@ function summarize(outcomes: Outcome[]) {
             /** Designs where the CTA is predicted to be seen first or second. */
             ctaInTopTwo: ranked.filter((a) => a.ctaRank! <= 2).length,
             withCta: ranked.length,
+            /** Designs whose CTA / headline is below the attention-key-elements minimum. */
+            ctaBelowMinimum: withAttention.filter(
+              (a) => a.cta !== undefined && a.cta < DEFAULT_ATTENTION_MINIMUMS.cta!,
+            ).length,
+            headlineBelowMinimum: withAttention.filter(
+              (a) => a.headline !== undefined && a.headline < DEFAULT_ATTENTION_MINIMUMS.headline!,
+            ).length,
           },
         }
       : {}),
@@ -362,7 +369,7 @@ function printAttentionTable(rows: FixtureRow[]) {
   const summary = (outcomes: Outcome[]) => {
     const a = summarize(outcomes).attention;
     return a
-      ? `CTA ${a.meanCtaShare}% · H ${a.meanHeadlineShare}% ${pc.dim(`top2 ${a.ctaInTopTwo}/${a.withCta}`)}`
+      ? `CTA ${a.meanCtaShare}% · H ${a.meanHeadlineShare}% ${pc.dim(`top2 ${a.ctaInTopTwo}/${a.withCta} · low ${a.ctaBelowMinimum}/${a.headlineBelowMinimum}`)}`
       : '–';
   };
   const summaryRow = [
@@ -383,7 +390,8 @@ function printAttentionTable(rows: FixtureRow[]) {
   console.log(line(summaryRow));
   console.log(
     pc.dim(
-      '\n  CTA / H = share of predicted attention (MSI-Net) on the CTA / headline of the best design',
+      '\n  CTA / H = share of predicted attention (MSI-Net) on the CTA / headline of the best design' +
+        '\n  top2 = CTA predicted to be seen 1st or 2nd · low = designs whose CTA / headline is below the rule minimum',
     ),
   );
 }
