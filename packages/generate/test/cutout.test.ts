@@ -62,6 +62,16 @@ describe('auto remover memory guard', () => {
     expect(ok.remover?.id).toBe('fake-model');
   });
 
+  it('by default needs the ~6 GB inference peak plus a margin before running the model', async () => {
+    const at = async (free: number) => {
+      const primary = fakePrimary();
+      const remover = createAutoRemover({ primary, freeMemory: () => free });
+      return (await remover.remove(await subjectPng())).remover?.id;
+    };
+    expect(await at(7 * GB)).toBe('backdrop-key'); // what the eval machine had: not enough
+    expect(await at(8 * GB)).toBe('fake-model');
+  });
+
   it('stays on the keyer once the model has failed to load', async () => {
     const primary = fakePrimary();
     primary.remove = async () => {

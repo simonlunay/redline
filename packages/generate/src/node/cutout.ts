@@ -32,8 +32,12 @@ export const BIREFNET_SESSION_OPTIONS = {
   graphOptimizationLevel: 'all',
 } as const;
 
-/** Free memory below which the auto remover uses the backdrop keyer instead (default 2 GB). */
-const DEFAULT_MIN_FREE_BYTES = 2 * 1024 ** 3;
+/**
+ * Free memory below which the auto remover uses the backdrop keyer instead: the ~6 GB inference
+ * peak plus a margin. (A 2 GB threshold let an inference start with ~7 GB free during the eval,
+ * and the host stopped the process for low memory.)
+ */
+const DEFAULT_MIN_FREE_BYTES = 7.5 * 1024 ** 3;
 
 const SIZE = 1024;
 const MEAN = [0.485, 0.456, 0.406];

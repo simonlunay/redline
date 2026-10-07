@@ -272,7 +272,7 @@ console.error(
     `redline eval:generate: ${selected.length} prompts · ${candidates} candidates · target ${target} · max ${maxIterations} it · ${maxRegenerations} regen`,
   ) +
     pc.dim(
-      ` · ${offline ? 'offline (template + mock + suggested)' : `${model} (${effort}) + FLUX.1 schnell`} · ledger $${ledger.spentUsd().toFixed(2)} of $${ledger.capUsd}`,
+      ` · ${offline ? 'offline (template + mock + suggested)' : `${model} (${effort}) + FLUX.1 schnell`} · ledger $${ledger.spentUsd().toFixed(2)} of $${ledger.capUsd.toFixed(2)}`,
     ),
 );
 const started = Date.now();
