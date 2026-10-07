@@ -1,9 +1,26 @@
 import { pct } from '../attention/shares.js';
-import { round2 } from '../geometry.js';
+import { containsRect, rectOf, round2 } from '../geometry.js';
+import type { Design, DesignElement } from '../schema.js';
 import { defineRule } from '../types.js';
 import type { RuleIssue } from '../types.js';
 import { attentionOf } from './attention-key-elements.js';
-import { label, paintOrder } from './util.js';
+import { isBelow, label, paintOrder } from './util.js';
+
+/**
+ * A decoration that sits behind content (a headline panel, a CTA backing, a scrim added by the
+ * fix loop) is part of that content, not a competitor: attention spilling from the text onto
+ * its panel must not be counted against the panel.
+ */
+function isBacking(design: Design, decoration: DesignElement): boolean {
+  return design.elements.some(
+    (el) =>
+      el !== decoration &&
+      el.role !== 'decoration' &&
+      el.role !== 'background' &&
+      isBelow(design, decoration, el) &&
+      containsRect(rectOf(decoration), rectOf(el)),
+  );
+}
 
 export const attentionCompetition = defineRule({
   id: 'attention-competition',
@@ -33,7 +50,7 @@ export const attentionCompetition = defineRule({
 
     const issues: RuleIssue[] = [];
     for (const el of design.elements) {
-      if (el.role !== 'decoration') continue;
+      if (el.role !== 'decoration' || isBacking(design, el)) continue;
       const share = attention.elementShares[el.id] ?? 0;
       const beaten = beats(share);
       if (share < minDistractorShare || beaten.length === 0) continue;

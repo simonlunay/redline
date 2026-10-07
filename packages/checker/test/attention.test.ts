@@ -216,3 +216,27 @@ describe('attention rules', () => {
     expect(attentionScale(0.08, 0.1)).toBe(1.12);
   });
 });
+
+describe('attention-competition backing panels', () => {
+  it('does not count a panel behind a headline as a competitor', async () => {
+    const design = makeDesign([
+      shape({
+        id: 'panel',
+        role: 'decoration',
+        x: 60,
+        y: 60,
+        width: 960,
+        height: 300,
+        fill: '#111827',
+      }),
+      text({ id: 'headline', role: 'headline', x: 90, y: 90, width: 900, height: 120, zIndex: 1 }),
+      shape({ id: 'cta', role: 'cta', x: 400, y: 900, width: 280, height: 80 }),
+    ]);
+    const report = await checkAsync(design, {
+      rules: attentionRules,
+      render,
+      saliency: createFakeSaliencyModel(blob(0.5, 0.25, 0.12)), // spills off the headline onto the panel
+    });
+    expect(report.issues.filter((i) => i.elementIds.includes('panel'))).toEqual([]);
+  });
+});
