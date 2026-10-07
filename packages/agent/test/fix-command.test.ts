@@ -56,6 +56,26 @@ describe('redline fix', () => {
     expect(readdirSync(steps)).toEqual(['00-initial.png', '01-accepted.png', 'final.png']);
   });
 
+  it('centers an off-center button label offline with --editor suggested', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'redline-fix-'));
+    const outFile = join(dir, 'fixed.json');
+    const { out, io: testIO } = io();
+    const code = await runFixCommand(
+      [FIXTURES + 'off-center-label.json', '--editor', 'suggested', '--out', outFile],
+      testIO,
+    );
+    expect(code).toBe(0);
+    const text = out.join('\n');
+    expect(text).toMatch(/#0\s+start\s+84/);
+    expect(text).toMatch(/#1\s+accepted\s+100/);
+    expect(text).toContain('stop: no issues left');
+    const label = parseDesign(JSON.parse(readFileSync(outFile, 'utf8'))).elements.find(
+      (e) => e.id === 'cta-label',
+    );
+    // Button is y 1130..1220; one 32px line at lineHeight 1.2 is 38.4px, centered.
+    expect(label).toMatchObject({ y: 1155.8, height: 38.4 });
+  });
+
   it('prints the full result as JSON with --format json', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'redline-fix-'));
     const { out, io: testIO } = io();

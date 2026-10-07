@@ -33,6 +33,7 @@ export {
   attentionKeyElements,
   hierarchy,
   imageAspectRatio,
+  labelCentered,
   minTextSize,
   offCanvas,
   safeMargins,
@@ -40,6 +41,7 @@ export {
   textOverflow,
   unintendedOverlap,
 } from './rules/index.js';
+export { renderedTextBounds } from './rules/label-centered.js';
 export { backdropAt, imageUV } from './backdrop.js';
 export { defineRule } from './types.js';
 export type {

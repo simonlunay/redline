@@ -18,6 +18,7 @@ $ npx @simonlunay/redline check fixtures/worst.json
   unintended-overlap  ████████░░  76  1 issue
   text-overflow       ██████░░░░  58  2 issues
   alignment           ██████████  97  1 issue
+  label-centered      ██████████ 100  ok
 
   Errors (11)
   ✖ 1. headline "headline" has a contrast of 1.24:1 against what is behind it; large text needs 3:1. [text-contrast]
@@ -218,17 +219,18 @@ Colours are hex: `#rgb`, `#rrggbb` or `#rrggbbaa`.
 
 ## Rules
 
-| Rule                 | Checks                                                            | Default thresholds                 |
-| -------------------- | ----------------------------------------------------------------- | ---------------------------------- |
-| `text-contrast`      | WCAG 2.x contrast between text and **what is actually behind it** | 4.5:1 normal, 3:1 large            |
-| `off-canvas`         | Elements partly (warning) or fully (error) outside the canvas     | 1px tolerance                      |
-| `min-text-size`      | Text too small for the canvas                                     | 2% of short side (error < 1.4%)    |
-| `image-aspect-ratio` | Images stretched compared with their natural aspect ratio         | warn ≥ 2%, error ≥ 10%             |
-| `safe-margins`       | Logo, headline, CTA and text too close to the edges               | 5% of short side                   |
-| `hierarchy`          | Subheading, body or CTA competing with or beating the headline    | warn at 90% of headline prominence |
-| `unintended-overlap` | Text over text or images, and key elements colliding              | error at 15% overlap               |
-| `text-overflow`      | Wrapped text taller or wider than its box                         | 2px tolerance                      |
-| `alignment`          | Edges or centres that are _almost_ aligned                        | ≤ 0.8% of short side               |
+| Rule                 | Checks                                                            | Default thresholds                  |
+| -------------------- | ----------------------------------------------------------------- | ----------------------------------- |
+| `text-contrast`      | WCAG 2.x contrast between text and **what is actually behind it** | 4.5:1 normal, 3:1 large             |
+| `off-canvas`         | Elements partly (warning) or fully (error) outside the canvas     | 1px tolerance                       |
+| `min-text-size`      | Text too small for the canvas                                     | 2% of short side (error < 1.4%)     |
+| `image-aspect-ratio` | Images stretched compared with their natural aspect ratio         | warn ≥ 2%, error ≥ 10%              |
+| `safe-margins`       | Logo, headline, CTA and text too close to the edges               | 5% of short side                    |
+| `hierarchy`          | Subheading, body or CTA competing with or beating the headline    | warn at 90% of headline prominence  |
+| `unintended-overlap` | Text over text or images, and key elements colliding              | error at 15% overlap                |
+| `text-overflow`      | Wrapped text taller or wider than its box                         | 2px tolerance                       |
+| `alignment`          | Edges or centres that are _almost_ aligned                        | ≤ 0.8% of short side                |
+| `label-centered`     | Button/badge text not centred in its shape, as rendered           | 5% of the shape's short side, ≥ 3px |
 
 How each rule works, and why:
 
@@ -241,6 +243,7 @@ How each rule works, and why:
 - **unintended-overlap** treats these as intentional: backgrounds, decorations, elements with the same `groupId`, and text fully on top of a shape (button labels, badges). Fix: move the element on top by the smallest push that clears the other, with a gap. A label poking out of its button is pulled back inside instead.
 - **text-overflow** wraps text greedily with the `TextMeasurer` (the same wrapping the renderer uses). Fix: if a font size within 15% of the original fits, it suggests that. Otherwise it grows the box, because shrinking a headline by 40% to make it fit would just create a hierarchy problem.
 - **alignment** compares like edges (left with left, centre with centre, and so on) and the canvas centre lines. To avoid false positives, it ignores pairs that are already exactly aligned on another edge (two centred texts of different widths), container/content pairs (a label inside its button), and elements already anchored by an exact alignment elsewhere.
+- **label-centered** finds text that is the label of a shape: same `groupId` (a group of one shape and one text), or the only text sitting inside a shape painted below it. Panels and cards (more than 4× the text's height), full-width bands and backgrounds are skipped. It measures where the text **renders**, not its box: lines are wrapped with the `TextMeasurer`, placed by `align`, and stacked from the top of the box, which is how the renderer draws them. So a label whose box fills its button is caught sitting high, and a left-aligned label is caught sitting left. Off-centre is a warning; text touching or crossing the shape's edge is an error. Fix: shrink the box to the text block (narrowing it to the shape only if the line breaks don't change), then move it so the text is centred.
 
 **Simplification:** overlap, margins and contrast use unrotated boxes. Only off-canvas accounts for rotation, since rotation is rare in these layouts.
 
@@ -659,7 +662,7 @@ Each cell is score / errors. For the models, the score is the mean (min–max) o
 **Limitations to keep in mind:**
 
 - **The benchmark was saturated.** Both models solved every fixture, so it couldn't separate them, and no rollback fired. That's why `--strict` and the hard fixtures were added (see above).
-- **The checker is also the judge.** A high score means "passes these 9 rules", not "is a good design". I spot-checked the fixed renders (`redline fix --render-steps`), and they're genuine layout repairs rather than games played against the rules. A vision- or human-rated quality check would be the next step.
+- **The checker is also the judge.** A high score means "passes these rules", not "is a good design". I spot-checked the fixed renders (`redline fix --render-steps`), and they're genuine layout repairs rather than games played against the rules. A vision- or human-rated quality check would be the next step.
 - **LLM runs vary.** Results come from the requested model only (no fallbacks), but sampling isn't deterministic. That's why the table reports min–max over 3 runs.
 
 ## Generation

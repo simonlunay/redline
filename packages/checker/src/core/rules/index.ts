@@ -4,6 +4,7 @@ import { attentionKeyElements } from './attention-key-elements.js';
 import { alignment } from './alignment.js';
 import { hierarchy } from './hierarchy.js';
 import { imageAspectRatio } from './image-aspect-ratio.js';
+import { labelCentered } from './label-centered.js';
 import { minTextSize } from './min-text-size.js';
 import { offCanvas } from './off-canvas.js';
 import { safeMargins } from './safe-margins.js';
@@ -22,6 +23,7 @@ export const builtinRules: AnyRule[] = [
   unintendedOverlap,
   textOverflow,
   alignment,
+  labelCentered,
 ];
 
 /**
@@ -41,6 +43,7 @@ export {
   attentionKeyElements,
   hierarchy,
   imageAspectRatio,
+  labelCentered,
   minTextSize,
   offCanvas,
   safeMargins,

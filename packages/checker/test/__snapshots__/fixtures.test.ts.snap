@@ -134,6 +134,32 @@ exports[`fixtures (Node env: real fonts + image pixels) > ad-sneaker-sale.json m
     },
     {
       "elementIds": [
+        "cta-label",
+        "cta-button",
+      ],
+      "fix": [
+        {
+          "elementId": "cta-label",
+          "height": 81.6,
+          "op": "resize",
+          "width": 260,
+        },
+        {
+          "dx": 0,
+          "dy": -18.8,
+          "elementId": "cta-label",
+          "op": "move",
+        },
+      ],
+      "measured": 18.8,
+      "message": "cta "cta-label" renders 18.8px too low in cta "cta-button", touching its edge.",
+      "ruleId": "label-centered",
+      "severity": "error",
+      "threshold": 4.2,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
         "badge",
       ],
       "fix": [
@@ -322,10 +348,16 @@ exports[`fixtures (Node env: real fonts + image pixels) > ad-sneaker-sale.json m
       "score": 97,
       "weight": 1,
     },
+    {
+      "issues": 1,
+      "ruleId": "label-centered",
+      "score": 84,
+      "weight": 2,
+    },
   ],
-  "score": 11,
+  "score": 9,
   "summary": {
-    "errors": 7,
+    "errors": 8,
     "infos": 0,
     "warnings": 7,
   },
@@ -561,6 +593,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > banner-saas.json match
       "score": 97,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 27,
   "summary": {
@@ -629,6 +667,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > clean-poster.json matc
       "ruleId": "alignment",
       "score": 100,
       "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
     },
   ],
   "score": 100,
@@ -719,6 +763,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > competing-headline.jso
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 84,
   "summary": {
@@ -788,6 +838,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > hard-attention-badge.j
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 100,
   "summary": {
@@ -856,6 +912,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > hard-attention-burst.j
       "ruleId": "alignment",
       "score": 100,
       "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
     },
   ],
   "score": 100,
@@ -965,6 +1027,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > hard-busy-photo-tiny-c
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 94,
   "summary": {
@@ -1052,6 +1120,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > hard-cluttered-flyer.j
       "ruleId": "alignment",
       "score": 100,
       "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
     },
   ],
   "score": 76,
@@ -1142,6 +1216,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > hard-leaderboard.json 
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 84,
   "summary": {
@@ -1154,7 +1234,34 @@ exports[`fixtures (Node env: real fonts + image pixels) > hard-leaderboard.json 
 
 exports[`fixtures (Node env: real fonts + image pixels) > hard-skyscraper.json matches its report snapshot 1`] = `
 {
-  "issues": [],
+  "issues": [
+    {
+      "elementIds": [
+        "cta-label",
+        "cta-button",
+      ],
+      "fix": [
+        {
+          "elementId": "cta-label",
+          "height": 21.6,
+          "op": "resize",
+          "width": 232,
+        },
+        {
+          "dx": 0,
+          "dy": 4.2,
+          "elementId": "cta-label",
+          "op": "move",
+        },
+      ],
+      "measured": 4.2,
+      "message": "cta "cta-label" renders 4.2px too high in cta "cta-button".",
+      "ruleId": "label-centered",
+      "severity": "warning",
+      "threshold": 3,
+      "unit": "px",
+    },
+  ],
   "passed": true,
   "rules": [
     {
@@ -1211,12 +1318,18 @@ exports[`fixtures (Node env: real fonts + image pixels) > hard-skyscraper.json m
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 1,
+      "ruleId": "label-centered",
+      "score": 94,
+      "weight": 2,
+    },
   ],
-  "score": 100,
+  "score": 94,
   "summary": {
     "errors": 0,
     "infos": 0,
-    "warnings": 0,
+    "warnings": 1,
   },
 }
 `;
@@ -1279,6 +1392,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > hard-story-hero.json m
       "ruleId": "alignment",
       "score": 100,
       "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
     },
   ],
   "score": 100,
@@ -1385,6 +1504,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > low-contrast-on-image.
       "ruleId": "alignment",
       "score": 100,
       "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
     },
   ],
   "score": 58,
@@ -1496,6 +1621,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > misaligned.json matche
       "score": 94,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 94,
   "summary": {
@@ -1604,12 +1735,120 @@ exports[`fixtures (Node env: real fonts + image pixels) > off-canvas.json matche
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 79,
   "summary": {
     "errors": 1,
     "infos": 0,
     "warnings": 1,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > off-center-label.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "cta-label",
+        "cta-button",
+      ],
+      "fix": [
+        {
+          "elementId": "cta-label",
+          "height": 38.4,
+          "op": "resize",
+          "width": 300,
+        },
+        {
+          "dx": 0,
+          "dy": 25.8,
+          "elementId": "cta-label",
+          "op": "move",
+        },
+      ],
+      "measured": 25.8,
+      "message": "cta "cta-label" renders 25.8px too high in cta "cta-button", touching its edge.",
+      "ruleId": "label-centered",
+      "severity": "error",
+      "threshold": 4.5,
+      "unit": "px",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 1,
+      "ruleId": "label-centered",
+      "score": 84,
+      "weight": 2,
+    },
+  ],
+  "score": 84,
+  "summary": {
+    "errors": 1,
+    "infos": 0,
+    "warnings": 0,
   },
 }
 `;
@@ -1711,6 +1950,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > overlap-headline-produ
       "ruleId": "alignment",
       "score": 100,
       "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
     },
   ],
   "score": 58,
@@ -1876,6 +2121,32 @@ exports[`fixtures (Node env: real fonts + image pixels) > promo-food.json matche
     },
     {
       "elementIds": [
+        "cta-label",
+        "cta-button",
+      ],
+      "fix": [
+        {
+          "elementId": "cta-label",
+          "height": 81.6,
+          "op": "resize",
+          "width": 260,
+        },
+        {
+          "dx": 0,
+          "dy": -18.8,
+          "elementId": "cta-label",
+          "op": "move",
+        },
+      ],
+      "measured": 18.8,
+      "message": "cta "cta-label" renders 18.8px too low in cta "cta-button", touching its edge.",
+      "ruleId": "label-centered",
+      "severity": "error",
+      "threshold": 4.5,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
         "legal",
       ],
       "fix": [
@@ -1988,10 +2259,16 @@ exports[`fixtures (Node env: real fonts + image pixels) > promo-food.json matche
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 1,
+      "ruleId": "label-centered",
+      "score": 84,
+      "weight": 2,
+    },
   ],
-  "score": 11,
+  "score": 9,
   "summary": {
-    "errors": 8,
+    "errors": 9,
     "infos": 0,
     "warnings": 3,
   },
@@ -2226,6 +2503,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > story-concert.json mat
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 22,
   "summary": {
@@ -2315,6 +2598,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > stretched-image.json m
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
+    },
   ],
   "score": 84,
   "summary": {
@@ -2364,6 +2653,32 @@ exports[`fixtures (Node env: real fonts + image pixels) > text-overflow.json mat
       "ruleId": "text-overflow",
       "severity": "error",
       "threshold": 40,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "cta-label",
+        "cta-button",
+      ],
+      "fix": [
+        {
+          "elementId": "cta-label",
+          "height": 76.8,
+          "op": "resize",
+          "width": 260,
+        },
+        {
+          "dx": 0,
+          "dy": -18.4,
+          "elementId": "cta-label",
+          "op": "move",
+        },
+      ],
+      "measured": 18.4,
+      "message": "cta "cta-label" renders 18.4px too low in cta "cta-button", touching its edge.",
+      "ruleId": "label-centered",
+      "severity": "error",
+      "threshold": 4.5,
       "unit": "px",
     },
   ],
@@ -2423,10 +2738,16 @@ exports[`fixtures (Node env: real fonts + image pixels) > text-overflow.json mat
       "score": 100,
       "weight": 1,
     },
+    {
+      "issues": 1,
+      "ruleId": "label-centered",
+      "score": 84,
+      "weight": 2,
+    },
   ],
-  "score": 58,
+  "score": 49,
   "summary": {
-    "errors": 2,
+    "errors": 3,
     "infos": 0,
     "warnings": 0,
   },
@@ -2528,6 +2849,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > tiny-text.json matches
       "ruleId": "alignment",
       "score": 100,
       "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
     },
   ],
   "score": 79,
@@ -2859,6 +3186,12 @@ exports[`fixtures (Node env: real fonts + image pixels) > worst.json matches its
       "ruleId": "alignment",
       "score": 97,
       "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "label-centered",
+      "score": 100,
+      "weight": 2,
     },
   ],
   "score": 6,

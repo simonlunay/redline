@@ -24,7 +24,7 @@ export function ruleScore(severities: Severity[], weight: number): number {
 
 /**
  * Overall score: the product of the rule scores (as fractions).
- * Why not a weighted average? With 9 rules, an average lets 8 passing rules hide a real
+ * Why not a weighted average? With 10 rules, an average lets 9 passing rules hide a real
  * error (a stretched image would still score 97). With a product, every failing rule
  * pulls the total down, which is what an automated "fix until it scores well" loop needs.
  */

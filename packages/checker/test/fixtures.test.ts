@@ -13,6 +13,7 @@ const EXPECTED: Record<string, string[]> = {
   'low-contrast-on-image.json': ['text-contrast'],
   'misaligned.json': ['alignment'],
   'off-canvas.json': ['off-canvas'],
+  'off-center-label.json': ['label-centered'],
   'overlap-headline-product.json': ['unintended-overlap'],
   'stretched-image.json': ['image-aspect-ratio'],
   'text-overflow.json': ['text-overflow'],
