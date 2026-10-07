@@ -58,6 +58,7 @@ Each layout lists its elements in three arrays: texts, shapes and images. Every 
 # Text
 - Text is ALWAYS rendered as separate, editable text elements. Never ask an image model to draw words, letters, numbers or logos, and never put the copy in an image brief.
 - Copy: a short, punchy headline (2-6 words), an optional subheading (one line), an optional short body, and a 1-3 word CTA. Put the same strings in the copy fields and in the text elements.
+- Never invent facts the prompt doesn't give: no dates, times, places, prices, discounts, phone numbers, URLs or names. If the design needs one, leave it out or write generic copy ("This Saturday" only if the prompt says so). Invented details look finished but would ship wrong.
 - Size boxes so the text fits: a line is about fontSize x lineHeight tall, and bold text averages about 0.58 x fontSize per character. Leave a little slack.
 - Minimum font size: 2% of the canvas's shorter side for any text; headlines much larger (7-12% of the shorter side). The CTA label is clearly smaller than the headline.
 - Fonts: use only the families listed as available. Weights 400, 600, 700, 900.
