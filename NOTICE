@@ -61,3 +61,42 @@ commercial use):
   to models derived from those weights is legally unsettled.
 - The model predicts attention on natural photos; it was not trained on
   graphic designs, and its output is a prediction, not measured eye tracking.
+
+------------------------------------------------------------------------------
+BiRefNet_lite background-removal model (used by `redline generate` for subject
+cutouts; downloaded on first use from Hugging Face, not stored in this
+repository and not re-hosted)
+------------------------------------------------------------------------------
+File:    onnx/model.onnx of onnx-community/BiRefNet_lite-ONNX
+         at commit de15b22ba131738a16dff04aab8bdf8dc32e3ac1
+         (cached as birefnet-lite-de15b22.onnx, 224,005,088 bytes)
+SHA-256: 5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333
+Source:  "Bilateral Reference for High-Resolution Dichotomous Image
+         Segmentation", Zheng, Gao, Fan, Liu, Laaksonen, Ouyang, Sebe,
+         CAAI Artificial Intelligence Research 2024.
+         Weights: https://huggingface.co/ZhengPeng7/BiRefNet_lite (MIT)
+         Code:    https://github.com/ZhengPeng7/BiRefNet (MIT)
+License: MIT (as declared on both model cards, checked 2026-10-06).
+Training-data caveat (not legal advice): BiRefNet's general-purpose weights
+were trained on public segmentation datasets (e.g. DIS5K, HRSOD, UHRSD); their
+image licenses are not all confirmed to allow commercial use. Get a legal
+review before commercial use.
+
+------------------------------------------------------------------------------
+FLUX.1 [schnell] (image generation; called as a hosted API on Replicate,
+black-forest-labs/flux-schnell; no weights are distributed with Redline)
+------------------------------------------------------------------------------
+Copyright Black Forest Labs. Licensed under the Apache License 2.0
+(https://github.com/black-forest-labs/flux/blob/main/model_licenses/LICENSE-FLUX1-schnell,
+checked 2026-10-06). The model card states it "can be used for personal,
+scientific, and commercial purposes", subject to its acceptable-use
+restrictions. Price on Replicate: $0.003 per image (checked 2026-10-06).
+Generated images are recorded with prompt, model, seed and cost in each
+design's <name>.assets/manifest.json.
+
+------------------------------------------------------------------------------
+Pexels (optional stock-photo provider; used only with PEXELS_API_KEY)
+------------------------------------------------------------------------------
+Photos are subject to the Pexels License (https://www.pexels.com/license/):
+free to use, attribution not required. Photographer and source URL are
+recorded in the manifest anyway.
