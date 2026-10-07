@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { createSuggestedFixesEditor } from '@simonlunay/redline-agent';
+import { createScriptedEditor, createSuggestedFixesEditor } from '@simonlunay/redline-agent';
 import { loadDesign } from '@simonlunay/redline/node';
 import { describe, expect, it } from 'vitest';
 import { createTemplateArtDirector } from '../src/director/template.js';
@@ -161,5 +161,83 @@ describe('generateDesign (template director, mock images, offline editor)', () =
       provider: 'user',
       costUsd: 0,
     });
+  });
+
+  it('lets the fix loop regenerate a generated background, records it and caps it', async () => {
+    const dir = tempDir();
+    const regen = (brief: string) => ({
+      summary: 'Calm the background behind the text.',
+      edits: [
+        {
+          op: 'regenerateImage',
+          elementId: 'background',
+          brief,
+          reason: 'busy behind the headline',
+        },
+      ],
+    });
+    const editor = createScriptedEditor([
+      regen('calmer one'),
+      regen('calmer two'),
+      regen('calmer three'),
+    ]);
+    const { result } = await run(dir, {
+      candidates: 1,
+      layouts: 1,
+      editor,
+      maxIterations: 3,
+      target: 101, // never reached, so every scripted step runs
+      maxRegenerations: 2,
+    });
+    const regenerations = result.loop.history.flatMap((h) => h.regenerations ?? []);
+    expect(regenerations.map((r) => r.status)).toEqual(['applied', 'applied', 'rejected']);
+    expect(result.loop.totals.regenerations).toBe(2);
+    // The editor was told which images it may regenerate, with their briefs.
+    expect(editor.requests[0]!.regeneration?.images).toEqual([
+      expect.objectContaining({
+        elementId: 'background',
+        kind: 'background',
+        brief: expect.stringContaining('mood'),
+      }),
+      expect.objectContaining({ elementId: 'subject', kind: 'subject', role: 'product' }),
+    ]);
+    const manifest = JSON.parse(readFileSync(result.manifestFile, 'utf8'));
+    const regenerated = manifest.images.filter((e: { regeneration?: unknown }) => e.regeneration);
+    expect(regenerated).toHaveLength(2);
+    expect(regenerated[0]).toMatchObject({
+      key: 'regen/background/1',
+      regeneration: {
+        reason: 'busy behind the headline',
+        replaces: expect.stringContaining('layout1-background-v1'),
+      },
+    });
+    expect(regenerated[0].prompt).toMatch(/^calmer one\. Text will be placed over/);
+    const record = JSON.parse(readFileSync(result.generationFile, 'utf8'));
+    expect(
+      record.loop.history.flatMap((h: { regenerations?: unknown[] }) => h.regenerations ?? []),
+    ).toHaveLength(3);
+  });
+
+  it('never regenerates when maxRegenerations is 0', async () => {
+    const editor = createScriptedEditor([
+      {
+        summary: 's',
+        edits: [{ op: 'regenerateImage', elementId: 'background', brief: 'b', reason: 'r' }],
+      },
+      {
+        summary: 's',
+        edits: [{ op: 'regenerateImage', elementId: 'background', brief: 'b', reason: 'r' }],
+      },
+    ]);
+    const { result } = await run(tempDir(), {
+      candidates: 1,
+      layouts: 1,
+      editor,
+      maxIterations: 1,
+      target: 101,
+      maxRegenerations: 0,
+    });
+    expect(result.loop.history[1]!.status).toBe('invalid');
+    expect(editor.requests[0]!.regeneration).toBeUndefined();
   });
 });

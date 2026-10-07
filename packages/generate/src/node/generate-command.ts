@@ -51,6 +51,8 @@ Options
   --layouts <n>            Distinct layouts among them (default min(2, candidates))
   --target <score>         Fix-loop target, reached with no errors (default 95)
   --max-iterations <n>     Fix-loop iterations (default 4)
+  --max-regenerations <n>  Images the fix loop may regenerate with a revised brief when a
+                           problem comes from the image itself (default 2; 0 = off)
   --render-steps <dir>     Contact sheet (all candidates + heatmaps), candidate renders and
                            one annotated PNG (+ heatmap) per fix-loop step
   --provider <name>        replicate (FLUX.1 schnell) | pexels (stock) | mock (offline).
@@ -146,6 +148,7 @@ export async function runGenerateCommand(
       layouts: { type: 'string' },
       target: { type: 'string' },
       'max-iterations': { type: 'string' },
+      'max-regenerations': { type: 'string' },
       'render-steps': { type: 'string' },
       provider: { type: 'string' },
       cutout: { type: 'string' },
@@ -183,6 +186,7 @@ export async function runGenerateCommand(
   const layouts = values.layouts ? int(values.layouts, '--layouts', 2, 1) : undefined;
   const target = int(values.target, '--target', 95);
   const maxIterations = int(values['max-iterations'], '--max-iterations', 4);
+  const maxRegenerations = int(values['max-regenerations'], '--max-regenerations', 2);
   const model = values.model ?? DEFAULT_MODEL;
   const effort = (values.effort ?? DEFAULT_EFFORT) as Effort;
   if (!EFFORTS.includes(effort))
@@ -276,7 +280,7 @@ export async function runGenerateCommand(
         throw new GenerateUsageError(
           'ANTHROPIC_API_KEY is not set (needed by --editor anthropic).',
         );
-      editor = createAnthropicEditor({ model, effort });
+      editor = createAnthropicEditor({ model, effort, generation: maxRegenerations > 0 });
       editorModel = model;
     } else throw new GenerateUsageError(`Unknown --editor "${editorName}"`);
   }
@@ -343,6 +347,7 @@ export async function runGenerateCommand(
     ...(layouts ? { layouts } : {}),
     target,
     maxIterations,
+    maxRegenerations,
     attention,
     vision: !values['no-vision'],
     ...(brandColors?.length ? { brandColors } : {}),

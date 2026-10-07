@@ -77,7 +77,7 @@ export function formatGenerateSummary(result: GenerationResult, editorModel?: st
   const ok = final.passed;
   const lines = [
     '',
-    `  ${ok ? pc.green('✔') : pc.yellow('▲')} ${pc.bold(`first candidate ${first.score} → best of ${result.candidates.length} ${winner.score} → final ${color(final.score)(String(final.score))}`)} ${pc.dim(`· ${plural(result.loop.totals.iterations, 'iteration')} · stop: ${result.loop.stopReason}`)}`,
+    `  ${ok ? pc.green('✔') : pc.yellow('▲')} ${pc.bold(`first candidate ${first.score} → best of ${result.candidates.length} ${winner.score} → final ${color(final.score)(String(final.score))}`)} ${pc.dim(`· ${plural(result.loop.totals.iterations, 'iteration')}${result.loop.totals.regenerations ? ` · ${plural(result.loop.totals.regenerations, 'regeneration')}` : ''} · stop: ${result.loop.stopReason}`)}`,
     pc.dim(
       `    CTA attention ${pct(winner.ctaShare)} → ${pct(
         (

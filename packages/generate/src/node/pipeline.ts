@@ -4,7 +4,12 @@ import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { createFontMeasurer } from '@simonlunay/redline/node';
 import type { Design, Report } from '@simonlunay/redline';
 import { runFixLoop } from '@simonlunay/redline-agent';
-import type { DesignEditor, IterationRecord, LoopResult } from '@simonlunay/redline-agent';
+import type {
+  DesignEditor,
+  IterationRecord,
+  LoopResult,
+  RegenerateOptions,
+} from '@simonlunay/redline-agent';
 import { assembleDesign } from '../assemble.js';
 import type { SlotImage } from '../assemble.js';
 import type { BackgroundRemover } from '../cutout.js';
@@ -47,6 +52,11 @@ export interface GenerateOptions {
   layouts?: number;
   target?: number;
   maxIterations?: number;
+  /**
+   * Fix-loop image regenerations allowed (generation mode, default 2; 0 = layout edits only).
+   * The editor must be created in generation mode to propose them.
+   */
+  maxRegenerations?: number;
   attention?: boolean;
   vision?: boolean;
   brandColors?: string[];
@@ -221,11 +231,16 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
 
   // Estimates of image calls in flight: parallel calls must not all pass the guard at once.
   let pendingUsd = 0;
-  async function generate(request: ImageRequest, what: string): Promise<GeneratedImage> {
+  /** Calls the provider under the spend guard. Past the cap: mock images, or an error. */
+  async function generate(
+    request: ImageRequest,
+    what: string,
+    onBudget: 'mock' | 'throw' = 'mock',
+  ): Promise<GeneratedImage> {
     try {
       ledger.guard(provider.estimateCostUsd(request) + pendingUsd, what);
     } catch (err) {
-      if (!(err instanceof BudgetExceededError)) throw err;
+      if (!(err instanceof BudgetExceededError) || onBudget === 'throw') throw err;
       if (provider !== mock) warn(`${err.message} Using the mock image provider from here on.`);
       provider = mock;
     }
@@ -243,6 +258,77 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     return image;
   }
 
+  /** Generated images by src: where they came from, so the fix loop can regenerate them. */
+  const generated = new Map<string, { slot: ImageSlot; brief: string }>();
+
+  /** Generates (and for subjects, cuts out) one image and stores it with its manifest entry. */
+  async function makeImage(args: {
+    slot: ImageSlot;
+    prompt: string;
+    brief: string;
+    size: { width: number; height: number };
+    seed: number;
+    key: string;
+    regeneration?: { reason: string; replaces: string };
+    onBudget?: 'mock' | 'throw';
+  }): Promise<SlotImage & { costUsd: number }> {
+    const { slot, prompt, key } = args;
+    const kind = slot.kind === 'subject' ? 'subject' : 'background';
+    const image = await generate(
+      {
+        prompt,
+        query: slot.stockQuery || undefined,
+        width: args.size.width,
+        height: args.size.height,
+        seed: args.seed,
+        kind,
+      },
+      `${kind} image (${key})`,
+      args.onBudget,
+    );
+    const fileBase = key.replace(/\//g, '-');
+    const common = {
+      key,
+      slotId: slot.id,
+      kind,
+      prompt,
+      ...(args.regeneration ? { regeneration: args.regeneration } : {}),
+    } as const;
+    let stored: (SlotImage & { entry: ManifestEntry }) | undefined;
+    if (kind === 'subject' && options.remover) {
+      const remover = options.remover;
+      try {
+        const cut = await cutoutLock(() => remover.remove(image.bytes));
+        const used =
+          (remover as { lastUsed?: () => BackgroundRemover | undefined }).lastUsed?.() ?? remover;
+        stored = await assets.saveGenerated(
+          image,
+          fileBase,
+          {
+            ...common,
+            cutout: {
+              remover: used.id,
+              model: used.model,
+              license: used.license,
+              coverage: Number(cut.coverage.toFixed(4)),
+            },
+          },
+          cut.png,
+          'image/png',
+        );
+      } catch (err) {
+        warn(`Cutout failed for ${key}, keeping the plain backdrop: ${(err as Error).message}`);
+      }
+    }
+    stored ??= await assets.saveGenerated(image, fileBase, {
+      ...common,
+      ...(kind === 'subject' ? { cutout: null } : {}),
+    });
+    emit({ type: 'image', entry: stored.entry });
+    generated.set(stored.src, { slot, brief: args.brief });
+    return { src: stored.src, width: stored.width, height: stored.height, costUsd: image.costUsd };
+  }
+
   async function produce(
     slot: ImageSlot,
     layoutIndex: number,
@@ -254,7 +340,6 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       if (!image) throw new Error(`Supplied image "${slot.userImageId}" was not loaded`);
       return image;
     }
-    const prompt = buildImagePrompt(slot, layout.elements, options.canvas);
     const element = layout.elements.find((el) => el.kind === 'image' && el.slot === slot.id);
     const size =
       slot.kind === 'background' || !element
@@ -264,57 +349,14 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       (baseSeed + layoutIndex * 1000 + variant * 7919 + (slot.kind === 'subject' ? 500 : 0)) %
       2_000_000_000;
     const key = `layout${layoutIndex + 1}/${slot.id}${slot.kind === 'background' ? `/v${variant + 1}` : ''}`;
-    const image = await generate(
-      {
-        prompt,
-        query: slot.stockQuery || undefined,
-        width: size.width,
-        height: size.height,
-        seed,
-        kind: slot.kind,
-      },
-      `${slot.kind} image (${key})`,
-    );
-    const fileBase = key.replace(/\//g, '-');
-    if (slot.kind === 'subject' && options.remover) {
-      const remover = options.remover;
-      try {
-        const cut = await cutoutLock(() => remover.remove(image.bytes));
-        const used =
-          (remover as { lastUsed?: () => BackgroundRemover | undefined }).lastUsed?.() ?? remover;
-        const stored = await assets.saveGenerated(
-          image,
-          fileBase,
-          {
-            key,
-            slotId: slot.id,
-            kind: slot.kind,
-            prompt,
-            cutout: {
-              remover: used.id,
-              model: used.model,
-              license: used.license,
-              coverage: Number(cut.coverage.toFixed(4)),
-            },
-          },
-          cut.png,
-          'image/png',
-        );
-        emit({ type: 'image', entry: stored.entry });
-        return stored;
-      } catch (err) {
-        warn(`Cutout failed for ${key}, keeping the plain backdrop: ${(err as Error).message}`);
-      }
-    }
-    const stored = await assets.saveGenerated(image, fileBase, {
+    return makeImage({
+      slot,
+      prompt: buildImagePrompt(slot, layout.elements, options.canvas),
+      brief: [slot.brief, slot.calmAreas].filter((s) => s.trim()).join(' '),
+      size,
+      seed,
       key,
-      slotId: slot.id,
-      kind: slot.kind,
-      prompt,
-      ...(slot.kind === 'subject' ? { cutout: null } : {}),
     });
-    emit({ type: 'image', entry: stored.entry });
-    return stored;
   }
 
   const slotImage = (slot: ImageSlot, layoutIndex: number, variant: number) => {
@@ -390,6 +432,47 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const editor = options.editorModel
     ? budgetedEditor(options.editor, ledger, options.editorModel, name)
     : options.editor;
+  const maxRegenerations = options.maxRegenerations ?? 2;
+  let regenerationCount = 0;
+  /** Generation mode: the fix loop may replace generated images with new ones. */
+  const regenerateOptions = (): RegenerateOptions => ({
+    max: maxRegenerations,
+    images: (design) =>
+      design.elements.flatMap((el) => {
+        const info = el.type === 'image' ? generated.get(el.src) : undefined;
+        if (!info) return [];
+        const kind = info.slot.kind === 'subject' ? ('subject' as const) : ('background' as const);
+        return [
+          { elementId: el.id, kind, brief: info.brief, ...(el.role ? { role: el.role } : {}) },
+        ];
+      }),
+    run: async ({ design, elementId, brief, reason }) => {
+      const el = design.elements.find((e) => e.id === elementId);
+      const info = el?.type === 'image' ? generated.get(el.src) : undefined;
+      if (!el || el.type !== 'image' || !info)
+        throw new Error(`"${elementId}" is not a generated image`);
+      regenerationCount++;
+      const slot = { ...info.slot, brief, calmAreas: '' };
+      const image = await makeImage({
+        slot,
+        // Text zones come from the current (edited) layout, not the original plan.
+        prompt: buildImagePrompt(slot, design.elements, options.canvas),
+        brief,
+        size:
+          info.slot.kind === 'subject' ? { width: el.width, height: el.height } : options.canvas,
+        seed: (baseSeed + 90_000 + regenerationCount * 131) % 2_000_000_000,
+        key: `regen/${info.slot.id}/${regenerationCount}`,
+        regeneration: { reason, replaces: el.src },
+        onBudget: 'throw',
+      });
+      return {
+        src: image.src,
+        naturalWidth: image.width,
+        naturalHeight: image.height,
+        costUsd: image.costUsd,
+      };
+    },
+  });
   const loop = await runFixLoop(winner.design, {
     editor,
     check: workspace.check,
@@ -397,6 +480,7 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     maxIterations: options.maxIterations ?? 4,
     renderImages: options.vision === false ? undefined : workspace.renderImages,
     onIteration: (record) => emit({ type: 'iteration', record }),
+    ...(maxRegenerations > 0 ? { regenerate: regenerateOptions() } : {}),
   });
   if (loop.error) warn(`Fix loop stopped early: ${loop.error}`);
 
