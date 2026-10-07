@@ -1,10 +1,12 @@
 // Isomorphic API of the fix loop. Node-only helpers (CLI, PNG steps) live in ./node.
-export { runFixLoop, goalReached, newIssues } from './loop.js';
-export type { LoopOptions } from './loop.js';
+export { DEFAULT_MAX_REGENERATIONS, runFixLoop, goalReached, newIssues } from './loop.js';
+export type { LoopOptions, RegenerateOptions } from './loop.js';
 export {
   EditResponseSchema,
   EditSchema,
+  GenerationEditResponseSchema,
   MAX_EDITS_PER_RESPONSE,
+  RegenerateImageEditSchema,
   parseEditResponse,
   protectedFieldViolations,
 } from './edits.js';
@@ -21,6 +23,10 @@ export type {
   IterationRecord,
   IterationStatus,
   LoopResult,
+  RegenerableImage,
+  RegeneratedImage,
+  RegenerateEdit,
+  RegenerationRecord,
   StopReason,
   TokenUsage,
 } from './types.js';

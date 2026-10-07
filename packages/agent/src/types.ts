@@ -3,6 +3,42 @@ import type { Design, Fix, RejectedFix, Report } from '@simonlunay/redline';
 /** A fix op plus a short explanation from whoever proposed it (LLM or rules). */
 export type Edit = Fix & { reason: string };
 
+/** Generation mode only: ask for a new image for an element, from a revised brief. */
+export interface RegenerateEdit {
+  op: 'regenerateImage';
+  elementId: string;
+  brief: string;
+  reason: string;
+}
+
+/** An image the editor may regenerate (generation mode), with the brief it was made from. */
+export interface RegenerableImage {
+  elementId: string;
+  role?: string;
+  kind: 'background' | 'subject';
+  brief: string;
+}
+
+/** What a regeneration produced. The loop swaps it into the element. */
+export interface RegeneratedImage {
+  src: string;
+  naturalWidth: number;
+  naturalHeight: number;
+  costUsd?: number;
+}
+
+/** One regeneration attempt, recorded in history whether or not it stuck. */
+export interface RegenerationRecord {
+  elementId: string;
+  brief: string;
+  reason: string;
+  status: 'applied' | 'rejected' | 'failed';
+  previousSrc?: string;
+  src?: string;
+  costUsd?: number;
+  note?: string;
+}
+
 export interface TokenUsage {
   inputTokens: number;
   outputTokens: number;
@@ -35,6 +71,8 @@ export interface EditRequest {
   validationError?: string;
   /** Optional PNGs of the current design, e.g. the annotated render and an attention heatmap. */
   images?: DesignImage[];
+  /** Generation mode: images the editor may regenerate, and how many regenerations are left. */
+  regeneration?: { images: RegenerableImage[]; remaining: number; max: number };
 }
 
 export interface EditorResponse {
@@ -73,6 +111,8 @@ export interface IterationRecord {
   rejected: RejectedFix[];
   /** Ids of shapes created by insertShape in this step. */
   insertedIds: string[];
+  /** Generation mode: image regenerations requested in this step (they cost money even if rolled back). */
+  regenerations?: RegenerationRecord[];
   /** Why a step was rolled back or invalid. */
   note?: string;
   usage?: TokenUsage;
@@ -96,6 +136,8 @@ export interface LoopResult {
   totals: {
     iterations: number;
     calls: number;
+    /** Generation mode: regenerations attempted (each one costs an image). */
+    regenerations?: number;
     usage: TokenUsage;
     durationMs: number;
   };

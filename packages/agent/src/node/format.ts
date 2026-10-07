@@ -61,6 +61,15 @@ export function formatIteration(r: IterationRecord, maxEdits = 8): string {
     lines.push(`        • ${formatFix(edit)} ${pc.dim(`— ${edit.reason}`)}`);
   }
   if (r.edits.length > maxEdits) lines.push(pc.dim(`        … ${r.edits.length - maxEdits} more`));
+  for (const g of r.regenerations ?? []) {
+    const label =
+      g.status === 'applied' ? pc.cyan('↻ regenerate') : pc.yellow(`↻ regenerate (${g.status})`);
+    lines.push(`        ${label} ${g.elementId} ${pc.dim(`— ${g.reason}`)}`);
+    lines.push(
+      pc.dim(`          brief: ${g.brief.slice(0, 110)}${g.brief.length > 110 ? '…' : ''}`),
+    );
+    if (g.note) lines.push(pc.dim(`          ${g.note}`));
+  }
   if (r.rejected.length > 0) lines.push(pc.yellow(`        ${r.rejected.length} edit(s) rejected`));
   if (r.note && r.status !== 'accepted') lines.push(pc.dim(`        ${r.note}`));
   return lines.join('\n');

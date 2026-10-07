@@ -9,9 +9,35 @@ import type {
   EditorResponse,
   IterationRecord,
   LoopResult,
+  RegenerableImage,
+  RegeneratedImage,
+  RegenerationRecord,
   StopReason,
   TokenUsage,
 } from './types.js';
+
+/** Default cap on image regenerations per run (generation mode). */
+export const DEFAULT_MAX_REGENERATIONS = 2;
+
+/**
+ * Generation mode: lets the editor replace generated images with new ones made from a revised
+ * brief. Without this option (`redline fix` on user designs) the regenerateImage op doesn't
+ * exist in the edit schema and the src guardrail never allows an image change.
+ */
+export interface RegenerateOptions {
+  /** Max regenerations per run, counted when attempted (they cost money). Default 2. */
+  max?: number;
+  /** The images of `design` that may be regenerated, with their current briefs. */
+  images: (design: Design) => RegenerableImage[];
+  /** Makes the new image. Throwing marks the attempt as failed; the loop carries on. */
+  run: (request: {
+    design: Design;
+    elementId: string;
+    brief: string;
+    reason: string;
+    iteration: number;
+  }) => Promise<RegeneratedImage>;
+}
 
 export interface LoopOptions {
   editor: DesignEditor;
@@ -27,6 +53,8 @@ export interface LoopOptions {
   renderImages?: (design: Design, report: Report) => Promise<DesignImage[]>;
   /** Called after every iteration (including the initial check), e.g. for live output. */
   onIteration?: (record: IterationRecord) => void;
+  /** Generation mode only: allow regenerateImage edits. */
+  regenerate?: RegenerateOptions;
 }
 
 /** Fields every iteration record shares, known before the edits are applied. */
@@ -92,6 +120,11 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
   const maxIterations = options.maxIterations ?? 4;
   const maxStale = options.maxStaleIterations ?? 2;
   const started = Date.now();
+  const regen = options.regenerate;
+  const maxRegenerations = regen?.max ?? DEFAULT_MAX_REGENERATIONS;
+  let regenerationsUsed = 0;
+  /** Elements whose src was changed by an accepted regeneration. */
+  const regeneratedIds = new Set<string>();
 
   const initialDesign = parseDesign(input);
   const initialReport = await options.check(initialDesign);
@@ -147,16 +180,26 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
         iteration,
         attempts: attempts.slice(-4),
         images,
+        ...(regen
+          ? {
+              regeneration: {
+                images: regen.images(current.design),
+                remaining: Math.max(0, maxRegenerations - regenerationsUsed),
+                max: maxRegenerations,
+              },
+            }
+          : {}),
       };
+      const parseOptions = { regenerate: Boolean(regen) };
       response = await options.editor.proposeEdits(request);
       stepCalls++;
       addUsage(stepUsage, response.usage);
-      parsed = parseEditResponse(response.raw);
+      parsed = parseEditResponse(response.raw, parseOptions);
       if (!parsed.ok) {
         response = await options.editor.proposeEdits({ ...request, validationError: parsed.error });
         stepCalls++;
         addUsage(stepUsage, response.usage);
-        parsed = parseEditResponse(response.raw);
+        parsed = parseEditResponse(response.raw, parseOptions);
       }
     } catch (err) {
       error = err instanceof Error ? err.message : String(err);
@@ -203,10 +246,17 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
   ): Promise<number> {
     const { iteration } = common;
     const edits = response.edits;
+    const regenerations: RegenerationRecord[] = [];
     const finish = (r: StepOutcome) =>
-      record({ ...common, ...r, summary: response.summary, durationMs: Date.now() - stepStarted });
+      record({
+        ...common,
+        ...r,
+        summary: response.summary,
+        ...(regenerations.length > 0 ? { regenerations } : {}),
+        durationMs: Date.now() - stepStarted,
+      });
 
-    if (edits.length === 0) {
+    if (edits.length === 0 && response.regenerations.length === 0) {
       const note = 'The editor proposed no edits.';
       attempts.push({ iteration, outcome: 'no-edits', message: note });
       finish({
@@ -222,8 +272,78 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
       return stale + 1;
     }
 
-    const applied = applyFixes(current.design, edits.map(toFix));
-    const violations = protectedFieldViolations(initialDesign, applied.design);
+    // Regenerations first: later layout edits may depend on the new image.
+    let working = current.design;
+    const stepRegenerated = new Set<string>();
+    const regenerable = new Set(regen ? regen.images(current.design).map((i) => i.elementId) : []);
+    for (const r of response.regenerations) {
+      const base = { elementId: r.elementId, brief: r.brief, reason: r.reason };
+      const reject = (note: string) => regenerations.push({ ...base, status: 'rejected', note });
+      if (!regen) {
+        reject('Image regeneration is only available in generation mode.');
+        continue;
+      }
+      if (regenerationsUsed >= maxRegenerations) {
+        reject(`Regeneration cap reached (${maxRegenerations} per run); use layout edits instead.`);
+        continue;
+      }
+      if (!regenerable.has(r.elementId) || stepRegenerated.has(r.elementId)) {
+        reject(
+          `"${r.elementId}" is not a regenerable image (or was already regenerated this step).`,
+        );
+        continue;
+      }
+      regenerationsUsed++;
+      const target = working.elements.find((el) => el.id === r.elementId);
+      const previousSrc = target?.type === 'image' ? target.src : undefined;
+      try {
+        const image = await regen.run({ design: working, ...base, iteration });
+        working = {
+          ...working,
+          elements: working.elements.map((el) =>
+            el.id === r.elementId && el.type === 'image'
+              ? {
+                  ...el,
+                  src: image.src,
+                  naturalWidth: image.naturalWidth,
+                  naturalHeight: image.naturalHeight,
+                }
+              : el,
+          ),
+        };
+        stepRegenerated.add(r.elementId);
+        regenerations.push({
+          ...base,
+          status: 'applied',
+          ...(previousSrc ? { previousSrc } : {}),
+          src: image.src,
+          ...(image.costUsd !== undefined ? { costUsd: image.costUsd } : {}),
+        });
+      } catch (err) {
+        regenerations.push({
+          ...base,
+          status: 'failed',
+          note: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+    const notApplied = regenerations.filter((r) => r.status !== 'applied');
+    if (notApplied.length > 0) {
+      attempts.push({
+        iteration,
+        outcome: 'rejected-edits',
+        message: `${notApplied.length} regeneration(s) did not run: ${notApplied
+          .map((r) => `${r.elementId}: ${r.note}`)
+          .join('; ')}`,
+      });
+    }
+
+    const applied = applyFixes(working, edits.map(toFix));
+    const violations = protectedFieldViolations(
+      initialDesign,
+      applied.design,
+      new Set([...regeneratedIds, ...stepRegenerated]),
+    );
     const candidateReport = await options.check(applied.design);
     const step = {
       design: applied.design,
@@ -247,7 +367,7 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
     }
 
     let rollback: string | null = null;
-    if (applied.applied.length === 0) {
+    if (applied.applied.length === 0 && stepRegenerated.size === 0) {
       rollback = 'None of the edits could be applied.';
     } else if (violations.length > 0) {
       rollback = `Guardrail violation: ${violations.join('; ')}.`;
@@ -267,6 +387,7 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
       candidateReport.score > current.report.score ||
       candidateReport.summary.errors < current.report.summary.errors;
     current = { design: applied.design, report: candidateReport };
+    for (const id of stepRegenerated) regeneratedIds.add(id);
     if (isBetter(candidateReport, best.report)) best = { ...current, iteration };
     finish({ ...step, status: 'accepted' });
     return improved ? 0 : stale + 1;
@@ -281,6 +402,7 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
     totals: {
       iterations: history.length - 1,
       calls,
+      ...(regen ? { regenerations: regenerationsUsed } : {}),
       usage: totalUsage,
       durationMs: Date.now() - started,
     },

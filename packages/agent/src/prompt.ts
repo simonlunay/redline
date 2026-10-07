@@ -9,7 +9,7 @@ export const SUBMIT_TOOL_NAME = 'submit_edits';
  * The stable part of the prompt. It never changes between calls (no timestamps, no per-design
  * data), so it is cached once and reused for every iteration and every fixture in an eval.
  */
-export function buildSystemPrompt(): string {
+export function buildSystemPrompt(options: { generation?: boolean } = {}): string {
   const rules = builtinRules
     .map((r) => `- ${r.id} (weight ${r.weight}): ${r.description}`)
     .join('\n');
@@ -35,7 +35,11 @@ All coordinates are canvas pixels, origin top-left. Every edit needs a short "re
 - insertShape {behindElementId, kind, x, y, width, height, fill, opacity, cornerRadius}: adds a decoration shape painted directly behind an element. Use it as a backing panel or translucent scrim behind text that sits on a photo (e.g. fill #000000, opacity 0.45-0.65, slightly larger than the text box with ~24px padding). This usually fixes contrast on images while keeping white text, which looks far better than recoloring the text to grey.
 
 # Hard rules
-- You cannot and must not change text content, font family or image sources. Only layout and styling.
+- You cannot and must not change text content, font family or image sources. Only layout and styling.${
+    options.generation
+      ? ' Exception (generation mode): images listed as regenerable can be replaced with regenerateImage.'
+      : ''
+  }
 - Use only element ids that exist in the design (or ids created by your insertShape edits, which are reported back).
 - At most ${MAX_EDITS_PER_RESPONSE} edits per response, applied in order. Prefer fewer, deliberate edits.
 
@@ -56,11 +60,21 @@ When the attention check is on, a saliency model (MSI-Net) predicts where viewer
 - attention-competition: a decoration or a background area draws more attention than the headline or CTA. Good fixes: shrink or fade the decoration (setOpacity 0.3-0.6, smaller size, a calmer color), or put a translucent dark scrim (insertShape behind the lowest content element) over a busy background area. Moving a key element into the hot area also works.
 - Attention changes are holistic: one strong change usually works better than many small ones. Check the heatmap after each iteration's result.
 
-Scoring: each issue removes (8 for errors, 3 for warnings, 0.5 for info) x rule weight percent of its rule's score; the overall score is the product of the rule scores, so every failing rule pulls it down.
+${options.generation ? GENERATION_SECTION : ''}Scoring: each issue removes (8 for errors, 3 for warnings, 0.5 for info) x rule weight percent of its rule's score; the overall score is the product of the rule scores, so every failing rule pulls it down.
 
 # Design format (JSON Schema)
 ${JSON.stringify(designJsonSchema())}`;
 }
+
+/** Extra system-prompt section in generation mode (the images were generated for this design). */
+const GENERATION_SECTION = `# Generation mode: regenerating images
+This design was generated: its background and subject images were made by an image model from a brief, so they can be remade. You may use one more edit op:
+- regenerateImage {elementId, brief, reason}: replaces a regenerable image (listed in the request with its current brief) with a new one generated from your revised brief. The text, layout and other images stay as they are, and regenerations run before your other edits in the same response.
+When to use it: only when the problem comes from the image content itself and a layout edit would be clearly worse. Typical cases: text contrast fails because the photo is busy or bright exactly where the text must sit, or attention-competition flags a background region (a face, a bright sun, a high-contrast detail) that steals attention from the headline or CTA. Prefer layout edits (a translucent scrim, moving text to a calm area, a backing panel) when they solve it cleanly; they are free and predictable.
+How to write the brief: keep the subject, style and mood of the current brief, and change only what causes the problem, stated concretely and spatially, e.g. "... keep the top-left third plain, dark and low in detail for the headline; move the bright sun to the lower right". Never ask for text, letters or logos in the image.
+Limits: regenerations are capped per run (the remaining count is in the request) and cost money even if the result is rolled back, so use at most one per response, and only when it is likely to help. A new image is random: it can fix the problem or create a new one, and the score decides.
+
+`;
 
 function describeFix(fix: Fix): string {
   const { op, ...rest } = fix;
@@ -102,6 +116,19 @@ export function buildUserMessage(req: EditRequest): string {
     `# Issues (most severe first)\n${report.issues.map((issue, i) => formatIssue(issue, i + 1)).join('\n') || 'None.'}`,
     `# Layout\n${layoutTable(req.design)}`,
   ];
+  if (req.regeneration) {
+    const { images, remaining, max } = req.regeneration;
+    sections.push(
+      remaining > 0 && images.length > 0
+        ? `# Regenerable images (${remaining} of ${max} regenerations left)\n${images
+            .map(
+              (i) =>
+                `- ${i.elementId} [${i.kind}${i.role ? `, ${i.role}` : ''}]: current brief: ${i.brief}`,
+            )
+            .join('\n')}`
+        : `# Regenerable images\nNo regenerations left; use layout edits only.`,
+    );
+  }
   if (req.attempts.length > 0) {
     sections.push(
       `# Previous attempts that did not stick\n${req.attempts

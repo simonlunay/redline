@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
-import { EditResponseSchema } from '../edits.js';
+import { EditResponseSchema, GenerationEditResponseSchema } from '../edits.js';
 import { SUBMIT_TOOL_NAME, buildSystemPrompt, buildUserMessage } from '../prompt.js';
 import type { DesignEditor, EditorResponse, TokenUsage } from '../types.js';
 
@@ -14,6 +14,11 @@ export interface AnthropicEditorOptions {
   maxTokens?: number;
   /** Inject a client (tests use a fake). Defaults to `new Anthropic()`, which reads ANTHROPIC_API_KEY. */
   client?: Pick<Anthropic, 'messages'>;
+  /**
+   * Generation mode: the tool schema and prompt include regenerateImage. Only for designs whose
+   * images were generated; `redline fix` never sets it. Pair with LoopOptions.regenerate.
+   */
+  generation?: boolean;
 }
 
 type JsonValue = unknown;
@@ -53,13 +58,14 @@ export function toStrictSchema(schema: JsonValue): JsonValue {
   return out;
 }
 
-export function submitEditsTool(): Anthropic.Tool {
+export function submitEditsTool(options: { generation?: boolean } = {}): Anthropic.Tool {
+  const schema = options.generation ? GenerationEditResponseSchema : EditResponseSchema;
   return {
     name: SUBMIT_TOOL_NAME,
     description:
       'Submit the edits for this iteration. Call exactly once per response, with an empty edits list if nothing should change.',
     strict: true,
-    input_schema: toStrictSchema(z.toJSONSchema(EditResponseSchema)) as Anthropic.Tool.InputSchema,
+    input_schema: toStrictSchema(z.toJSONSchema(schema)) as Anthropic.Tool.InputSchema,
   };
 }
 
@@ -94,8 +100,9 @@ export function createAnthropicEditor(options: AnthropicEditorOptions = {}): Des
   const model = options.model ?? DEFAULT_MODEL;
   const effort = options.effort ?? DEFAULT_EFFORT;
   const client = options.client ?? new Anthropic();
-  const system = buildSystemPrompt();
-  const tool = submitEditsTool();
+  const generation = Boolean(options.generation);
+  const system = buildSystemPrompt({ generation });
+  const tool = submitEditsTool({ generation });
 
   return {
     name: `anthropic:${model}`,
