@@ -43,11 +43,17 @@ const { values } = parseArgs({
     'no-llm': { type: 'boolean' },
     'no-vision': { type: 'boolean' },
     'no-save': { type: 'boolean' },
+    attention: { type: 'boolean' },
+    strict: { type: 'boolean' },
   },
 });
 
-const target = Number(values.target ?? 90);
-const maxIterations = Number(values['max-iterations'] ?? 4);
+// --strict: the harder benchmark. Target 100 (every warning counts), attention rules on, and
+// one more iteration, so models are separated and rollback gets exercised in real runs.
+const strict = Boolean(values.strict);
+const attention = strict || Boolean(values.attention);
+const target = Number(values.target ?? (strict ? 100 : 90));
+const maxIterations = Number(values['max-iterations'] ?? (strict ? 5 : 4));
 const runs = Number(values.runs ?? 1);
 const effort = (values.effort ?? DEFAULT_EFFORT) as Effort;
 const concurrency = Number(values.concurrency ?? 3);
@@ -65,7 +71,14 @@ if (models.length > 0 && !process.env.ANTHROPIC_API_KEY) {
 
 const fixtureFiles = readdirSync(FIXTURES)
   .filter((f) => f.endsWith('.json'))
-  .filter((f) => !values.fixtures || values.fixtures.split(',').includes(basename(f, '.json')))
+  .filter((f) => {
+    if (!values.fixtures) return true;
+    const name = basename(f, '.json');
+    // Comma-separated names; a trailing * matches a prefix, e.g. --fixtures 'hard-*'.
+    return values.fixtures
+      .split(',')
+      .some((p) => (p.endsWith('*') ? name.startsWith(p.slice(0, -1)) : name === p));
+  })
   .sort();
 
 // ---------------------------------------------------------------------------------------------
@@ -77,6 +90,30 @@ interface Outcome {
   /** Goal from the loop: score >= target and no errors (or no issues at all). */
   reachedGoal: boolean;
   failingRules: string[];
+  /** Predicted attention (only with --attention / --strict). */
+  attention?: AttentionMetrics;
+}
+
+interface AttentionMetrics {
+  /** Share of predicted attention per key role, 0-1 (absent roles omitted). */
+  cta?: number;
+  headline?: number;
+  product?: number;
+  /** 1-based position of the CTA in the predicted viewing order. */
+  ctaRank?: number;
+}
+
+function attentionMetrics(report: Report): AttentionMetrics | undefined {
+  const details = report.rules.find((r) => r.ruleId === 'attention-key-elements')?.details;
+  if (!details) return undefined;
+  const shares = details.roleShares as Record<string, number>;
+  const order = details.viewingOrder as string[];
+  const metrics: AttentionMetrics = {};
+  for (const role of ['cta', 'headline', 'product'] as const) {
+    if (shares[role] !== undefined) metrics[role] = shares[role];
+  }
+  if (order.includes('cta')) metrics.ctaRank = order.indexOf('cta') + 1;
+  return metrics;
 }
 
 interface LoopOutcome extends Outcome {
@@ -106,6 +143,7 @@ function outcome(report: Report): Outcome {
     failingRules: [
       ...new Set(report.issues.filter((i) => i.severity !== 'info').map((i) => i.ruleId)),
     ].sort(),
+    ...(attention ? { attention: attentionMetrics(report) } : {}),
   };
 }
 
@@ -162,7 +200,7 @@ const client = models.length > 0 ? new Anthropic({ maxRetries: 6 }) : undefined;
 
 async function evalFixture(file: string): Promise<FixtureRow> {
   const name = basename(file, '.json');
-  const session = await createFixSession(join(FIXTURES, file));
+  const session = await createFixSession(join(FIXTURES, file), { attention });
   const design = session.loaded.design;
   const initial = await session.check(design);
 
@@ -197,12 +235,44 @@ async function evalFixture(file: string): Promise<FixtureRow> {
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 const fmt1 = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
 
+const round1 = (n: number) => Number(n.toFixed(1));
+
 function summarize(outcomes: Outcome[]) {
+  const withAttention = outcomes.flatMap((o) => (o.attention ? [o.attention] : []));
+  const shares = (role: 'cta' | 'headline') =>
+    withAttention.flatMap((a) => (a[role] === undefined ? [] : [a[role]! * 100]));
+  const ranked = withAttention.filter((a) => a.ctaRank !== undefined);
   return {
-    meanScore: Number(mean(outcomes.map((o) => o.score)).toFixed(1)),
+    meanScore: round1(mean(outcomes.map((o) => o.score))),
     totalErrors: outcomes.reduce((s, o) => s + o.errors, 0),
     reachedGoal: outcomes.filter((o) => o.reachedGoal).length,
+    ...(withAttention.length > 0
+      ? {
+          attention: {
+            /** Mean share of predicted attention, in percent. */
+            meanCtaShare: round1(mean(shares('cta'))),
+            meanHeadlineShare: round1(mean(shares('headline'))),
+            /** Designs where the CTA is predicted to be seen first or second. */
+            ctaInTopTwo: ranked.filter((a) => a.ctaRank! <= 2).length,
+            withCta: ranked.length,
+          },
+        }
+      : {}),
   };
+}
+
+/** "CTA 4.2% · H 31%" (single) or "CTA 9.1% (6.0–12.3) · H 27%" (several runs). */
+function attentionCell(outcomes: Outcome[]): string {
+  const values = (role: 'cta' | 'headline') =>
+    outcomes.flatMap((o) => (o.attention?.[role] === undefined ? [] : [o.attention[role]! * 100]));
+  const part = (label: string, xs: number[]) => {
+    if (xs.length === 0) return `${label} –`;
+    const m = `${label} ${fmt1(round1(mean(xs)))}%`;
+    return xs.length === 1
+      ? m
+      : `${m} (${fmt1(round1(Math.min(...xs)))}–${fmt1(round1(Math.max(...xs)))})`;
+  };
+  return `${part('CTA', values('cta'))} · ${part('H', values('headline'))}`;
 }
 
 function cell(o: Outcome): string {
@@ -262,6 +332,7 @@ function printTable(rows: FixtureRow[]) {
     const mismatched = outcomes.filter((o) => o.modelsSeen.some((seen) => seen !== m)).length;
     console.log(
       `\n  ${pc.bold(m)}: ${calls} calls · ${rolled} rolled-back iterations · ≈ $${cost.toFixed(2)}` +
+        pc.dim(` · ${(rolled / outcomes.length).toFixed(2)} rollbacks/run`) +
         (mismatched ? pc.red(` · ${mismatched} runs answered by another model!`) : ''),
     );
     for (const r of rows) {
@@ -270,11 +341,51 @@ function printTable(rows: FixtureRow[]) {
         console.log(pc.dim(`    ${r.fixture}: still failing ${failing.join(', ')}`));
     }
   }
+  if (attention) printAttentionTable(rows);
+
   const rulesFailing = rows.filter((r) => r.rulesLoop.failingRules.length > 0);
   console.log(pc.bold('\n  rules loop') + pc.dim(' still failing:'));
   for (const r of rulesFailing) {
     console.log(pc.dim(`    ${r.fixture}: ${r.rulesLoop.failingRules.join(', ')}`));
   }
+}
+
+/** Predicted attention per fixture: CTA and headline shares before/after each approach. */
+function printAttentionTable(rows: FixtureRow[]) {
+  const headers = ['Fixture (attention)', 'Before', 'Rules loop', ...models];
+  const body = rows.map((r) => [
+    r.fixture,
+    attentionCell([r.before]),
+    attentionCell([r.rulesLoop]),
+    ...models.map((m) => attentionCell(r.llm[m]!)),
+  ]);
+  const summary = (outcomes: Outcome[]) => {
+    const a = summarize(outcomes).attention;
+    return a
+      ? `CTA ${a.meanCtaShare}% · H ${a.meanHeadlineShare}% ${pc.dim(`top2 ${a.ctaInTopTwo}/${a.withCta}`)}`
+      : '–';
+  };
+  const summaryRow = [
+    pc.bold('mean · CTA seen 1st/2nd'),
+    summary(rows.map((r) => r.before)),
+    summary(rows.map((r) => r.rulesLoop)),
+    ...models.map((m) => summary(rows.flatMap((r) => r.llm[m]!))),
+  ];
+  const widths = headers.map((h, i) =>
+    Math.max(visibleLength(h), ...[...body, summaryRow].map((row) => visibleLength(row[i]!))),
+  );
+  const line = (cells: string[]) => cells.map((c, i) => pad(c, widths[i]!)).join('  ');
+  console.log('');
+  console.log(pc.bold(line(headers)));
+  console.log(pc.dim(widths.map((w) => '─'.repeat(w)).join('  ')));
+  body.forEach((row) => console.log(line(row)));
+  console.log(pc.dim(widths.map((w) => '─'.repeat(w)).join('  ')));
+  console.log(line(summaryRow));
+  console.log(
+    pc.dim(
+      '\n  CTA / H = share of predicted attention (MSI-Net) on the CTA / headline of the best design',
+    ),
+  );
 }
 
 function git(args: string[]): string | null {
@@ -289,7 +400,7 @@ function git(args: string[]): string | null {
 
 console.error(
   pc.bold(
-    `redline eval: ${fixtureFiles.length} fixtures · target ${target} · max ${maxIterations} iterations`,
+    `redline eval${strict ? ' --strict' : ''}: ${fixtureFiles.length} fixtures · target ${target} · max ${maxIterations} iterations${attention ? ' · attention on' : ''}`,
   ) +
     pc.dim(
       models.length
@@ -310,7 +421,7 @@ const results = {
   createdAt: new Date().toISOString(),
   git: { commit: git(['rev-parse', 'HEAD']), dirty: Boolean(git(['status', '--porcelain'])) },
   node: process.version,
-  settings: { target, maxIterations, effort, runs, vision, models, llmSkipped },
+  settings: { strict, attention, target, maxIterations, effort, runs, vision, models, llmSkipped },
   durationMs: Date.now() - started,
   summary: {
     before: summarize(rows.map((r) => r.before)),
@@ -337,7 +448,7 @@ const results = {
 if (!values['no-save']) {
   mkdirSync(RESULTS, { recursive: true });
   const stamp = results.createdAt.replace(/[:.]/g, '-');
-  const label = models.length ? models.join('+') : 'baselines';
+  const label = `${strict ? 'strict_' : ''}${models.length ? models.join('+') : 'baselines'}`;
   const file = join(RESULTS, `${stamp}_${label}.json`);
   writeFileSync(file, `${JSON.stringify(results, null, 2)}\n`);
   console.log(pc.dim(`\n  saved ${file.replace(ROOT, '')}`));
