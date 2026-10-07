@@ -1,6 +1,6 @@
 # Redline
 
-**ESLint for designs.** Give Redline a poster, social post or ad as JSON, and it returns a 0–100 score plus a list of problems tied to specific elements. Each problem comes with a **machine-readable fix**.
+**ESLint for designs, plus an AI that fixes what it finds.** Give Redline a poster, social post or ad as JSON, and it returns a 0–100 score plus a list of problems tied to specific elements. Each problem comes with a **machine-readable fix**. `redline fix` then hands the design to Claude, applies its edits, re-checks, and repeats until the design is good.
 
 ```
 $ npx @simonlunay/redline check fixtures/worst.json
@@ -32,12 +32,16 @@ $ npx @simonlunay/redline check fixtures/worst.json
 
 AI tools are good at producing designs and bad at noticing their own mistakes: white text on a pale photo, a headline sliding under the product shot, a stretched logo, a button label that doesn't fit. Redline is the missing feedback signal. It checks a design against concrete, explainable design rules and describes each problem precisely enough for a program to repair it.
 
-This package is phase 1 of a larger project: an AI design assistant that generates a design, checks it with Redline, applies the suggested fixes and loops until the design scores well (see [Roadmap](#roadmap)).
+It's part of a larger project: an AI design assistant that generates a design, checks it with Redline, repairs it in a self-critiquing loop, and resizes it across formats (see [Roadmap](#roadmap)). Two packages live here:
+
+- **`@simonlunay/redline`**: the checker (library + `redline` CLI). It has no LLM dependency.
+- **`@simonlunay/redline-agent`**: the AI fix loop. It's an optional add-on that enables `redline fix`.
 
 ## Install
 
 ```bash
-npm install @simonlunay/redline     # library + CLI
+npm install @simonlunay/redline           # checker library + CLI
+npm install @simonlunay/redline-agent     # optional: the AI fix loop (redline fix)
 npx @simonlunay/redline check design.json
 ```
 
@@ -47,6 +51,7 @@ Node 20+. Rendering uses [`@napi-rs/canvas`](https://github.com/Brooooooklyn/can
 
 ```bash
 redline check <design.json> [options]
+redline fix <design.json> [options]    # AI fix loop, see below
 redline rules                          # list rules, defaults and weights
 ```
 
@@ -60,6 +65,38 @@ redline rules                          # list rules, defaults and weights
 **Exit codes:** `0` means no errors, `1` means errors were found (so it can gate CI), and `2` means invalid input or usage.
 
 Image `src` paths are resolved relative to the design file.
+
+### `redline fix`
+
+```
+$ redline fix fixtures/worst.json --out fixed.json --render-steps steps/
+
+ redline fix  fixtures/worst.json  target 90 · max 4 · claude-sonnet-5-5 (medium)
+
+  #0  start          6  █░░░░░░░░░       11 errors · 3 warnings
+  #1  accepted      94  █████████░  +88  0 errors · 2 warnings
+        Reflow the layout: headline on top, subheading below it, product at its natural ratio, ...
+        • move headline by (+0, -130) — move the headline above the product
+        • set headline color to #0f172a — contrast on the sky
+        … 19 more
+
+  ✔ 6 → 94 in 1 iteration · errors 11 → 0 · stop: target reached
+    1 LLM call · 8.9k in (0 cached) / 1.6k out tokens · ≈ $0.036 · 20.2s
+```
+
+| Option                 | Description                                                                                   |
+| ---------------------- | --------------------------------------------------------------------------------------------- |
+| `--out <path>`         | Where to write the best design (default `<name>.fixed.json`)                                  |
+| `--target <score>`     | Done when the score reaches this **and** no errors remain (default 90)                        |
+| `--max-iterations <n>` | Max repair iterations (default 4)                                                             |
+| `--model <id>`         | Claude model (default `claude-sonnet-5-5`)                                                    |
+| `--effort <level>`     | `low` `medium` `high` `xhigh` `max` (default `medium`)                                        |
+| `--editor <name>`      | `anthropic` (default) or `suggested`: applies the checker's own fixes, offline, no key needed |
+| `--render-steps <dir>` | Annotated PNG per iteration (`00-initial.png`, `01-accepted.png`, …, `final.png`)             |
+| `--no-vision`          | Don't send the annotated render to the model                                                  |
+| `--config`, `--format` | Same as `check`                                                                               |
+
+It needs `ANTHROPIC_API_KEY`, read from the environment or from `./.env` (copy `.env.example`). The exit code is `0` if the final design has no errors.
 
 ## Library
 
@@ -215,7 +252,26 @@ type Fix =
   | { op: 'setFontWeight'; elementId: string; fontWeight: number };
 ```
 
+```ts
+  | { op: 'insertShape'; behindElementId: string; kind: 'rect' | 'ellipse';
+      x: number; y: number; width: number; height: number;
+      fill: string; opacity: number; cornerRadius: number };
+```
+
+- **`setColor`** sets the text colour on text and the fill on shapes.
+- **`insertShape`** adds a `decoration` shape painted directly behind an element, with a generated id like `headline-backing`. A translucent dark scrim behind white text on a photo is usually a much better contrast fix than recolouring the text grey.
+
 Each issue has `measured` and `threshold` values (e.g. `1.24` vs `3`, unit `:1`), so an agent can tell _how far off_ the design is, not only that it failed.
+
+**`applyFixes(design, fixes)`** applies fixes in order and returns `{ design, applied, rejected, insertedIds }`:
+
+- It's pure: the input isn't modified.
+- The returned design is always schema-valid.
+- Bad ops are **rejected, not thrown**: unknown ids, an op on the wrong element type (e.g. `setFontSize` on an image), invalid colours.
+- Out-of-range values are **clamped**: sizes to at least 1px, font size to 1–1000, opacity to 0–1.
+- No op can change text content, font family or image `src`.
+
+**`designJsonSchema()` / `fixJsonSchema()`** return JSON Schema generated from the Zod schemas, for example to describe the format to an LLM.
 
 ## Configuration
 
@@ -265,6 +321,16 @@ const maxElements = defineRule({
 check(design, { rules: [...builtinRules, maxElements] });
 ```
 
+**Async and render-based rules:**
+
+- A rule's `check` may return a Promise.
+- It can declare `requires: ['render']` and read pixels with `await ctx.render()`.
+- It can return `{ issues, elementScores }` to report per-element numbers (e.g. attention share).
+- `check()` stays synchronous and skips such rules, listing them in `report.skipped`. `checkAsync(design, { render })` runs them.
+- In Node, `createNodeEnv()` provides `render`, and the CLI always uses `checkAsync`.
+
+This is how the planned attention/saliency rule will plug in.
+
 ### Scoring
 
 - Each issue removes `points × rule weight` percent of its rule's score. Points are error 8, warning 3 and info 0.5, so a contrast error (weight 3) removes 24%.
@@ -272,36 +338,151 @@ check(design, { rules: [...builtinRules, maxElements] });
 - A weighted average would let eight passing rules hide a real error: a design with a stretched image would still score 97. With a product, every failing rule pulls the total down, the score never goes negative, and issue order doesn't matter.
 - `passed` is `false` whenever there's at least one error.
 
+## AI fix loop
+
+```
+check ──► goal reached? ──yes──► done (return the best version + full history)
+  ▲            │ no
+  │            ▼
+  │     LLM proposes edits (submit_edits tool: ops + a reason each)
+  │            │  invalid? retry once with the validation error
+  │            ▼
+  │     applyFixes ──► guardrails ──► re-check
+  │            │
+  └── accept ◄─┴─► score dropped? roll back, tell the LLM what it broke
+```
+
+**The model gets**, in one stateless request per iteration:
+
+- the score and the target
+- every issue, with the checker's suggested fix
+- a layout table (id, role, box, z-order, font/colour)
+- feedback from earlier rolled-back or invalid attempts
+- the design JSON
+- the annotated render as an image
+
+**The system prompt never changes**, so it's prompt-cached across every call in a run and the whole eval. It holds the rules, the ops, the strategy and the design's JSON Schema.
+
+**The model answers through a `submit_edits` tool** with `strict: true`, whose schema is generated from the same Zod schema `applyFixes` uses. It can accept, adjust or ignore the checker's suggestions. Suggestions only know about one rule, and they often cause new problems: growing a text box can push it into the button below.
+
+**Guardrails and stopping:**
+
+- **Layout and style only:** the op set can't express changes to text, font family or image `src`. A backstop also compares those fields against the original after every step.
+- **Validation:** every response is validated with Zod and retried once with the validation error. Responses are capped at 25 edits.
+- **Rollback:** an iteration is accepted only if the score doesn't drop. Otherwise it's rolled back, and the next request includes the score drop plus the new issues it caused.
+- **Stopping** happens when any of these is true:
+  - score ≥ target **and** no errors remain
+  - no issues remain
+  - max iterations is reached
+  - two iterations in a row fail to improve (by score or error count)
+  - the editor fails
+- **Best version:** the loop keeps the best version seen (highest score, then fewest errors).
+
+**Replayable history:** every iteration, including rolled-back candidates, stores a full design snapshot, its report, the edits with reasons, token usage and timing. The web app can animate it directly, and a test checks that every snapshot re-checks to its recorded score.
+
+**Reproducibility:** no server-side model fallback is enabled, so every response comes from the model you asked for. The eval records the model id the API reports.
+
+```ts
+import { createAnthropicEditor, runFixLoop } from '@simonlunay/redline-agent';
+import { createFixSession } from '@simonlunay/redline-agent/node';
+
+const session = await createFixSession('poster.json');
+const result = await runFixLoop(session.loaded.design, {
+  editor: createAnthropicEditor({ model: 'claude-sonnet-5-5', effort: 'medium' }),
+  check: session.check,
+  renderImage: session.renderImage,
+  target: 90,
+  maxIterations: 4,
+});
+result.best.design; // the fixed design
+result.history; // every step, replayable
+```
+
+`DesignEditor` is a one-method interface (`proposeEdits(request) → { raw, usage, model }`), so other LLM providers plug in without touching the loop. Validation, guardrails and rollback all live in the loop, so every provider is treated the same. `createSuggestedFixesEditor()` is the deterministic, offline editor used in tests and as the eval's rules-only baseline.
+
+## Evaluation
+
+```bash
+npm run eval                                              # default model
+npm run eval -- --models claude-sonnet-5-5,claude-opus-5-5 --runs 3
+npm run eval -- --no-llm                                  # baselines only, free
+npm run eval -- --fixtures worst,promo-food --effort high
+```
+
+Every fixture is measured four ways, all with the same precise checker the CLI uses:
+
+| Column     | What it measures                                                                  |
+| ---------- | --------------------------------------------------------------------------------- |
+| Before     | The original design                                                               |
+| Rules once | Apply the checker's suggested fixes once, with no LLM                             |
+| Rules loop | The same fix loop, but the editor only applies the checker's suggestions (no LLM) |
+| _model_    | The fix loop with Claude (`--runs N`: mean and min–max)                           |
+
+**The two rules columns are deterministic.** They separate what _iterating_ adds from what the _LLM_ adds.
+
+**Results** are saved to `packages/agent/eval/results/*.json` and include:
+
+- the git commit and settings
+- per-step history
+- every accepted edit with its reason
+- the best design
+- token usage and estimated cost
+- the model ids the API returned
+
+**Fixtures:** 14 in total:
+
+- a clean poster
+- one fixture per rule
+- `worst.json`
+- four messy, ad-like designs, each failing 5–8 rules at once: `ad-sneaker-sale`, `story-concert`, `banner-saas`, `promo-food`
+
+<!-- EVAL-RESULTS -->
+
 ## Development
 
 ```bash
 npm install
-npm test                 # vitest: unit tests per rule + snapshot reports of every fixture
-npm run lint             # eslint (also blocks Node imports inside src/core)
+npm test                 # vitest: checker + agent (no test calls a real API)
+npm run lint             # eslint (also blocks Node imports in isomorphic code)
 npm run typecheck
-npm run build
-npx tsx packages/checker/src/cli.ts check fixtures/worst.json --annotate out/worst.png
+npm run build                                 # checker, then agent
+npm run redline -- check fixtures/worst.json --annotate out/worst.png
+npm run redline -- fix fixtures/worst.json --editor suggested    # offline
+npm run eval -- --no-llm
 npm run fixture-images -w packages/checker   # regenerate placeholder images
 ```
 
+`npm run redline` runs the CLI straight from TypeScript source through a custom `@simonlunay/source` export condition, so you don't have to build first. Published builds ignore that condition.
+
+LLM behaviour is tested with a scripted editor and a fake Anthropic client, and the CLI tests inject an empty environment, so tests never spend money.
+
 ```
-packages/checker/
-  src/core/     isomorphic: schema, engine, geometry, colour, text layout, rules/
+packages/checker/            @simonlunay/redline
+  src/core/     isomorphic: schema, engine, fixes, geometry, colour, text layout, rules/
   src/node/     Node-only: fonts, image sampler, renderer, pretty formatter
   src/cli.ts
   fonts/        Inter (SIL Open Font License), for identical results on every OS
-fixtures/       sample designs: a clean poster plus one design per defect
+packages/agent/              @simonlunay/redline-agent
+  src/          isomorphic: loop, edit schema + guardrails, prompt, editors/
+  src/node/     redline fix command, sessions, output formatting
+  eval/         npm run eval + saved results
+fixtures/       sample designs: clean, one per defect, worst case, four messy ads
 ```
 
-The core stays isomorphic because ESLint's `no-restricted-imports` rule forbids `node:*`, `fs`, `path` and `@napi-rs/*` inside `src/core`.
+ESLint's `no-restricted-imports` rule forbids `node:*`, `fs`, `path` and `@napi-rs/*` inside `packages/checker/src/core` and `packages/agent/src` (except `src/node`). That keeps the core isomorphic.
 
 ## Roadmap
 
-1. **AI fix loop**: an agent that applies `fix` operations (or reasons from the messages), re-checks, and stops when the score passes a target.
-2. **Generation**: produce designs in this format from a brief, then run them through the loop.
-3. **Resizing**: adapt a design across formats (Instagram post, story, banner) and re-check every version.
-4. **Attention check**: use a vision model on the rendered PNG to judge what the eye lands on first.
-5. **Web app**: a React canvas editor (`apps/web`) that runs the checker live in the browser.
+1. ~~**Checker**: rules, scoring, machine-readable fixes, CLI.~~ Done.
+2. ~~**AI fix loop**: check → LLM edits → re-check with rollback, plus an eval harness.~~ Done.
+3. **Attention check**: a rule that runs a visual saliency model on the rendered PNG to predict where viewers look. It will check that key elements (CTA, headline, logo, product) get enough of that attention, and report per-element attention shares. The plumbing is in place:
+   - async rules
+   - `requires: ['render']` with a lazy `ctx.render()`
+   - `elementScores` in reports
+   - `checkAsync` in the CLI and the fix loop
+4. **Generation**: produce designs in this format from a brief, then run them through the loop.
+5. **Resizing**: adapt a design across formats (Instagram post, story, banner) and re-check every version.
+6. **Web app**: a React canvas editor (`apps/web`) that runs the checker live in the browser and replays fix-loop histories.
 
 ## License
 
