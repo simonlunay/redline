@@ -193,7 +193,9 @@ describe('attention rules', () => {
   });
 
   it('passes when the key elements get their share', async () => {
-    const report = await run((x, y) => blob(0.5, 0.153, 0.04)(x, y) + blob(0.157, 0.861, 0.02)(x, y));
+    const report = await run(
+      (x, y) => blob(0.5, 0.153, 0.04)(x, y) + blob(0.157, 0.861, 0.02)(x, y),
+    );
     expect(report.issues).toEqual([]);
   });
 

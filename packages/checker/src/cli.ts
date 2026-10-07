@@ -6,9 +6,12 @@ import { parseArgs } from 'node:util';
 import pc from 'picocolors';
 import { ZodError } from 'zod';
 import { checkAsync } from './core/check.js';
-import { builtinRules } from './core/rules/index.js';
+import { attentionRules, builtinRules } from './core/rules/index.js';
 import { DesignValidationError } from './core/schema.js';
-import { createNodeEnv, loadConfig, loadDesign } from './node/index.js';
+import { renderHeatmapPng } from './node/heatmap.js';
+import { createNodeEnv, getAttentionModel, loadConfig, loadDesign } from './node/index.js';
+import { MSI_NET } from './node/saliency/onnx-model.js';
+import { cacheDir, ensureModelFile } from './node/saliency/model-file.js';
 import { renderAnnotatedPng, renderPng } from './node/render.js';
 import { formatPretty } from './node/report-format.js';
 
@@ -23,6 +26,7 @@ ${pc.bold('redline')} - ESLint for designs
 ${pc.bold('Usage')}
   redline check <design.json> [options]
   redline rules                      List built-in rules and their defaults
+  redline setup attention            Download the saliency model used by --attention (50 MB)
   redline fix <design.json> [...]    AI fix loop (needs @simonlunay/redline-agent; see fix --help)
 
 ${pc.bold('Options')}
@@ -30,6 +34,8 @@ ${pc.bold('Options')}
   --config <path>          JSON config: { "rules": { "<rule-id>": "off" | "warning" | {...} } }
   --render <out.png>       Render the design to a PNG
   --annotate <out.png>     Render the design with issues drawn on top
+  --attention              Also run the attention rules (saliency model, needs onnxruntime-node)
+  --heatmap <out.png>      Write a predicted-attention overlay (implies --attention)
   -h, --help               Show this help
   -v, --version            Show the version
 
@@ -50,7 +56,7 @@ async function writePng(path: string, data: Buffer): Promise<void> {
 }
 
 function listRules(): void {
-  for (const rule of builtinRules) {
+  for (const rule of [...builtinRules, ...attentionRules]) {
     console.log(
       `${pc.bold(rule.id)} ${pc.dim(`(${rule.defaultSeverity}, weight ${rule.weight})`)}`,
     );
@@ -66,13 +72,16 @@ async function runCheck(file: string, values: Record<string, string | boolean | 
     throw new UsageError(`Unknown --format "${format}". Use "pretty" or "json".`);
   }
   const config = values.config ? await loadConfig(values.config as string) : undefined;
+  const attention = Boolean(values.attention || values.heatmap);
   const loaded = await loadDesign(file);
-  const env = await createNodeEnv(loaded);
+  const env = await createNodeEnv(loaded, { attention });
   const report = await checkAsync(loaded.design, {
     config,
+    rules: attention ? [...builtinRules, ...attentionRules] : builtinRules,
     measurer: env.measurer,
     sampler: env.sampler,
     render: env.render,
+    saliency: env.saliency,
   });
 
   if (values.render) {
@@ -85,6 +94,15 @@ async function runCheck(file: string, values: Record<string, string | boolean | 
     );
   }
 
+  if (values.heatmap && env.saliency) {
+    // Same render and model as the check, so this hits the prediction cache.
+    const map = await env.saliency.predict(await env.render(loaded.design));
+    await writePng(
+      values.heatmap as string,
+      await renderHeatmapPng(loaded.design, map, { images: env.images, modelId: env.saliency.id }),
+    );
+  }
+
   if (format === 'json') {
     console.log(JSON.stringify({ file, ...report, warnings: env.warnings }, null, 2));
   } else {
@@ -93,6 +111,7 @@ async function runCheck(file: string, values: Record<string, string | boolean | 
     );
     if (values.render) console.log(pc.dim(`  rendered → ${values.render}`));
     if (values.annotate) console.log(pc.dim(`  annotated → ${values.annotate}`));
+    if (values.heatmap) console.log(pc.dim(`  heatmap → ${values.heatmap}`));
   }
   return report.passed ? EXIT_OK : EXIT_ISSUES;
 }
@@ -147,6 +166,8 @@ async function main(argv: string[]): Promise<number> {
       config: { type: 'string' },
       render: { type: 'string' },
       annotate: { type: 'string' },
+      attention: { type: 'boolean' },
+      heatmap: { type: 'string' },
       help: { type: 'boolean', short: 'h' },
       version: { type: 'boolean', short: 'v' },
     },
@@ -163,6 +184,14 @@ async function main(argv: string[]): Promise<number> {
   }
   if (command === 'rules') {
     listRules();
+    return EXIT_OK;
+  }
+  if (command === 'setup') {
+    if (file !== 'attention') throw new UsageError('Usage: redline setup attention');
+    const path = await ensureModelFile(MSI_NET, { onProgress: (m) => console.log(pc.dim(m)) });
+    await getAttentionModel(); // also proves onnxruntime-node loads the file
+    console.log(pc.green(`✔ ${MSI_NET.id} ready: ${path}`));
+    console.log(pc.dim(`  cache: ${cacheDir()} (override with REDLINE_CACHE_DIR)`));
     return EXIT_OK;
   }
   if (command !== 'check') throw new UsageError(`Unknown command "${command}".`);
