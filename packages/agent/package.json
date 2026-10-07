@@ -4,6 +4,24 @@
   "description": "AI fix loop for Redline: check a design, let an LLM repair it, re-check, repeat.",
   "license": "MIT",
   "author": "Simon Lunay",
+  "keywords": [
+    "design",
+    "ai",
+    "llm",
+    "claude",
+    "agent",
+    "lint",
+    "redline"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonlunay/redline.git",
+    "directory": "packages/agent"
+  },
+  "homepage": "https://github.com/simonlunay/redline/tree/main/packages/agent#readme",
+  "bugs": {
+    "url": "https://github.com/simonlunay/redline/issues"
+  },
   "type": "module",
   "exports": {
     ".": {
@@ -19,13 +37,19 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "eval": "tsx --conditions=@simonlunay/source eval/run.ts"
+    "eval": "tsx --conditions=@simonlunay/source eval/run.ts",
+    "prepack": "npm run build && node -e \"require('fs').copyFileSync('../../LICENSE', 'LICENSE')\""
   },
   "engines": {
     "node": ">=20"
