@@ -299,8 +299,9 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       const remover = options.remover;
       try {
         const cut = await cutoutLock(() => remover.remove(image.bytes));
-        const used =
-          (remover as { lastUsed?: () => BackgroundRemover | undefined }).lastUsed?.() ?? remover;
+        const used = cut.remover ?? remover;
+        if (cut.fallbackReason)
+          warn(`Cutout for ${key} used ${used.id} instead of BiRefNet: ${cut.fallbackReason}`);
         stored = await assets.saveGenerated(
           image,
           fileBase,

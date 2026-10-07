@@ -1,3 +1,4 @@
+import { freemem } from 'node:os';
 import { createCanvas, ImageData, loadImage } from '@napi-rs/canvas';
 import { ensureModelFile } from '@simonlunay/redline/node';
 import type { PinnedModelFile } from '@simonlunay/redline/node';
@@ -17,6 +18,22 @@ export const BIREFNET_LITE: PinnedModelFile & { id: string; license: string } = 
   bytes: 224005088,
   sha256: '5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333',
 };
+
+/**
+ * BiRefNet_lite's input is fixed at 1024x1024, and one fp32 inference on CPU peaks at about 6 GB
+ * of native memory (measured: onnxruntime-node 1.30, Windows; fp16 weights don't lower it, ORT
+ * casts back to fp32). With ONNX Runtime's default CPU arena that peak also stays reserved for the
+ * life of the session (~6.5 GB held between cutouts, 8.2 GB peak). Without the arena and the
+ * memory-pattern planner it's returned after every run, with identical output and speed.
+ */
+export const BIREFNET_SESSION_OPTIONS = {
+  enableCpuMemArena: false,
+  enableMemPattern: false,
+  graphOptimizationLevel: 'all',
+} as const;
+
+/** Free memory below which the auto remover uses the backdrop keyer instead (default 2 GB). */
+const DEFAULT_MIN_FREE_BYTES = 2 * 1024 ** 3;
 
 const SIZE = 1024;
 const MEAN = [0.485, 0.456, 0.406];
@@ -100,67 +117,77 @@ export function createBiRefNetRemover(
         options.modelPath ??
         process.env.REDLINE_CUTOUT_MODEL ??
         (await ensureModelFile(BIREFNET_LITE, { onProgress: options.onProgress }));
-      return { ort, session: await ort.InferenceSession.create(path) };
+      return { ort, session: await ort.InferenceSession.create(path, BIREFNET_SESSION_OPTIONS) };
     })().catch((err: unknown) => {
       session = undefined;
       throw err;
     }));
+  // One inference at a time per remover, even when several generations share it (eval
+  // concurrency): two overlapping runs would need ~12 GB.
+  let tail: Promise<unknown> = Promise.resolve();
+  const exclusive = <T>(fn: () => Promise<T>): Promise<T> => {
+    const run = tail.then(fn, fn);
+    tail = run.catch(() => undefined);
+    return run;
+  };
 
   return {
     id: 'birefnet',
     model: BIREFNET_LITE.id,
     license: BIREFNET_LITE.license,
-    async remove(bytes) {
-      const { ort, session: s } = await load();
-      const image = await loadImage(Buffer.from(bytes));
-      const source = createCanvas(image.width, image.height);
-      const sctx = source.getContext('2d');
-      sctx.drawImage(image, 0, 0);
-      const rgba = {
-        width: image.width,
-        height: image.height,
-        data: sctx.getImageData(0, 0, image.width, image.height).data,
-      };
-
-      // Preprocess exactly like the model's preprocessor_config: resize to 1024x1024 (no aspect
-      // preservation), scale to 0-1, ImageNet mean/std, NCHW.
-      const input = createCanvas(SIZE, SIZE);
-      const ictx = input.getContext('2d');
-      ictx.imageSmoothingQuality = 'high';
-      ictx.drawImage(image, 0, 0, SIZE, SIZE);
-      const px = ictx.getImageData(0, 0, SIZE, SIZE).data;
-      const tensor = new Float32Array(3 * SIZE * SIZE);
-      for (let i = 0; i < SIZE * SIZE; i++) {
-        for (let c = 0; c < 3; c++) {
-          tensor[c * SIZE * SIZE + i] = (px[i * 4 + c]! / 255 - MEAN[c]!) / STD[c]!;
-        }
-      }
-      const result = await s.run({
-        [s.inputNames[0]!]: new ort.Tensor('float32', tensor, [1, 3, SIZE, SIZE]),
-      });
-      const logits = result[s.outputNames[0]!]!.data as Float32Array;
-
-      // Sigmoid -> 1024x1024 mask -> resize to the original size.
-      const mask = createCanvas(SIZE, SIZE);
-      const maskData = new Uint8ClampedArray(SIZE * SIZE * 4);
-      for (let i = 0; i < SIZE * SIZE; i++) {
-        const v = Math.round(255 / (1 + Math.exp(-logits[i]!)));
-        maskData[i * 4] = v;
-        maskData[i * 4 + 1] = v;
-        maskData[i * 4 + 2] = v;
-        maskData[i * 4 + 3] = 255;
-      }
-      mask.getContext('2d').putImageData(new ImageData(maskData, SIZE, SIZE), 0, 0);
-      const scaled = createCanvas(image.width, image.height);
-      const mctx = scaled.getContext('2d');
-      mctx.imageSmoothingQuality = 'high';
-      mctx.drawImage(mask, 0, 0, image.width, image.height);
-      const m = mctx.getImageData(0, 0, image.width, image.height).data;
-      const alpha = new Uint8ClampedArray(image.width * image.height);
-      for (let i = 0; i < alpha.length; i++) alpha[i] = m[i * 4]!;
-      return applyMaskAndTrim(rgba, alpha);
-    },
+    remove: (bytes) => exclusive(() => removeWith(bytes)),
   };
+
+  async function removeWith(bytes: Uint8Array): Promise<Cutout> {
+    const { ort, session: s } = await load();
+    const image = await loadImage(Buffer.from(bytes));
+    const source = createCanvas(image.width, image.height);
+    const sctx = source.getContext('2d');
+    sctx.drawImage(image, 0, 0);
+    const rgba = {
+      width: image.width,
+      height: image.height,
+      data: sctx.getImageData(0, 0, image.width, image.height).data,
+    };
+
+    // Preprocess exactly like the model's preprocessor_config: resize to 1024x1024 (no aspect
+    // preservation), scale to 0-1, ImageNet mean/std, NCHW.
+    const input = createCanvas(SIZE, SIZE);
+    const ictx = input.getContext('2d');
+    ictx.imageSmoothingQuality = 'high';
+    ictx.drawImage(image, 0, 0, SIZE, SIZE);
+    const px = ictx.getImageData(0, 0, SIZE, SIZE).data;
+    const tensor = new Float32Array(3 * SIZE * SIZE);
+    for (let i = 0; i < SIZE * SIZE; i++) {
+      for (let c = 0; c < 3; c++) {
+        tensor[c * SIZE * SIZE + i] = (px[i * 4 + c]! / 255 - MEAN[c]!) / STD[c]!;
+      }
+    }
+    const result = await s.run({
+      [s.inputNames[0]!]: new ort.Tensor('float32', tensor, [1, 3, SIZE, SIZE]),
+    });
+    const logits = result[s.outputNames[0]!]!.data as Float32Array;
+
+    // Sigmoid -> 1024x1024 mask -> resize to the original size.
+    const mask = createCanvas(SIZE, SIZE);
+    const maskData = new Uint8ClampedArray(SIZE * SIZE * 4);
+    for (let i = 0; i < SIZE * SIZE; i++) {
+      const v = Math.round(255 / (1 + Math.exp(-logits[i]!)));
+      maskData[i * 4] = v;
+      maskData[i * 4 + 1] = v;
+      maskData[i * 4 + 2] = v;
+      maskData[i * 4 + 3] = 255;
+    }
+    mask.getContext('2d').putImageData(new ImageData(maskData, SIZE, SIZE), 0, 0);
+    const scaled = createCanvas(image.width, image.height);
+    const mctx = scaled.getContext('2d');
+    mctx.imageSmoothingQuality = 'high';
+    mctx.drawImage(mask, 0, 0, image.width, image.height);
+    const m = mctx.getImageData(0, 0, image.width, image.height).data;
+    const alpha = new Uint8ClampedArray(image.width * image.height);
+    for (let i = 0; i < alpha.length; i++) alpha[i] = m[i * 4]!;
+    return applyMaskAndTrim(rgba, alpha);
+  }
 }
 
 /**
@@ -236,14 +263,28 @@ export function createBackdropKeyRemover(options: { tolerance?: number } = {}): 
 }
 
 /**
- * BiRefNet when it can be loaded (onnxruntime-node installed, model downloadable), otherwise the
- * backdrop keyer. The returned remover reports which one actually ran via `lastUsed()`.
+ * BiRefNet when it can be loaded (onnxruntime-node installed, model downloadable) and the machine
+ * has memory to spare, otherwise the backdrop keyer. Each cutout says which one made it
+ * (`remover`, `fallbackReason`); `lastUsed()` is kept for single-generation callers.
  */
 export function createAutoRemover(
-  options: { onProgress?: (message: string) => void; onFallback?: (reason: string) => void } = {},
+  options: {
+    onProgress?: (message: string) => void;
+    onFallback?: (reason: string) => void;
+    /** Below this much free memory a cutout uses the keyer (also: REDLINE_CUTOUT_MIN_FREE_MB). */
+    minFreeBytes?: number;
+    /** Injected in tests. */
+    primary?: BackgroundRemover;
+    freeMemory?: () => number;
+  } = {},
 ): BackgroundRemover & { lastUsed(): BackgroundRemover | undefined } {
-  const primary = createBiRefNetRemover({ onProgress: options.onProgress });
+  const primary = options.primary ?? createBiRefNetRemover({ onProgress: options.onProgress });
   const fallback = createBackdropKeyRemover();
+  const envMin = Number(process.env.REDLINE_CUTOUT_MIN_FREE_MB);
+  const minFree =
+    options.minFreeBytes ?? (envMin > 0 ? envMin * 1024 ** 2 : DEFAULT_MIN_FREE_BYTES);
+  const freeMemory = options.freeMemory ?? freemem;
+  const info = (r: BackgroundRemover) => ({ id: r.id, model: r.model, license: r.license });
   let broken: string | undefined;
   let last: BackgroundRemover | undefined;
   return {
@@ -252,18 +293,26 @@ export function createAutoRemover(
     license: primary.license,
     lastUsed: () => last,
     async remove(bytes) {
-      if (!broken) {
-        try {
-          const result = await primary.remove(bytes);
-          last = primary;
-          return result;
-        } catch (err) {
-          broken = err instanceof Error ? err.message : String(err);
-          options.onFallback?.(broken);
+      let reason = broken;
+      if (!reason) {
+        const free = freeMemory();
+        if (free < minFree) {
+          // Not sticky: memory may be back for the next cutout.
+          reason = `only ${Math.round(free / 1024 ** 2)} MB of memory free (BiRefNet needs ~6 GB at its peak)`;
+          options.onFallback?.(reason);
+        } else {
+          try {
+            const result = await primary.remove(bytes);
+            last = primary;
+            return { ...result, remover: info(primary) };
+          } catch (err) {
+            broken = reason = err instanceof Error ? err.message : String(err);
+            options.onFallback?.(broken);
+          }
         }
       }
       last = fallback;
-      return fallback.remove(bytes);
+      return { ...(await fallback.remove(bytes)), remover: info(fallback), fallbackReason: reason };
     },
   };
 }

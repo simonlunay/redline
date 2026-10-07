@@ -260,7 +260,7 @@ export async function runGenerateCommand(
       remover = createAutoRemover({
         onProgress: (m) => io.stderr(m),
         onFallback: (reason) =>
-          warnings.push(`BiRefNet unavailable, using backdrop keying for cutouts: ${reason}`),
+          warnings.push(`Backdrop keying used for a cutout instead of BiRefNet: ${reason}`),
       });
     } else if (cutoutName === 'birefnet')
       remover = createBiRefNetRemover({ onProgress: (m) => io.stderr(m) });
