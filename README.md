@@ -757,7 +757,7 @@ prompt ──► art director (Claude, JSON output) ──► plan: copy, palett
 
 - The background fills the canvas with `fit: cover`, so any generated size works.
 - Subjects, logos and supplied images get the largest box with their **real** aspect ratio inside the planned box (`fit: contain`). They're never stretched.
-- CTA labels are snapped to their text's real height and centered in their button. Text renders from the top of its box, so a label box that fills its button sits visibly high. Nothing overflows or overlaps there, so the checker can't flag it, and the first live run showed exactly this.
+- CTA labels are snapped to their text's real height and centered in their button. Text renders from the top of its box, so a label box that fills its button sits visibly high, and the first live run showed exactly this. The `label-centered` rule now catches it as well, so the fix loop re-centers a label it has moved, and `redline check` / `redline fix` catch it in your own designs.
 
 ### Output files
 
@@ -832,13 +832,40 @@ npm run eval:generate -- --offline          # template director + mock images + 
 
 There's also a summary row with means. Every paid call goes through the persistent ledger `packages/generate/eval/results/spend-ledger.json`, which also enforces a cap.
 
-**Status: the full live eval has not completed yet.** Three attempts were cut short:
+**Results (2026-10-07, first full run).** Sonnet 5.5 (`medium`) + FLUX.1 schnell, 4 candidates, target 95, max 4 iterations, 2 regenerations allowed, `--concurrency 1 --budget 5`. Raw data: `packages/generate/eval/results/2026-10-07T21-23-33-175Z_generate_claude-sonnet-5-5.json`.
+
+| Prompt            | Size      | First  | Best-of-4 | Final | Iterations | Regenerations | CTA attention | Cost   | Looks off despite 100?                                                    |
+| ----------------- | --------- | ------ | --------- | ----- | ---------- | ------------- | ------------- | ------ | ------------------------------------------------------------------------- |
+| charity-5k        | 1080×1350 | 100    | 100       | 100   | 0          | 0             | 12.2%         | $0.047 |                                                                           |
+| coffee-latte      | 1080×1080 | 100    | 100       | 100   | 0          | 0             | 8.5%          | $0.052 | Yes: ragged, partly see-through edges on the keyed latte glass            |
+| sneaker-drop      | 1080×1920 | 100    | 100       | 100   | 0          | 0             | 15.7%         | $0.040 |                                                                           |
+| saas-banner       | 1200×628  | 100    | 100       | 100   | 0          | 0             | 9.9%          | $0.035 |                                                                           |
+| jazz-night        | 1080×1350 | failed |           |       |            |               |               |        | Art director returned empty layouts twice                                 |
+| summer-sale       | 1080×1080 | 56     | 100       | 100   | 0          | 0             | 8.8%          | $0.039 |                                                                           |
+| farmers-market    | 1080×1920 | 100    | 100       | 100   | 0          | 0             | 8.9%          | $0.038 |                                                                           |
+| headphones-launch | 1500×500  | 94     | 100       | 100   | 0          | 0             | 7.0%          | $0.039 | Slightly: a white disc of leftover backdrop under the headphones          |
+| yoga-retreat      | 1080×1350 | 100    | 100       | 100   | 0          | 0             | 15.5%         | $0.031 | **Yes: FLUX drew a gibberish "Fore tob'x cort terte" pill below the CTA** |
+| pizza-delivery    | 1200×628  | 100    | 100       | 100   | 0          | 0             | 8.6%          | $0.040 |                                                                           |
+| tech-conference   | 1080×1080 | failed |           |       |            |               |               |        | A Replicate prediction timed out                                          |
+| pet-adoption      | 1080×1350 | 58     | 100       | 100   | 0          | 0             | 5.3%          | $0.040 |                                                                           |
+| skincare-serum    | 1080×1920 | 94     | 100       | 100   | 0          | 0             | 7.1%          | $0.039 | **Yes: the keyer cut a notch out of the serum bottle's shoulder**         |
+| bookstore-event   | 1500×500  | 88     | 100       | 100   | 0          | 0             | 7.0%          | $0.031 |                                                                           |
+| **mean (12 run)** |           | 90.8   | 100       | 100   | 0          | 0             | 9.6%          | $0.039 |                                                                           |
+
+- **Target (95, no errors) on the first candidate: 7 of 12.** The five misses were text contrast over the photo (summer-sale, pet-adoption) and attention (headphones, skincare, bookstore: the CTA or headline drew too little of the predicted attention, or a background hot spot competed with it).
+- **On best-of-4: 12 of 12.** Another layout or background rescued every miss.
+- **Needed the fix loop: 0. Needed an image regeneration: 0.** So this run doesn't exercise the loop or the regeneration op. Both are still only covered by tests.
+- **`label-centered` fired on none of the 48 candidates**, because assembly already centers CTA labels. The rule is there for the fix loop, which can move labels, and for your own designs.
+- **Invented facts: none.** Where the prompt gave no date or venue, the director wrote `[Date]` / `[Venue]` placeholders (charity, farmers market, pet adoption, bookstore). The checker accepts placeholders; a person still has to fill them in before publishing.
+- **2 of 14 failed**, neither in code this branch changed: one Replicate timeout, and one art-director plan with empty layouts on both tries (the earlier fix made this rare, not impossible).
+- **Every cutout in this run used the backdrop keyer, not BiRefNet**, because the machine had under 7.5 GB free. The keyer caused every cutout problem in the table. It also produced clearly broken candidates that didn't win but still scored 100: an uncut photo rectangle with a leg in it (sneaker-drop #2 and #4) and white slabs left under the runner (charity-5k #2 and #4). The checker can't see cutout quality.
+- Cost: $0.52 this run ($0.039 per design on average). Ledger total so far: $1.37 of the $15 cap, including all earlier attempts and debugging calls.
+
+Earlier attempts, and the memory investigation behind the keyer fallback:
 
 1. The first attempt exposed two bugs, both fixed and tested. The art director returned empty layouts (see the `designPlanSchema` comment), and Replicate throttled us to 6 predictions per minute, which the retry budget didn't survive.
 2. The second attempt was stopped by the host because the machine ran low on memory. Two prompts had already failed on network errors (`fetch failed`), which are now retried.
-3. The third attempt (2026-10-07, `--concurrency 1`, after the memory fixes) was stopped by the host for low memory again, at the **first BiRefNet cutout** of the first prompt. One inference needs about 6 GB, and the machine had about 7 GB free. The cutout fallback threshold was 2 GB, so it went ahead. It's now 7.5 GB, so on a machine like this one, subjects are cut out with the backdrop keyer instead of crashing. That attempt spent $0.037.
-
-What the memory investigation found (measured on one offline generate run with the real models):
+3. The third attempt was stopped for low memory at the **first BiRefNet cutout**. One inference needs about 6 GB, and the machine had about 7 GB free. The fallback threshold is now 7.5 GB, so a machine like this one keys subjects instead of crashing.
 
 |                                | Before  | After   |
 | ------------------------------ | ------- | ------- |
@@ -846,22 +873,11 @@ What the memory investigation found (measured on one offline generate run with t
 | Resident after the run         | 7.59 GB | 0.72 GB |
 | Resident after 3 runs in a row | 6.96 GB | 0.73 GB |
 
-The cause was ONNX Runtime's CPU arena keeping BiRefNet's ~6 GB inference peak for the life of the session. That's now off (identical output and speed). Cutouts are also serialized across parallel prompts. MSI-Net only uses about 0.3 GB. Nothing was reloaded per candidate or prompt: both sessions were already created once per process.
-
-Live results so far, all Sonnet 5.5 + FLUX.1 schnell with 4 candidates:
-
-| Prompt                                              | Size      | First   | Best-of-4 | Final | Iterations | Cost   | Notes                                                 |
-| --------------------------------------------------- | --------- | ------- | --------- | ----- | ---------- | ------ | ----------------------------------------------------- |
-| poster for a charity 5K, energetic, blue and orange | 1080×1350 | 76      | 100       | 100   | 0          | $0.052 | Copy invented "Saturday, June 14 · City Park"         |
-| (same prompt, first eval attempt)                   | 1080×1350 | 100     | 100       | 100   | 0          | $0.088 |                                                       |
-| (same prompt, 2026-10-07, after the fixes)          | 1080×1350 | 100     | 100       | 100   | 0          | $0.047 | Copy "Charity 5K · [Date] · [Venue]"; peak RSS 6.3 GB |
-| the other 13 prompts                                |           | not run |           |       |            |        |                                                       |
-
-Three runs of one prompt are too little to draw conclusions from: on all three, best-of-4 already reached the target and the fix loop never ran. To fill the table, run `npm run eval:generate -- --concurrency 1 --budget 5` on a machine with at least ~8 GB of free memory, or accept keyed cutouts (they're used automatically below 7.5 GB free). Total ledger spend so far is $0.47, including the debugging calls.
+The cause was ONNX Runtime's CPU arena keeping BiRefNet's ~6 GB inference peak for the life of the session. That's now off (identical output and speed). Cutouts are also serialized across parallel prompts. MSI-Net only uses about 0.3 GB.
 
 ### Limits
 
-- **The checker is still the judge.** A generated design that scores 100 passes the layout and attention rules. It isn't necessarily a good design. The eval below lists the cases I found that score well but look wrong.
+- **The checker is still the judge.** A generated design that scores 100 passes the layout and attention rules. It isn't necessarily a good design. The last column of the eval table flags the ones that score 100 but look wrong.
 - **Fonts:** only Inter is bundled. The art director can use other families only if you register them with `--font`.
 - **Cutouts** are as good as BiRefNet on a plain backdrop: fine for products, people and animals, weaker on thin structures. The keying fallback leaves halos on shadows.
 - **FLUX schnell** sometimes ignores parts of the brief, including "no text". The calm-area instruction is a request, not a guarantee, which is exactly what the regeneration op and the contrast rule are there to catch.
