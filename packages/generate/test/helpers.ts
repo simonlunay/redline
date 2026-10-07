@@ -26,7 +26,9 @@ export function brightnessSaliency(): SaliencyModel {
 }
 
 /** A fetch fake that answers by URL pattern and records requests. */
-export function fakeFetch(routes: [RegExp, (url: string, init?: RequestInit) => Response | Promise<Response>][]) {
+export function fakeFetch(
+  routes: [RegExp, (url: string, init?: RequestInit) => Response | Promise<Response>][],
+) {
   const calls: { url: string; init?: RequestInit }[] = [];
   const impl = (async (input: string | URL | Request, init?: RequestInit) => {
     const url = String(input);

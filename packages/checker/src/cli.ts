@@ -175,7 +175,9 @@ async function runGenerate(argv: string[]): Promise<number> {
       String((err as Error).message).includes('redline-generate');
     if (!missing) throw err;
     console.error(
-      pc.red('redline generate needs the generate package: npm install @simonlunay/redline-generate'),
+      pc.red(
+        'redline generate needs the generate package: npm install @simonlunay/redline-generate',
+      ),
     );
     return EXIT_USAGE;
   }

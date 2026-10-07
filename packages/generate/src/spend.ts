@@ -46,7 +46,8 @@ export function createMemoryLedger(capUsd = Infinity, initial: SpendEntry[] = []
     capUsd,
     spentUsd: spent,
     guard(estimateUsd, what) {
-      if (spent() + estimateUsd > capUsd) throw new BudgetExceededError(spent(), capUsd, estimateUsd, what);
+      if (spent() + estimateUsd > capUsd)
+        throw new BudgetExceededError(spent(), capUsd, estimateUsd, what);
     },
     record(entry) {
       list.push({ at: new Date().toISOString(), ...entry });
@@ -82,7 +83,13 @@ export function budgetedEditor(
       ledger.guard(worstCaseLlmCallUsd(model), `fix-loop call (${model})`);
       const response = await editor.proposeEdits(request);
       const cost = response.usage ? estimateCostUsd(response.model ?? model, response.usage) : null;
-      ledger.record({ kind: 'llm', what: 'fix-loop', model: response.model ?? model, costUsd: cost ?? 0, tag });
+      ledger.record({
+        kind: 'llm',
+        what: 'fix-loop',
+        model: response.model ?? model,
+        costUsd: cost ?? 0,
+        tag,
+      });
       return response;
     },
   };

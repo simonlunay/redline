@@ -1,5 +1,5 @@
-import { FORMAT_VERSION, parseDesign } from '@simonlunay/redline';
-import type { Design, DesignElement } from '@simonlunay/redline';
+import { FORMAT_VERSION, heuristicMeasurer, layoutText, parseDesign } from '@simonlunay/redline';
+import type { Design, DesignElement, TextMeasurer } from '@simonlunay/redline';
 import type { DesignPlan } from './plan.js';
 
 /** A produced image for a slot: where it is stored and its real pixel size. */
@@ -42,6 +42,7 @@ export function assembleDesign(
   canvas: { width: number; height: number },
   images: ReadonlyMap<string, SlotImage>,
   name?: string,
+  measurer: TextMeasurer = heuristicMeasurer,
 ): Design {
   const layout = plan.layouts[layoutIndex];
   if (!layout) throw new Error(`The plan has no layout ${layoutIndex}`);
@@ -97,10 +98,47 @@ export function assembleDesign(
       fit: fullBleed ? 'cover' : 'contain',
     };
   });
-  return parseDesign({
-    version: FORMAT_VERSION,
-    name: name ?? layout.name,
-    canvas: { width: canvas.width, height: canvas.height, background: plan.palette.background },
-    elements,
+  return centerButtonLabels(
+    parseDesign({
+      version: FORMAT_VERSION,
+      name: name ?? layout.name,
+      canvas: { width: canvas.width, height: canvas.height, background: plan.palette.background },
+      elements,
+    }),
+    measurer,
+  );
+}
+
+/**
+ * Text renders from the top of its box, so a CTA label whose box fills its button sits high.
+ * The checker can't see that (nothing overflows or overlaps), but people do. This snaps each
+ * CTA label that sits on a CTA shape to the wrapped text's real height, centered in the button.
+ */
+export function centerButtonLabels(
+  design: Design,
+  measurer: TextMeasurer = heuristicMeasurer,
+): Design {
+  const buttons = design.elements.filter((el) => el.type === 'shape' && el.role === 'cta');
+  const elements = design.elements.map((el) => {
+    if (el.type !== 'text' || el.role !== 'cta') return el;
+    const cx = el.x + el.width / 2;
+    const cy = el.y + el.height / 2;
+    const button = buttons.find(
+      (b) => cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height,
+    );
+    if (!button) return el;
+    const height = Math.round(layoutText(el, measurer).height + el.fontSize * 0.1);
+    if (height > button.height) return el;
+    const width = Math.min(el.width, button.width);
+    const r = (n: number) => Math.round(n * 100) / 100;
+    return {
+      ...el,
+      align: 'center' as const,
+      x: r(button.x + (button.width - width) / 2),
+      width: r(width),
+      y: r(button.y + (button.height - height) / 2),
+      height,
+    };
   });
+  return { ...design, elements };
 }

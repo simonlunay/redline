@@ -1,7 +1,8 @@
 import type { ImageSlot } from './plan.js';
 
 /** Appended to every generated image: text is never rendered by the image model. */
-export const NO_TEXT = 'No text, no letters, no words, no numbers, no logos, no signage, no watermark.';
+export const NO_TEXT =
+  'No text, no letters, no words, no numbers, no logos, no signage, no watermark.';
 
 /** Subjects are generated on a plain backdrop so the cutout model can separate them cleanly. */
 export const SUBJECT_BACKDROP =
@@ -61,7 +62,8 @@ export function describeTextZones(
     const [row, col] = key.split('|') as [string, string];
     const top = Math.min(...zone.boxes.map((b) => b.y));
     const bottom = Math.max(...zone.boxes.map((b) => b.y + b.height));
-    const pct = (n: number) => Math.round((Math.max(0, Math.min(canvas.height, n)) / canvas.height) * 100);
+    const pct = (n: number) =>
+      Math.round((Math.max(0, Math.min(canvas.height, n)) / canvas.height) * 100);
     const band =
       row === 'top'
         ? `the top ${pct(bottom)}%`

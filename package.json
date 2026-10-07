@@ -7,7 +7,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run build -w packages/checker && npm run build -w packages/agent",
+    "build": "npm run build -w packages/checker && npm run build -w packages/agent && npm run build -w packages/generate",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "eval": "npm run eval -w packages/agent --",
-    "redline": "tsx --conditions=@simonlunay/source packages/checker/src/cli.ts"
+    "redline": "tsx --conditions=@simonlunay/source packages/checker/src/cli.ts",
+    "eval:generate": "npm run eval -w packages/generate --"
   },
   "engines": {
     "node": ">=20"

@@ -44,7 +44,11 @@ export interface ImageProvider {
 export type FetchLike = typeof fetch;
 
 /** Closest of a provider's supported aspect ratios ("4:5") to width/height. */
-export function closestAspectRatio(width: number, height: number, supported: readonly string[]): string {
+export function closestAspectRatio(
+  width: number,
+  height: number,
+  supported: readonly string[],
+): string {
   const target = Math.log(width / height);
   let best = supported[0]!;
   let bestDistance = Infinity;

@@ -13,7 +13,8 @@ export function prng(seed: number): () => number {
   };
 }
 
-const hsl = (h: number, s: number, l: number) => `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
+const hsl = (h: number, s: number, l: number) =>
+  `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
 
 /** The plain backdrop mock subjects are drawn on (what the keyer removes). */
 export const MOCK_BACKDROP = '#e5e7eb';

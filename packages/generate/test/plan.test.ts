@@ -1,12 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { createTemplateArtDirector, headlineFromPrompt, templatePlan } from '../src/director/template.js';
+import {
+  createTemplateArtDirector,
+  headlineFromPrompt,
+  templatePlan,
+} from '../src/director/template.js';
 import { designPlanTool } from '../src/director/anthropic.js';
 import { NO_TEXT, buildImagePrompt, describeTextZones } from '../src/image-prompt.js';
 import { parsePlan, validatePlan } from '../src/plan.js';
 import type { DesignPlan } from '../src/plan.js';
 import { brief } from './helpers.js';
 
-const ctx = { canvas: { width: 1080, height: 1350 }, fonts: ['Inter'], userImageIds: [], layouts: 2 };
+const ctx = {
+  canvas: { width: 1080, height: 1350 },
+  fonts: ['Inter'],
+  userImageIds: [],
+  layouts: 2,
+};
 
 function plan(): DesignPlan {
   return structuredClone(templatePlan(brief()));
@@ -28,7 +37,10 @@ describe('design plan validation', () => {
 
   it('explains a missing tool call', () => {
     const result = parsePlan(undefined, ctx);
-    expect(result).toEqual({ ok: false, error: expect.stringContaining('No submit_design_plan tool call') });
+    expect(result).toEqual({
+      ok: false,
+      error: expect.stringContaining('No submit_design_plan tool call'),
+    });
   });
 
   it('reports schema mismatches with their path', () => {
@@ -67,12 +79,22 @@ describe('design plan validation', () => {
     const cta = layout.elements.find((e) => e.kind === 'shape')!;
     if (cta.kind === 'shape') cta.fill = 'orange';
     layout.elements.find((e) => e.role === 'headline')!.x = 900;
-    layout.imageSlots.push({ id: 'logo', kind: 'user', brief: '', calmAreas: '', style: '', stockQuery: '', userImageId: 'nope' });
+    layout.imageSlots.push({
+      id: 'logo',
+      kind: 'user',
+      brief: '',
+      calmAreas: '',
+      style: '',
+      stockQuery: '',
+      userImageId: 'nope',
+    });
     const problems = validatePlan(p, { ...ctx, layouts: 1 }).join('\n');
     expect(problems).toMatch(/fill "orange" is not a hex color/);
     expect(problems).toMatch(/outside the 1080x1350 canvas/);
     expect(problems).toMatch(/2 layouts were sent; send exactly 1/);
-    expect(problems).toMatch(/userImageId "nope" is not one of the supplied images \(none supplied\)/);
+    expect(problems).toMatch(
+      /userImageId "nope" is not one of the supplied images \(none supplied\)/,
+    );
   });
 
   it('builds a strict tool schema with every object closed and no unsupported keywords', () => {
@@ -103,12 +125,17 @@ describe('template art director', () => {
     expect(p.palette.primary).toBe('#1d4ed8'); // blue first, as in the prompt
     expect(p.palette.accent).toBe('#f97316');
     expect(p.layouts).toHaveLength(2);
-    expect(headlineFromPrompt('Instagram ad announcing our new oat latte, cozy')).toBe('New Oat Latte');
+    expect(headlineFromPrompt('Instagram ad announcing our new oat latte, cozy')).toBe(
+      'New Oat Latte',
+    );
   });
 
   it('uses a split layout for wide banners and places a supplied logo', () => {
     const p = templatePlan(
-      brief({ canvas: { width: 1200, height: 628 }, userImages: [{ id: 'logo', use: 'logo', width: 400, height: 100 }] }),
+      brief({
+        canvas: { width: 1200, height: 628 },
+        userImages: [{ id: 'logo', use: 'logo', width: 400, height: 100 }],
+      }),
     );
     expect(p.layouts).toHaveLength(1);
     expect(p.layouts[0]!.name).toMatch(/split/);

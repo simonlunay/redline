@@ -103,7 +103,8 @@ const defaultIO: GenerateCommandIO = {
 function int(value: string | undefined, flag: string, fallback: number, min = 0): number {
   if (value === undefined) return fallback;
   const n = Number(value);
-  if (!Number.isInteger(n) || n < min) throw new GenerateUsageError(`${flag} must be a whole number ≥ ${min}`);
+  if (!Number.isInteger(n) || n < min)
+    throw new GenerateUsageError(`${flag} must be a whole number ≥ ${min}`);
   return n;
 }
 
@@ -131,7 +132,10 @@ export function slugify(prompt: string): string {
 }
 
 /** `redline generate`: returns the process exit code. */
-export async function runGenerateCommand(argv: string[], io: GenerateCommandIO = defaultIO): Promise<number> {
+export async function runGenerateCommand(
+  argv: string[],
+  io: GenerateCommandIO = defaultIO,
+): Promise<number> {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -167,10 +171,12 @@ export async function runGenerateCommand(argv: string[], io: GenerateCommandIO =
     return 0;
   }
   const prompt = positionals.join(' ').trim();
-  if (!prompt) throw new GenerateUsageError('Missing prompt: redline generate "poster for a charity 5K"');
+  if (!prompt)
+    throw new GenerateUsageError('Missing prompt: redline generate "poster for a charity 5K"');
 
   const format = values.format ?? 'pretty';
-  if (format !== 'pretty' && format !== 'json') throw new GenerateUsageError(`Unknown --format "${format}"`);
+  if (format !== 'pretty' && format !== 'json')
+    throw new GenerateUsageError(`Unknown --format "${format}"`);
   const canvas = parseSize(values.size ?? '1080x1350');
   const candidates = int(values.candidates, '--candidates', 4, 1);
   if (candidates > 12) throw new GenerateUsageError('--candidates is capped at 12');
@@ -179,24 +185,34 @@ export async function runGenerateCommand(argv: string[], io: GenerateCommandIO =
   const maxIterations = int(values['max-iterations'], '--max-iterations', 4);
   const model = values.model ?? DEFAULT_MODEL;
   const effort = (values.effort ?? DEFAULT_EFFORT) as Effort;
-  if (!EFFORTS.includes(effort)) throw new GenerateUsageError(`--effort must be one of ${EFFORTS.join(', ')}`);
+  if (!EFFORTS.includes(effort))
+    throw new GenerateUsageError(`--effort must be one of ${EFFORTS.join(', ')}`);
   const budget = values.budget === undefined ? 2 : Number(values.budget);
   if (!(budget >= 0)) throw new GenerateUsageError('--budget must be a number of dollars ≥ 0');
-  const brandColors = values['brand-colors']?.split(',').map((c) => c.trim()).filter(Boolean);
+  const brandColors = values['brand-colors']
+    ?.split(',')
+    .map((c) => c.trim())
+    .filter(Boolean);
   for (const c of brandColors ?? []) {
-    if (!/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(c)) throw new GenerateUsageError(`--brand-colors: "${c}" is not a hex color`);
+    if (!/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(c))
+      throw new GenerateUsageError(`--brand-colors: "${c}" is not a hex color`);
   }
   const seed = values.seed === undefined ? undefined : int(values.seed, '--seed', 0);
 
   if (io.dotenvPath !== null) loadDotEnv(io.dotenvPath);
   const env = io.env ?? process.env;
-  const ledger = values.ledger ? createFileLedger(resolve(values.ledger), budget) : createMemoryLedger(budget);
+  const ledger = values.ledger
+    ? createFileLedger(resolve(values.ledger), budget)
+    : createMemoryLedger(budget);
 
   // Fonts
   const fonts: string[] = [];
   for (const spec of values.font ?? []) {
-    const [family, path] = spec.includes('=') ? (spec.split('=', 2) as [string, string]) : [undefined, spec];
-    if (!family || !path) throw new GenerateUsageError(`--font must look like "Family Name=path/to/font.ttf"`);
+    const [family, path] = spec.includes('=')
+      ? (spec.split('=', 2) as [string, string])
+      : [undefined, spec];
+    if (!family || !path)
+      throw new GenerateUsageError(`--font must look like "Family Name=path/to/font.ttf"`);
     registerFont(resolve(path), family);
     fonts.push(family);
   }
@@ -208,7 +224,9 @@ export async function runGenerateCommand(argv: string[], io: GenerateCommandIO =
     if (directorName === 'template') director = createTemplateArtDirector();
     else if (directorName === 'anthropic') {
       if (!env.ANTHROPIC_API_KEY) {
-        throw new GenerateUsageError('ANTHROPIC_API_KEY is not set. Add it to .env, or run offline with --director template --editor suggested.');
+        throw new GenerateUsageError(
+          'ANTHROPIC_API_KEY is not set. Add it to .env, or run offline with --director template --editor suggested.',
+        );
       }
       director = createAnthropicArtDirector({ model, effort, ledger });
     } else throw new GenerateUsageError(`Unknown --director "${directorName}"`);
@@ -216,7 +234,9 @@ export async function runGenerateCommand(argv: string[], io: GenerateCommandIO =
 
   // Images
   let provider = io.provider;
-  const providerName = values.provider ?? (env.REPLICATE_API_TOKEN ? 'replicate' : env.PEXELS_API_KEY ? 'pexels' : 'mock');
+  const providerName =
+    values.provider ??
+    (env.REPLICATE_API_TOKEN ? 'replicate' : env.PEXELS_API_KEY ? 'pexels' : 'mock');
   if (!provider) {
     if (providerName === 'replicate') {
       if (!env.REPLICATE_API_TOKEN) throw new GenerateUsageError('REPLICATE_API_TOKEN is not set.');
@@ -235,11 +255,14 @@ export async function runGenerateCommand(argv: string[], io: GenerateCommandIO =
     if (cutoutName === 'auto') {
       remover = createAutoRemover({
         onProgress: (m) => io.stderr(m),
-        onFallback: (reason) => warnings.push(`BiRefNet unavailable, using backdrop keying for cutouts: ${reason}`),
+        onFallback: (reason) =>
+          warnings.push(`BiRefNet unavailable, using backdrop keying for cutouts: ${reason}`),
       });
-    } else if (cutoutName === 'birefnet') remover = createBiRefNetRemover({ onProgress: (m) => io.stderr(m) });
+    } else if (cutoutName === 'birefnet')
+      remover = createBiRefNetRemover({ onProgress: (m) => io.stderr(m) });
     else if (cutoutName === 'key') remover = createBackdropKeyRemover();
-    else if (cutoutName !== 'none') throw new GenerateUsageError(`Unknown --cutout "${cutoutName}"`);
+    else if (cutoutName !== 'none')
+      throw new GenerateUsageError(`Unknown --cutout "${cutoutName}"`);
   }
 
   // Fix-loop editor
@@ -249,7 +272,10 @@ export async function runGenerateCommand(argv: string[], io: GenerateCommandIO =
   if (!editor) {
     if (editorName === 'suggested') editor = createSuggestedFixesEditor();
     else if (editorName === 'anthropic') {
-      if (!env.ANTHROPIC_API_KEY) throw new GenerateUsageError('ANTHROPIC_API_KEY is not set (needed by --editor anthropic).');
+      if (!env.ANTHROPIC_API_KEY)
+        throw new GenerateUsageError(
+          'ANTHROPIC_API_KEY is not set (needed by --editor anthropic).',
+        );
       editor = createAnthropicEditor({ model, effort });
       editorModel = model;
     } else throw new GenerateUsageError(`Unknown --editor "${editorName}"`);
@@ -257,7 +283,9 @@ export async function runGenerateCommand(argv: string[], io: GenerateCommandIO =
 
   const userImages: UserImageInput[] = [];
   if (values.logo) userImages.push({ id: 'logo', path: resolve(values.logo), use: 'logo' });
-  (values.image ?? []).forEach((path, i) => userImages.push({ id: `image${i + 1}`, path: resolve(path), use: 'image' }));
+  (values.image ?? []).forEach((path, i) =>
+    userImages.push({ id: `image${i + 1}`, path: resolve(path), use: 'image' }),
+  );
 
   const out = resolve(values.out ?? join('generated', `${slugify(prompt)}.json`));
   const attention = !values['no-attention'];
@@ -327,11 +355,13 @@ export async function runGenerateCommand(argv: string[], io: GenerateCommandIO =
   });
   result.warnings.push(...warnings);
 
-  if (values['render-steps']) await renderGenerationSteps(result, values['render-steps'], workspace, prompt);
+  if (values['render-steps'])
+    await renderGenerationSteps(result, values['render-steps'], workspace, prompt);
 
   if (pretty) {
     io.stdout(formatGenerateSummary(result, editorModel));
-    if (values['render-steps']) io.stdout(`    steps → ${values['render-steps']} (start with contact-sheet.png)\n`);
+    if (values['render-steps'])
+      io.stdout(`    steps → ${values['render-steps']} (start with contact-sheet.png)\n`);
   } else {
     io.stdout(JSON.stringify(serializeResult(result), null, 2));
   }
@@ -374,13 +404,25 @@ export async function renderGenerationSteps(
   for (const c of result.candidates) {
     const name = `candidate-${c.index + 1}`;
     await writeFile(join(dir, `${name}.png`), await workspace.renderAnnotated(c.design, c.report));
-    if (workspace.renderHeatmap) await writeFile(join(dir, `${name}.heatmap.png`), await workspace.renderHeatmap(c.design));
+    if (workspace.renderHeatmap)
+      await writeFile(join(dir, `${name}.heatmap.png`), await workspace.renderHeatmap(c.design));
   }
   for (const step of result.loop.history) {
     const name = `fix-${String(step.iteration).padStart(2, '0')}-${step.status}`;
-    await writeFile(join(dir, `${name}.png`), await workspace.renderAnnotated(step.design, step.report));
-    if (workspace.renderHeatmap) await writeFile(join(dir, `${name}.heatmap.png`), await workspace.renderHeatmap(step.design));
+    await writeFile(
+      join(dir, `${name}.png`),
+      await workspace.renderAnnotated(step.design, step.report),
+    );
+    if (workspace.renderHeatmap)
+      await writeFile(join(dir, `${name}.heatmap.png`), await workspace.renderHeatmap(step.design));
   }
-  await writeFile(join(dir, 'final.png'), await workspace.renderAnnotated(result.final.design, result.final.report));
-  if (workspace.renderHeatmap) await writeFile(join(dir, 'final.heatmap.png'), await workspace.renderHeatmap(result.final.design));
+  await writeFile(
+    join(dir, 'final.png'),
+    await workspace.renderAnnotated(result.final.design, result.final.report),
+  );
+  if (workspace.renderHeatmap)
+    await writeFile(
+      join(dir, 'final.heatmap.png'),
+      await workspace.renderHeatmap(result.final.design),
+    );
 }

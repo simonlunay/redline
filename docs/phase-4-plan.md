@@ -21,7 +21,7 @@ Why a new package rather than a module in `packages/agent`:
 1. **Dependencies.** Generation needs image-provider HTTP clients, a 224 MB background-removal
    model, file output and a manifest. Someone who only wants `redline fix` shouldn't get any
    of that. This mirrors the existing checker/agent split (checker has no LLM, agent is optional).
-2. **Direction of dependency.** Generation *uses* the fix loop; the fix loop must not know
+2. **Direction of dependency.** Generation _uses_ the fix loop; the fix loop must not know
    about generation. The one thing 4b needs from the loop (an image-regeneration hook) is a
    small, generic, opt-in extension point in `agent`, and the actual regeneration lives in
    `generate`.
@@ -80,9 +80,11 @@ by canvas size and prompt keywords). Used in tests and with `--director template
 
 ```ts
 interface ImageProvider {
-  id: string; model: string; license: string;
-  estimateCostUsd(request): number;          // for the spend guard
-  generate(request: { prompt, width, height, seed, kind }): Promise<GeneratedImage>;
+  id: string;
+  model: string;
+  license: string;
+  estimateCostUsd(request): number; // for the spend guard
+  generate(request: { prompt; width; height; seed; kind }): Promise<GeneratedImage>;
 }
 ```
 
@@ -106,7 +108,7 @@ load: keep the plain-background subject and record `cutout: null` in the manifes
 
 ### 4. Assembly, best-of-N
 
-- Candidate *i* uses layout `i mod L` and background seed `base + i`, so N=4 with 2 layouts gives
+- Candidate _i_ uses layout `i mod L` and background seed `base + i`, so N=4 with 2 layouts gives
   2 layouts x 2 backgrounds. Subjects are generated once per layout.
 - Plan + images -> Redline design JSON (background image `fit: cover`, subjects `fit: contain`
   with the box fitted to the cutout aspect ratio, text/shape elements straight from the plan).

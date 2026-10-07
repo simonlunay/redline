@@ -23,7 +23,8 @@ function scoreColor(score: number) {
   return score >= 85 ? GREEN : score >= 60 ? '#eab308' : '#ef4444';
 }
 
-const pct = (share: number | undefined) => (share === undefined ? '–' : `${(share * 100).toFixed(share < 0.1 ? 1 : 0)}%`);
+const pct = (share: number | undefined) =>
+  share === undefined ? '–' : `${(share * 100).toFixed(share < 0.1 ? 1 : 0)}%`;
 
 function fitText(ctx: SKRSContext2D, text: string, maxWidth: number): string {
   if (ctx.measureText(text).width <= maxWidth) return text;
@@ -54,8 +55,13 @@ export async function renderContactSheet(
   const renders: { render: Buffer; heatmap?: Buffer }[] = [];
   for (const column of columns) {
     await workspace.ensure(column.design);
-    const render = renderPng(column.design, { images: workspace.images, scale: cellWidth / column.design.canvas.width });
-    const heatmap = workspace.renderHeatmap ? await workspace.renderHeatmap(column.design) : undefined;
+    const render = renderPng(column.design, {
+      images: workspace.images,
+      scale: cellWidth / column.design.canvas.width,
+    });
+    const heatmap = workspace.renderHeatmap
+      ? await workspace.renderHeatmap(column.design)
+      : undefined;
     renders.push({ render, ...(heatmap ? { heatmap } : {}) });
   }
 
@@ -78,7 +84,8 @@ export async function renderContactSheet(
     const column = columns[i]!;
     const x = pad + i * (cellWidth + pad);
     let y = titleHeight;
-    const accent = column.highlight === 'winner' ? GREEN : column.highlight === 'final' ? BLUE : undefined;
+    const accent =
+      column.highlight === 'winner' ? GREEN : column.highlight === 'final' ? BLUE : undefined;
 
     ctx.fillStyle = accent ?? FG;
     ctx.font = '800 20px Inter';

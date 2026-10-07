@@ -1,5 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { DEFAULT_EFFORT, DEFAULT_MODEL, estimateCostUsd, toStrictSchema } from '@simonlunay/redline-agent';
+import {
+  DEFAULT_EFFORT,
+  DEFAULT_MODEL,
+  estimateCostUsd,
+  toStrictSchema,
+} from '@simonlunay/redline-agent';
 import type { Effort, TokenUsage } from '@simonlunay/redline-agent';
 import { builtinRules } from '@simonlunay/redline';
 import { z } from 'zod';
@@ -84,18 +89,24 @@ export function buildDirectorMessage(brief: CreativeBrief, validationError?: str
     `Plan ${brief.layouts} alternative layout${brief.layouts === 1 ? '' : 's'}.`,
     `Available fonts: ${brief.fonts.join(', ')}.`,
   ];
-  if (brief.brandColors?.length) lines.push(`Brand colors (use them): ${brief.brandColors.join(', ')}.`);
+  if (brief.brandColors?.length)
+    lines.push(`Brand colors (use them): ${brief.brandColors.join(', ')}.`);
   if (brief.userImages?.length) {
     lines.push(
       `Supplied images:\n${brief.userImages
-        .map((u) => `- id "${u.id}" (${u.use}, ${u.width}x${u.height})${u.description ? `: ${u.description}` : ''}`)
+        .map(
+          (u) =>
+            `- id "${u.id}" (${u.use}, ${u.width}x${u.height})${u.description ? `: ${u.description}` : ''}`,
+        )
         .join('\n')}`,
     );
   } else {
     lines.push('No images were supplied: every image is generated.');
   }
   if (validationError) {
-    lines.push(`# Your previous plan was invalid\n${validationError}\nCall ${PLAN_TOOL_NAME} again with a corrected, complete plan.`);
+    lines.push(
+      `# Your previous plan was invalid\n${validationError}\nCall ${PLAN_TOOL_NAME} again with a corrected, complete plan.`,
+    );
   }
   lines.push(`Call ${PLAN_TOOL_NAME} now.`);
   return lines.join('\n\n');
@@ -128,7 +139,10 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
     for (const image of brief.userImages ?? []) {
       if (!image.preview) continue;
       content.push({ type: 'text', text: `Supplied image "${image.id}":` });
-      content.push({ type: 'image', source: { type: 'base64', media_type: 'image/png', data: toBase64(image.preview) } });
+      content.push({
+        type: 'image',
+        source: { type: 'base64', media_type: 'image/png', data: toBase64(image.preview) },
+      });
     }
     content.push({ type: 'text', text: buildDirectorMessage(brief, validationError) });
     const response = await client.messages.create({
@@ -179,7 +193,8 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
         for (const key of Object.keys(usage) as (keyof TokenUsage)[]) usage[key] += last.usage[key];
         parsed = parsePlan(last.raw, ctx);
       }
-      if (!parsed.ok) throw new Error(`The art director's plan was invalid twice.\n${parsed.error}`);
+      if (!parsed.ok)
+        throw new Error(`The art director's plan was invalid twice.\n${parsed.error}`);
       return {
         plan: parsed.plan,
         model: last.model,

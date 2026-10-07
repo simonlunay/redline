@@ -36,7 +36,12 @@ describe('generateDesign (template director, mock images, offline editor)', () =
     const { result, events } = await run(dir);
 
     expect(result.candidates).toHaveLength(4);
-    expect(result.candidates.map((c) => [c.layout, c.variant])).toEqual([[0, 0], [1, 0], [0, 1], [1, 1]]);
+    expect(result.candidates.map((c) => [c.layout, c.variant])).toEqual([
+      [0, 0],
+      [1, 0],
+      [0, 1],
+      [1, 1],
+    ]);
     const best = Math.max(...result.candidates.map((c) => c.score));
     expect(result.candidates[result.winner]!.score).toBe(best);
     expect(result.ranking[0]).toBe(result.winner);
@@ -46,10 +51,17 @@ describe('generateDesign (template director, mock images, offline editor)', () =
     }
     // The loop starts from the winner and never ends worse.
     expect(result.loop.history[0]!.design).toEqual(result.candidates[result.winner]!.design);
-    expect(result.final.report.score).toBeGreaterThanOrEqual(result.candidates[result.winner]!.score);
+    expect(result.final.report.score).toBeGreaterThanOrEqual(
+      result.candidates[result.winner]!.score,
+    );
 
     expect(events.map((e) => e.type).filter((t) => t !== 'image' && t !== 'iteration')).toEqual([
-      'plan', 'candidate', 'candidate', 'candidate', 'candidate', 'winner',
+      'plan',
+      'candidate',
+      'candidate',
+      'candidate',
+      'candidate',
+      'winner',
     ]);
     expect(result.spend).toMatchObject({ totalUsd: 0, llmUsd: 0, imageUsd: 0 });
   });
@@ -63,17 +75,28 @@ describe('generateDesign (template director, mock images, offline editor)', () =
     for (const el of written.design.elements) {
       if (el.type === 'image') expect(existsSync(join(dir, el.src))).toBe(true); // relative srcs resolve
     }
-    expect(readdirSync(join(dir, 'charity.candidates')).sort()).toEqual(['candidate-1.json', 'candidate-2.json', 'candidate-3.json', 'candidate-4.json']);
+    expect(readdirSync(join(dir, 'charity.candidates')).sort()).toEqual([
+      'candidate-1.json',
+      'candidate-2.json',
+      'candidate-3.json',
+      'candidate-4.json',
+    ]);
     const candidate = await loadDesign(join(dir, 'charity.candidates', 'candidate-1.json'));
     for (const el of candidate.design.elements) {
-      if (el.type === 'image') expect(existsSync(join(dir, 'charity.candidates', el.src))).toBe(true);
+      if (el.type === 'image')
+        expect(existsSync(join(dir, 'charity.candidates', el.src))).toBe(true);
     }
 
     const manifest = JSON.parse(readFileSync(result.manifestFile, 'utf8'));
     // 2 layouts x 2 backgrounds, plus 1 subject (layout 1 only; reused by both its candidates).
     expect(manifest.images).toHaveLength(5);
     for (const entry of manifest.images) {
-      expect(entry).toMatchObject({ provider: 'mock', model: 'mock-gradient-v1', costUsd: 0, license: expect.any(String) });
+      expect(entry).toMatchObject({
+        provider: 'mock',
+        model: 'mock-gradient-v1',
+        costUsd: 0,
+        license: expect.any(String),
+      });
       expect(entry.prompt).toMatch(/No text, no letters/);
       expect(typeof entry.seed).toBe('number');
       expect(existsSync(join(result.assetsDir, entry.file))).toBe(true);
@@ -82,7 +105,11 @@ describe('generateDesign (template director, mock images, offline editor)', () =
     expect(subject.cutout).toMatchObject({ remover: 'backdrop-key' });
 
     const record = JSON.parse(readFileSync(result.generationFile, 'utf8'));
-    expect(record).toMatchObject({ prompt: result.prompt, winner: result.winner, ranking: result.ranking });
+    expect(record).toMatchObject({
+      prompt: result.prompt,
+      winner: result.winner,
+      ranking: result.ranking,
+    });
     expect(record.candidates).toHaveLength(4);
     expect(record.loop.history.length).toBeGreaterThan(0);
   });
@@ -90,12 +117,19 @@ describe('generateDesign (template director, mock images, offline editor)', () =
   it('is reproducible: same prompt, same seeds, same scores', async () => {
     const a = await run(tempDir());
     const b = await run(tempDir());
-    expect(b.result.candidates.map((c) => c.score)).toEqual(a.result.candidates.map((c) => c.score));
+    expect(b.result.candidates.map((c) => c.score)).toEqual(
+      a.result.candidates.map((c) => c.score),
+    );
   });
 
   it('switches to the mock provider when a paid image would break the spend cap', async () => {
     const mock = createMockImageProvider({ megapixels: 0.1 });
-    const paid: ImageProvider = { ...mock, id: 'paid', estimateCostUsd: () => 0.5, generate: async (r) => ({ ...(await mock.generate(r)), provider: 'paid', costUsd: 0.5 }) };
+    const paid: ImageProvider = {
+      ...mock,
+      id: 'paid',
+      estimateCostUsd: () => 0.5,
+      generate: async (r) => ({ ...(await mock.generate(r)), provider: 'paid', costUsd: 0.5 }),
+    };
     const ledger = createMemoryLedger(1);
     const { result } = await run(tempDir(), { provider: paid, ledger, candidates: 2, layouts: 1 });
     const manifest = JSON.parse(readFileSync(result.manifestFile, 'utf8'));
@@ -116,10 +150,16 @@ describe('generateDesign (template director, mock images, offline editor)', () =
     ctx.fillRect(0, 0, 400, 100);
     const { writeFileSync } = await import('node:fs');
     writeFileSync(logo, await c.encode('png'));
-    const { result } = await run(dir, { candidates: 1, userImages: [{ id: 'logo', path: logo, use: 'logo' }] });
+    const { result } = await run(dir, {
+      candidates: 1,
+      userImages: [{ id: 'logo', path: logo, use: 'logo' }],
+    });
     const el = result.final.design.elements.find((e) => e.role === 'logo');
     expect(el).toMatchObject({ type: 'image', naturalWidth: 400, naturalHeight: 100 });
     const manifest = JSON.parse(readFileSync(result.manifestFile, 'utf8'));
-    expect(manifest.images.find((e: { kind: string }) => e.kind === 'user')).toMatchObject({ provider: 'user', costUsd: 0 });
+    expect(manifest.images.find((e: { kind: string }) => e.kind === 'user')).toMatchObject({
+      provider: 'user',
+      costUsd: 0,
+    });
   });
 });

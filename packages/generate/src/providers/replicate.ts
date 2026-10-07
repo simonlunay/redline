@@ -3,7 +3,17 @@ import type { FetchLike, GeneratedImage, ImageProvider, ImageRequest } from './t
 
 /** Aspect ratios black-forest-labs/flux-schnell accepts on Replicate (checked 2026-10-06). */
 export const FLUX_ASPECT_RATIOS = [
-  '1:1', '16:9', '21:9', '3:2', '2:3', '4:5', '5:4', '3:4', '4:3', '9:16', '9:21',
+  '1:1',
+  '16:9',
+  '21:9',
+  '3:2',
+  '2:3',
+  '4:5',
+  '5:4',
+  '3:4',
+  '4:3',
+  '9:16',
+  '9:21',
 ] as const;
 
 /**
@@ -57,7 +67,9 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
       const retryable = response.status === 429 || response.status >= 500;
       if (!retryable || attempt >= maxRetries) return response;
       const retryAfter = Number(response.headers.get('retry-after'));
-      await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 2000 * 2 ** attempt);
+      await sleep(
+        Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 2000 * 2 ** attempt,
+      );
     }
   }
 
@@ -84,12 +96,15 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
         body: JSON.stringify({ input }),
       });
       if (!created.ok) {
-        throw new Error(`Replicate request failed: HTTP ${created.status} ${(await created.text()).slice(0, 300)}`);
+        throw new Error(
+          `Replicate request failed: HTTP ${created.status} ${(await created.text()).slice(0, 300)}`,
+        );
       }
       let prediction = (await created.json()) as Prediction;
       const started = Date.now();
       while (prediction.status === 'starting' || prediction.status === 'processing') {
-        if (Date.now() - started > timeoutMs) throw new Error(`Replicate prediction ${prediction.id} timed out`);
+        if (Date.now() - started > timeoutMs)
+          throw new Error(`Replicate prediction ${prediction.id} timed out`);
         if (!prediction.urls?.get) throw new Error('Replicate prediction has no polling URL');
         await sleep(pollMs);
         const polled = await request(prediction.urls.get, { headers });
@@ -97,12 +112,15 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
         prediction = (await polled.json()) as Prediction;
       }
       if (prediction.status !== 'succeeded') {
-        throw new Error(`Replicate prediction ${prediction.id} ${prediction.status}: ${prediction.error ?? 'no output'}`);
+        throw new Error(
+          `Replicate prediction ${prediction.id} ${prediction.status}: ${prediction.error ?? 'no output'}`,
+        );
       }
       const url = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
       if (!url) throw new Error(`Replicate prediction ${prediction.id} returned no image`);
       const image = await request(url, {});
-      if (!image.ok) throw new Error(`Downloading the generated image failed: HTTP ${image.status}`);
+      if (!image.ok)
+        throw new Error(`Downloading the generated image failed: HTTP ${image.status}`);
       return {
         bytes: new Uint8Array(await image.arrayBuffer()),
         mimeType: outputFormat === 'png' ? 'image/png' : 'image/jpeg',

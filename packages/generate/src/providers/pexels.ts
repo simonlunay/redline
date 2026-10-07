@@ -34,7 +34,11 @@ export function createPexelsProvider(options: PexelsOptions): ImageProvider {
     async generate(req: ImageRequest): Promise<GeneratedImage> {
       const query = (req.query ?? req.prompt).split(/\s+/).slice(0, 8).join(' ');
       const orientation =
-        req.width > req.height * 1.15 ? 'landscape' : req.height > req.width * 1.15 ? 'portrait' : 'square';
+        req.width > req.height * 1.15
+          ? 'landscape'
+          : req.height > req.width * 1.15
+            ? 'portrait'
+            : 'square';
       const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&orientation=${orientation}&per_page=15`;
       const response = await fetchImpl(url, { headers: { Authorization: options.apiKey } });
       if (!response.ok) throw new Error(`Pexels search failed: HTTP ${response.status}`);
@@ -42,7 +46,8 @@ export function createPexelsProvider(options: PexelsOptions): ImageProvider {
       if (!photos?.length) throw new Error(`Pexels found no photos for "${query}"`);
       const photo = photos[Math.abs(req.seed) % photos.length]!;
       const image = await fetchImpl(photo.src.large2x);
-      if (!image.ok) throw new Error(`Downloading Pexels photo ${photo.id} failed: HTTP ${image.status}`);
+      if (!image.ok)
+        throw new Error(`Downloading Pexels photo ${photo.id} failed: HTTP ${image.status}`);
       return {
         bytes: new Uint8Array(await image.arrayBuffer()),
         mimeType: image.headers.get('content-type') ?? 'image/jpeg',

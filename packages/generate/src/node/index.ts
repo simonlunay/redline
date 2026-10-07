@@ -1,5 +1,12 @@
 // Node-only entry point: @simonlunay/redline-generate/node
-export { GENERATE_HELP, GenerateUsageError, parseSize, renderGenerationSteps, runGenerateCommand, slugify } from './generate-command.js';
+export {
+  GENERATE_HELP,
+  GenerateUsageError,
+  parseSize,
+  renderGenerationSteps,
+  runGenerateCommand,
+  slugify,
+} from './generate-command.js';
 export type { GenerateCommandIO } from './generate-command.js';
 export { generateDesign, serializeResult } from './pipeline.js';
 export type {

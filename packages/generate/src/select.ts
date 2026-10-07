@@ -22,7 +22,8 @@ export function rankCandidates(reports: readonly Report[]): number[] {
       const rb = b.report;
       if (ra.score !== rb.score) return rb.score - ra.score;
       if (ra.summary.errors !== rb.summary.errors) return ra.summary.errors - rb.summary.errors;
-      if (ra.summary.warnings !== rb.summary.warnings) return ra.summary.warnings - rb.summary.warnings;
+      if (ra.summary.warnings !== rb.summary.warnings)
+        return ra.summary.warnings - rb.summary.warnings;
       const ca = ctaShare(ra) ?? 0;
       const cb = ctaShare(rb) ?? 0;
       if (ca !== cb) return cb - ca;

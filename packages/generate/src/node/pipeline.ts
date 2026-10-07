@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
+import { createFontMeasurer } from '@simonlunay/redline/node';
 import type { Design, Report } from '@simonlunay/redline';
 import { runFixLoop } from '@simonlunay/redline-agent';
 import type { DesignEditor, IterationRecord, LoopResult } from '@simonlunay/redline-agent';
@@ -88,7 +89,13 @@ export interface GenerationResult {
   prompt: string;
   canvas: { width: number; height: number };
   plan: DesignPlan;
-  director: { name: string; model?: string; calls: number; costUsd?: number; retriedAfter?: string };
+  director: {
+    name: string;
+    model?: string;
+    calls: number;
+    costUsd?: number;
+    retriedAfter?: string;
+  };
   candidates: CandidateResult[];
   ranking: number[];
   winner: number;
@@ -98,7 +105,13 @@ export interface GenerationResult {
   generationFile: string;
   manifestFile: string;
   assetsDir: string;
-  spend: { totalUsd: number; llmUsd: number; imageUsd: number; capUsd: number; ledgerTotalUsd: number };
+  spend: {
+    totalUsd: number;
+    llmUsd: number;
+    imageUsd: number;
+    capUsd: number;
+    ledgerTotalUsd: number;
+  };
   warnings: string[];
   durationMs: number;
 }
@@ -133,9 +146,12 @@ async function preview(path: string): Promise<{ png: Uint8Array; width: number; 
   const scale = Math.min(1, 512 / Math.max(image.width, image.height));
   const canvas = createCanvas(Math.round(image.width * scale), Math.round(image.height * scale));
   canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-  return { png: new Uint8Array(await canvas.encode('png')), width: image.width, height: image.height };
+  return {
+    png: new Uint8Array(await canvas.encode('png')),
+    width: image.width,
+    height: image.height,
+  };
 }
-
 
 /**
  * Text-to-design: plan -> layered images -> N candidate designs -> score each with the
@@ -160,8 +176,10 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const entriesAtStart = ledger.entries().length;
   const assets = new AssetStore(designDir, name, options.prompt);
   const workspace =
-    options.workspace ?? (await createWorkspace(designDir, { attention: options.attention ?? true }));
-  const baseSeed = options.seed ?? seedFrom(`${options.prompt}|${options.canvas.width}x${options.canvas.height}`);
+    options.workspace ??
+    (await createWorkspace(designDir, { attention: options.attention ?? true }));
+  const baseSeed =
+    options.seed ?? seedFrom(`${options.prompt}|${options.canvas.width}x${options.canvas.height}`);
 
   // 1. Supplied images: copy into the assets folder, preview for the art director.
   const userImages = new Map<string, SlotImage>();
@@ -198,6 +216,7 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   let provider = options.provider;
   const mock = createMockImageProvider();
   const cutoutLock = mutex();
+  const measurer = createFontMeasurer();
   const cache = new Map<string, Promise<SlotImage>>();
 
   // Estimates of image calls in flight: parallel calls must not all pass the guard at once.
@@ -224,7 +243,11 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     return image;
   }
 
-  async function produce(slot: ImageSlot, layoutIndex: number, variant: number): Promise<SlotImage> {
+  async function produce(
+    slot: ImageSlot,
+    layoutIndex: number,
+    variant: number,
+  ): Promise<SlotImage> {
     const layout = plan.layouts[layoutIndex]!;
     if (slot.kind === 'user') {
       const image = userImages.get(slot.userImageId);
@@ -237,10 +260,19 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       slot.kind === 'background' || !element
         ? options.canvas
         : { width: element.width, height: element.height };
-    const seed = (baseSeed + layoutIndex * 1000 + variant * 7919 + (slot.kind === 'subject' ? 500 : 0)) % 2_000_000_000;
+    const seed =
+      (baseSeed + layoutIndex * 1000 + variant * 7919 + (slot.kind === 'subject' ? 500 : 0)) %
+      2_000_000_000;
     const key = `layout${layoutIndex + 1}/${slot.id}${slot.kind === 'background' ? `/v${variant + 1}` : ''}`;
     const image = await generate(
-      { prompt, query: slot.stockQuery || undefined, width: size.width, height: size.height, seed, kind: slot.kind },
+      {
+        prompt,
+        query: slot.stockQuery || undefined,
+        width: size.width,
+        height: size.height,
+        seed,
+        kind: slot.kind,
+      },
       `${slot.kind} image (${key})`,
     );
     const fileBase = key.replace(/\//g, '-');
@@ -248,7 +280,8 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       const remover = options.remover;
       try {
         const cut = await cutoutLock(() => remover.remove(image.bytes));
-        const used = (remover as { lastUsed?: () => BackgroundRemover | undefined }).lastUsed?.() ?? remover;
+        const used =
+          (remover as { lastUsed?: () => BackgroundRemover | undefined }).lastUsed?.() ?? remover;
         const stored = await assets.saveGenerated(
           image,
           fileBase,
@@ -257,7 +290,12 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
             slotId: slot.id,
             kind: slot.kind,
             prompt,
-            cutout: { remover: used.id, model: used.model, license: used.license, coverage: Number(cut.coverage.toFixed(4)) },
+            cutout: {
+              remover: used.id,
+              model: used.model,
+              license: used.license,
+              coverage: Number(cut.coverage.toFixed(4)),
+            },
           },
           cut.png,
           'image/png',
@@ -295,19 +333,34 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   // 4. Candidates: assemble, check, keep everything.
   const candidatesDir = join(designDir, `${name}.candidates`);
   mkdirSync(candidatesDir, { recursive: true });
-  const specs = Array.from({ length: n }, (_, index) => ({ index, ...candidateVariant(index, layouts) }));
+  const specs = Array.from({ length: n }, (_, index) => ({
+    index,
+    ...candidateVariant(index, layouts),
+  }));
   const candidates = await mapPool(specs, 4, async ({ index, layout, variant }) => {
     const layoutPlan = plan.layouts[layout]!;
     const images = new Map<string, SlotImage>();
-    for (const slot of layoutPlan.imageSlots) images.set(slot.id, await slotImage(slot, layout, variant));
-    const design = assembleDesign(plan, layout, options.canvas, images, `${layoutPlan.name} · candidate ${index + 1}`);
+    for (const slot of layoutPlan.imageSlots)
+      images.set(slot.id, await slotImage(slot, layout, variant));
+    const design = assembleDesign(
+      plan,
+      layout,
+      options.canvas,
+      images,
+      `${layoutPlan.name} · candidate ${index + 1}`,
+      measurer,
+    );
     const report = await workspace.check(design);
     const shares = roleShares(report);
     const file = join(candidatesDir, `candidate-${index + 1}.json`);
     // Candidate files live one folder down, so their image paths get a ../ prefix.
     const relocated = {
       ...design,
-      elements: design.elements.map((el) => (el.type === 'image' && !/^(data:|https?:|\/|[A-Za-z]:)/.test(el.src) ? { ...el, src: `../${el.src}` } : el)),
+      elements: design.elements.map((el) =>
+        el.type === 'image' && !/^(data:|https?:|\/|[A-Za-z]:)/.test(el.src)
+          ? { ...el, src: `../${el.src}` }
+          : el,
+      ),
     };
     writeFileSync(file, `${JSON.stringify(relocated, null, 2)}\n`);
     const candidate: CandidateResult = {
@@ -392,7 +445,12 @@ export function serializeResult(result: GenerationResult) {
     score: report.score,
     passed: report.passed,
     summary: report.summary,
-    issues: report.issues.map((i) => ({ ruleId: i.ruleId, severity: i.severity, elementIds: i.elementIds, message: i.message })),
+    issues: report.issues.map((i) => ({
+      ruleId: i.ruleId,
+      severity: i.severity,
+      elementIds: i.elementIds,
+      message: i.message,
+    })),
     attention: roleShares(report),
   });
   return {
@@ -437,7 +495,11 @@ export function serializeResult(result: GenerationResult) {
         report: summary(h.report),
       })),
     },
-    final: { design: result.final.design, report: summary(result.final.report), ctaShare: ctaShare(result.final.report) },
+    final: {
+      design: result.final.design,
+      report: summary(result.final.report),
+      ctaShare: ctaShare(result.final.report),
+    },
     spend: result.spend,
     warnings: result.warnings,
     durationMs: result.durationMs,

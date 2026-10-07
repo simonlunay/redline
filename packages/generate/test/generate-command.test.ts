@@ -5,7 +5,12 @@ import { createSuggestedFixesEditor } from '@simonlunay/redline-agent';
 import { describe, expect, it } from 'vitest';
 import { createTemplateArtDirector } from '../src/director/template.js';
 import { createBackdropKeyRemover } from '../src/node/cutout.js';
-import { GenerateUsageError, parseSize, runGenerateCommand, slugify } from '../src/node/generate-command.js';
+import {
+  GenerateUsageError,
+  parseSize,
+  runGenerateCommand,
+  slugify,
+} from '../src/node/generate-command.js';
 import type { GenerateCommandIO } from '../src/node/generate-command.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
 import { brightnessSaliency, tempDir } from './helpers.js';
@@ -39,7 +44,17 @@ describe('redline generate', () => {
     const steps = join(dir, 'steps');
     const { out, io: testIO } = io(offline());
     const code = await runGenerateCommand(
-      ['poster for a charity 5K, energetic, blue and orange', '--out', join(dir, 'd.json'), '--size', '1080x1080', '--candidates', '3', '--render-steps', steps],
+      [
+        'poster for a charity 5K, energetic, blue and orange',
+        '--out',
+        join(dir, 'd.json'),
+        '--size',
+        '1080x1080',
+        '--candidates',
+        '3',
+        '--render-steps',
+        steps,
+      ],
       testIO,
     );
     const text = stripVTControlCharacters(out.join('\n'));
@@ -62,27 +77,55 @@ describe('redline generate', () => {
   it('prints the full record as JSON with --format json', async () => {
     const dir = tempDir();
     const { out, io: testIO } = io(offline());
-    await runGenerateCommand(['banner for a SaaS launch', '--out', join(dir, 'b.json'), '--size', '1200x628', '--candidates', '1', '--format', 'json', '--no-attention'], testIO);
+    await runGenerateCommand(
+      [
+        'banner for a SaaS launch',
+        '--out',
+        join(dir, 'b.json'),
+        '--size',
+        '1200x628',
+        '--candidates',
+        '1',
+        '--format',
+        'json',
+        '--no-attention',
+      ],
+      testIO,
+    );
     const record = JSON.parse(out.join(''));
-    expect(record).toMatchObject({ prompt: 'banner for a SaaS launch', canvas: { width: 1200, height: 628 }, winner: 0 });
+    expect(record).toMatchObject({
+      prompt: 'banner for a SaaS launch',
+      canvas: { width: 1200, height: 628 },
+      winner: 0,
+    });
     expect(record.candidates[0].ctaShare).toBeUndefined(); // attention off
   });
 
   it('rejects bad usage before doing any work', async () => {
     const { io: testIO } = io();
     await expect(runGenerateCommand([], testIO)).rejects.toThrow(/Missing prompt/);
-    await expect(runGenerateCommand(['x', '--size', 'big'], testIO)).rejects.toThrow(GenerateUsageError);
-    await expect(runGenerateCommand(['x', '--candidates', '0'], testIO)).rejects.toThrow(/--candidates/);
-    await expect(runGenerateCommand(['x', '--brand-colors', 'blue'], testIO)).rejects.toThrow(/not a hex color/);
+    await expect(runGenerateCommand(['x', '--size', 'big'], testIO)).rejects.toThrow(
+      GenerateUsageError,
+    );
+    await expect(runGenerateCommand(['x', '--candidates', '0'], testIO)).rejects.toThrow(
+      /--candidates/,
+    );
+    await expect(runGenerateCommand(['x', '--brand-colors', 'blue'], testIO)).rejects.toThrow(
+      /not a hex color/,
+    );
     // No ANTHROPIC_API_KEY in the injected env: the default director can't run.
     await expect(runGenerateCommand(['x'], testIO)).rejects.toThrow(/ANTHROPIC_API_KEY is not set/);
-    await expect(runGenerateCommand(['x', '--director', 'template', '--provider', 'replicate'], testIO)).rejects.toThrow(/REPLICATE_API_TOKEN is not set/);
+    await expect(
+      runGenerateCommand(['x', '--director', 'template', '--provider', 'replicate'], testIO),
+    ).rejects.toThrow(/REPLICATE_API_TOKEN is not set/);
   });
 
   it('parses sizes and slugs', () => {
     expect(parseSize('1080x1920')).toEqual({ width: 1080, height: 1920 });
     expect(parseSize('1200 × 628')).toEqual({ width: 1200, height: 628 });
     expect(() => parseSize('10x10')).toThrow(/between 64 and 8000/);
-    expect(slugify('Poster for a charity 5K, energetic!')).toBe('poster-for-a-charity-5k-energetic');
+    expect(slugify('Poster for a charity 5K, energetic!')).toBe(
+      'poster-for-a-charity-5k-energetic',
+    );
   });
 });

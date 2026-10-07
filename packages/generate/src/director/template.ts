@@ -33,12 +33,17 @@ const COLORS: Record<string, string> = {
 };
 
 const titleCase = (s: string) =>
-  s.replace(/\b([a-z])/g, (m) => m.toUpperCase()).replace(/\s+/g, ' ').trim();
+  s
+    .replace(/\b([a-z])/g, (m) => m.toUpperCase())
+    .replace(/\s+/g, ' ')
+    .trim();
 
 /** "poster for a charity 5K, energetic, blue and orange" -> "Charity 5K". */
 export function headlineFromPrompt(prompt: string): string {
   const first = prompt.split(/[,.;:!\n]/)[0] ?? prompt;
-  const match = /\b(?:for|about|announcing|promoting)\s+(?:an?\s+|the\s+|our\s+)?(.+)$/i.exec(first);
+  const match = /\b(?:for|about|announcing|promoting)\s+(?:an?\s+|the\s+|our\s+)?(.+)$/i.exec(
+    first,
+  );
   const phrase = (match?.[1] ?? first).split(/\s+/).slice(0, 6).join(' ');
   return titleCase(phrase) || 'Your Headline';
 }
@@ -171,22 +176,82 @@ export function templatePlan(brief: CreativeBrief): DesignPlan {
   const logo = brief.userImages?.find((u) => u.use === 'logo');
 
   const bg: PlanElement = {
-    kind: 'image', id: 'background', role: 'background', x: 0, y: 0, width: W, height: H, zIndex: 0, slot: 'background',
+    kind: 'image',
+    id: 'background',
+    role: 'background',
+    x: 0,
+    y: 0,
+    width: W,
+    height: H,
+    zIndex: 0,
+    slot: 'background',
   };
-  const cta = (x: number, y: number, w: number, h: number, align: 'left' | 'center'): PlanElement[] => [
-    { kind: 'shape', id: 'cta-button', role: 'cta', x, y, width: w, height: h, zIndex: 3, shape: 'rect', fill: palette.accent, cornerRadius: Math.round(h / 2), opacity: 1 },
+  const cta = (
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    align: 'left' | 'center',
+  ): PlanElement[] => [
     {
-      ...text('cta-label', 'cta', copy.cta, { x, y: 0, width: w }, h * 0.38, 700, palette.textOnAccent, align === 'left' ? 'center' : 'center', 4, 1.2),
+      kind: 'shape',
+      id: 'cta-button',
+      role: 'cta',
+      x,
+      y,
+      width: w,
+      height: h,
+      zIndex: 3,
+      shape: 'rect',
+      fill: palette.accent,
+      cornerRadius: Math.round(h / 2),
+      opacity: 1,
+    },
+    {
+      ...text(
+        'cta-label',
+        'cta',
+        copy.cta,
+        { x, y: 0, width: w },
+        h * 0.38,
+        700,
+        palette.textOnAccent,
+        align === 'left' ? 'center' : 'center',
+        4,
+        1.2,
+      ),
       y: Math.round(y + h * 0.27),
       height: Math.round(h * 0.5),
     } as PlanElement,
   ];
   const logoElements = (x: number, y: number, size: number): PlanElement[] =>
     logo
-      ? [{ kind: 'image', id: 'logo', role: 'logo', x, y, width: Math.round((size * logo.width) / logo.height), height: size, zIndex: 5, slot: 'logo' }]
+      ? [
+          {
+            kind: 'image',
+            id: 'logo',
+            role: 'logo',
+            x,
+            y,
+            width: Math.round((size * logo.width) / logo.height),
+            height: size,
+            zIndex: 5,
+            slot: 'logo',
+          },
+        ]
       : [];
   const logoSlot: ImageSlot[] = logo
-    ? [{ id: 'logo', kind: 'user', brief: 'Brand logo', calmAreas: '', style: '', stockQuery: '', userImageId: logo.id }]
+    ? [
+        {
+          id: 'logo',
+          kind: 'user',
+          brief: 'Brand logo',
+          calmAreas: '',
+          style: '',
+          stockQuery: '',
+          userImageId: logo.id,
+        },
+      ]
     : [];
 
   const layouts: Layout[] = [];
@@ -195,27 +260,88 @@ export function templatePlan(brief: CreativeBrief): DesignPlan {
     // Split: text on the left 55%, subject on the right.
     const tw = W * 0.5;
     const hs = Math.min(H * 0.2, s * 0.22);
-    const headline = text('headline', 'headline', copy.headline, { x: m, y: H * 0.16, width: tw }, hs, 900, palette.text, 'left', 2, 1.08);
-    const sub = text('subheading', 'subheading', copy.subheading, { x: m, y: headline.y + headline.height + s * 0.03, width: tw }, hs * 0.42, 600, palette.text, 'left', 2);
+    const headline = text(
+      'headline',
+      'headline',
+      copy.headline,
+      { x: m, y: H * 0.16, width: tw },
+      hs,
+      900,
+      palette.text,
+      'left',
+      2,
+      1.08,
+    );
+    const sub = text(
+      'subheading',
+      'subheading',
+      copy.subheading,
+      { x: m, y: headline.y + headline.height + s * 0.03, width: tw },
+      hs * 0.42,
+      600,
+      palette.text,
+      'left',
+      2,
+    );
     const bh = Math.max(s * 0.15, 40);
     layouts.push({
       name: 'split: text left, subject right',
       rationale: 'Banners read left to right: message first, then the hero.',
-      imageSlots: [...slots(brief.prompt, 'Keep the left half calm and dark for the text.', true), ...logoSlot],
+      imageSlots: [
+        ...slots(brief.prompt, 'Keep the left half calm and dark for the text.', true),
+        ...logoSlot,
+      ],
       elements: els(
         bg,
         headline,
         sub,
-        ...cta(m, Math.min(H - m - bh, sub.y + sub.height + s * 0.06), Math.max(s * 0.55, tw * 0.45), bh, 'left'),
-        { kind: 'image', id: 'subject', role: 'product', x: W * 0.62, y: H * 0.12, width: W * 0.3, height: H * 0.76, zIndex: 1, slot: 'subject' },
+        ...cta(
+          m,
+          Math.min(H - m - bh, sub.y + sub.height + s * 0.06),
+          Math.max(s * 0.55, tw * 0.45),
+          bh,
+          'left',
+        ),
+        {
+          kind: 'image',
+          id: 'subject',
+          role: 'product',
+          x: W * 0.62,
+          y: H * 0.12,
+          width: W * 0.3,
+          height: H * 0.76,
+          zIndex: 1,
+          slot: 'subject',
+        },
         ...logoElements(W - m - s * 0.2, m * 0.6, s * 0.12),
       ),
     });
   } else {
     // Stacked: headline top, subject center, CTA bottom.
     const hs = s * 0.1;
-    const headline = text('headline', 'headline', copy.headline, { x: m, y: m * 1.2, width: W - 2 * m }, hs, 900, palette.text, 'center', 2, 1.08);
-    const sub = text('subheading', 'subheading', copy.subheading, { x: m, y: headline.y + headline.height + s * 0.015, width: W - 2 * m }, s * 0.042, 600, palette.text, 'center', 2);
+    const headline = text(
+      'headline',
+      'headline',
+      copy.headline,
+      { x: m, y: m * 1.2, width: W - 2 * m },
+      hs,
+      900,
+      palette.text,
+      'center',
+      2,
+      1.08,
+    );
+    const sub = text(
+      'subheading',
+      'subheading',
+      copy.subheading,
+      { x: m, y: headline.y + headline.height + s * 0.015, width: W - 2 * m },
+      s * 0.042,
+      600,
+      palette.text,
+      'center',
+      2,
+    );
     const bw = s * 0.46;
     const bh = s * 0.12;
     const by = H - m - bh;
@@ -224,12 +350,25 @@ export function templatePlan(brief: CreativeBrief): DesignPlan {
     layouts.push({
       name: 'stacked: headline top, subject center, CTA bottom',
       rationale: 'Classic poster hierarchy with a clear vertical reading order.',
-      imageSlots: [...slots(brief.prompt, 'Keep the top third and the bottom strip calm for text.', true), ...logoSlot],
+      imageSlots: [
+        ...slots(brief.prompt, 'Keep the top third and the bottom strip calm for text.', true),
+        ...logoSlot,
+      ],
       elements: els(
         bg,
         headline,
         sub,
-        { kind: 'image', id: 'subject', role: 'product', x: W * 0.2, y: subjectTop, width: W * 0.6, height: subjectHeight, zIndex: 1, slot: 'subject' },
+        {
+          kind: 'image',
+          id: 'subject',
+          role: 'product',
+          x: W * 0.2,
+          y: subjectTop,
+          width: W * 0.6,
+          height: subjectHeight,
+          zIndex: 1,
+          slot: 'subject',
+        },
         ...cta((W - bw) / 2, by, bw, bh, 'center'),
         ...logoElements(m, H - m - s * 0.08, s * 0.08),
       ),
@@ -240,19 +379,66 @@ export function templatePlan(brief: CreativeBrief): DesignPlan {
     const pad = s * 0.05;
     const ph = H - m - py;
     const ths = s * 0.085;
-    const h2 = text('headline', 'headline', copy.headline, { x: m + pad, y: py + pad, width: W - 2 * m - 2 * pad }, ths, 900, palette.text, 'left', 3, 1.08);
-    const s2 = text('subheading', 'subheading', copy.subheading, { x: m + pad, y: h2.y + h2.height + s * 0.01, width: W - 2 * m - 2 * pad }, s * 0.04, 600, palette.text, 'left', 3);
+    const h2 = text(
+      'headline',
+      'headline',
+      copy.headline,
+      { x: m + pad, y: py + pad, width: W - 2 * m - 2 * pad },
+      ths,
+      900,
+      palette.text,
+      'left',
+      3,
+      1.08,
+    );
+    const s2 = text(
+      'subheading',
+      'subheading',
+      copy.subheading,
+      { x: m + pad, y: h2.y + h2.height + s * 0.01, width: W - 2 * m - 2 * pad },
+      s * 0.04,
+      600,
+      palette.text,
+      'left',
+      3,
+    );
     const bh2 = s * 0.11;
     layouts.push({
       name: 'bottom panel over a full-bleed photo',
       rationale: 'Lets the photo carry the mood while the panel guarantees legible text.',
-      imageSlots: [...slots(brief.prompt, 'Keep the bottom 40% calm; put the main interest in the upper half.', false), ...logoSlot],
+      imageSlots: [
+        ...slots(
+          brief.prompt,
+          'Keep the bottom 40% calm; put the main interest in the upper half.',
+          false,
+        ),
+        ...logoSlot,
+      ],
       elements: els(
         bg,
-        { kind: 'shape', id: 'panel', role: 'decoration', x: m, y: py, width: W - 2 * m, height: ph, zIndex: 1, shape: 'rect', fill: palette.background, cornerRadius: Math.round(s * 0.03), opacity: 0.82 },
+        {
+          kind: 'shape',
+          id: 'panel',
+          role: 'decoration',
+          x: m,
+          y: py,
+          width: W - 2 * m,
+          height: ph,
+          zIndex: 1,
+          shape: 'rect',
+          fill: palette.background,
+          cornerRadius: Math.round(s * 0.03),
+          opacity: 0.82,
+        },
         h2,
         s2,
-        ...cta(m + pad, Math.min(py + ph - pad - bh2, s2.y + s2.height + s * 0.04), s * 0.42, bh2, 'left'),
+        ...cta(
+          m + pad,
+          Math.min(py + ph - pad - bh2, s2.y + s2.height + s * 0.04),
+          s * 0.42,
+          bh2,
+          'left',
+        ),
         ...logoElements(m, m, s * 0.08),
       ),
     });

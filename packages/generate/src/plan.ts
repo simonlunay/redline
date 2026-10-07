@@ -75,7 +75,9 @@ export const ImageSlotSchema = z.object({
     .describe(
       'Where text will sit and what must stay calm, e.g. "keep the top third calm and uncluttered for the headline". "" for subjects and user images.',
     ),
-  style: z.string().describe('Visual style, e.g. "editorial photo, soft daylight" or "flat 3D render"'),
+  style: z
+    .string()
+    .describe('Visual style, e.g. "editorial photo, soft daylight" or "flat 3D render"'),
   stockQuery: z.string().describe('3-6 word stock photo search query for this slot ("" for user)'),
   userImageId: z.string().describe('For user slots: the id of the supplied image; otherwise ""'),
 });
@@ -129,7 +131,11 @@ const HEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 /** Copy shorter than this can legitimately appear in a brief ("SALE" vs "a sale rack"). */
 const MIN_COPY_LENGTH_TO_MATCH = 6;
 
-const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const normalize = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 
 /**
  * Validates raw art-director output: the schema, then everything a schema can't say. Returns
@@ -151,8 +157,12 @@ export function parsePlan(raw: unknown, ctx: PlanContext): PlanParseResult {
   const problems = validatePlan(plan, ctx);
   if (problems.length > 0) {
     const shown = problems.slice(0, 15);
-    const more = problems.length > shown.length ? `\n(and ${problems.length - shown.length} more)` : '';
-    return { ok: false, error: `The plan has problems:\n${shown.map((p) => `- ${p}`).join('\n')}${more}` };
+    const more =
+      problems.length > shown.length ? `\n(and ${problems.length - shown.length} more)` : '';
+    return {
+      ok: false,
+      error: `The plan has problems:\n${shown.map((p) => `- ${p}`).join('\n')}${more}`,
+    };
   }
   return { ok: true, plan };
 }
@@ -222,17 +232,22 @@ export function validatePlan(plan: DesignPlan, ctx: PlanContext): string[] {
       const bottom = el.y + el.height;
       const bleeds = el.role === 'background';
       if (!bleeds && (el.x < -1 || el.y < -1 || right > W + 1 || bottom > H + 1)) {
-        problems.push(`${where}: box (${el.x}, ${el.y}, ${el.width}x${el.height}) is outside the ${W}x${H} canvas`);
+        problems.push(
+          `${where}: box (${el.x}, ${el.y}, ${el.width}x${el.height}) is outside the ${W}x${H} canvas`,
+        );
       }
       if (el.kind === 'text') {
         if (el.role === 'headline') headlines++;
         if (!el.content.trim()) problems.push(`${where}: text content is empty`);
         if (!HEX.test(el.color)) problems.push(`${where}: color "${el.color}" is not a hex color`);
         if (!(el.fontSize > 0)) problems.push(`${where}: fontSize must be > 0`);
-        if (el.fontWeight < 100 || el.fontWeight > 1000) problems.push(`${where}: fontWeight must be 100-1000`);
+        if (el.fontWeight < 100 || el.fontWeight > 1000)
+          problems.push(`${where}: fontWeight must be 100-1000`);
         if (!(el.lineHeight > 0)) problems.push(`${where}: lineHeight must be > 0`);
         if (!fonts.has(el.fontFamily.toLowerCase())) {
-          problems.push(`${where}: font "${el.fontFamily}" is not available; use one of ${ctx.fonts.join(', ')}`);
+          problems.push(
+            `${where}: font "${el.fontFamily}" is not available; use one of ${ctx.fonts.join(', ')}`,
+          );
         }
       } else if (el.kind === 'shape') {
         if (!HEX.test(el.fill)) problems.push(`${where}: fill "${el.fill}" is not a hex color`);
@@ -245,13 +260,19 @@ export function validatePlan(plan: DesignPlan, ctx: PlanContext): string[] {
         }
         usedSlots.add(el.slot);
         if (slot.kind === 'background' && el.role !== 'background') {
-          problems.push(`${where}: a background slot must be used by an element with role "background"`);
+          problems.push(
+            `${where}: a background slot must be used by an element with role "background"`,
+          );
         }
       }
     }
-    if (headlines !== 1) problems.push(`${at}: needs exactly one text element with role "headline" (has ${headlines})`);
+    if (headlines !== 1)
+      problems.push(
+        `${at}: needs exactly one text element with role "headline" (has ${headlines})`,
+      );
     for (const id of slots.keys()) {
-      if (!usedSlots.has(id)) problems.push(`${at}: image slot "${id}" is not used by any image element`);
+      if (!usedSlots.has(id))
+        problems.push(`${at}: image slot "${id}" is not used by any image element`);
     }
   });
   return problems;

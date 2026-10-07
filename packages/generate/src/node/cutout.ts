@@ -30,7 +30,11 @@ async function decode(bytes: Uint8Array) {
   const canvas = createCanvas(image.width, image.height);
   const ctx = canvas.getContext('2d');
   ctx.drawImage(image, 0, 0);
-  return { width: image.width, height: image.height, data: ctx.getImageData(0, 0, image.width, image.height).data };
+  return {
+    width: image.width,
+    height: image.height,
+    data: ctx.getImageData(0, 0, image.width, image.height).data,
+  };
 }
 
 /**
@@ -112,7 +116,11 @@ export function createBiRefNetRemover(
       const source = createCanvas(image.width, image.height);
       const sctx = source.getContext('2d');
       sctx.drawImage(image, 0, 0);
-      const rgba = { width: image.width, height: image.height, data: sctx.getImageData(0, 0, image.width, image.height).data };
+      const rgba = {
+        width: image.width,
+        height: image.height,
+        data: sctx.getImageData(0, 0, image.width, image.height).data,
+      };
 
       // Preprocess exactly like the model's preprocessor_config: resize to 1024x1024 (no aspect
       // preservation), scale to 0-1, ImageNet mean/std, NCHW.
@@ -127,7 +135,9 @@ export function createBiRefNetRemover(
           tensor[c * SIZE * SIZE + i] = (px[i * 4 + c]! / 255 - MEAN[c]!) / STD[c]!;
         }
       }
-      const result = await s.run({ [s.inputNames[0]!]: new ort.Tensor('float32', tensor, [1, 3, SIZE, SIZE]) });
+      const result = await s.run({
+        [s.inputNames[0]!]: new ort.Tensor('float32', tensor, [1, 3, SIZE, SIZE]),
+      });
       const logits = result[s.outputNames[0]!]!.data as Float32Array;
 
       // Sigmoid -> 1024x1024 mask -> resize to the original size.
@@ -184,7 +194,11 @@ export function createBackdropKeyRemover(options: { tolerance?: number } = {}): 
       }
       const backdrop = border.map((values) => values.sort((a, b) => a - b)[values.length >> 1]!);
       const distance = (i: number) =>
-        Math.hypot(data[i * 4]! - backdrop[0]!, data[i * 4 + 1]! - backdrop[1]!, data[i * 4 + 2]! - backdrop[2]!);
+        Math.hypot(
+          data[i * 4]! - backdrop[0]!,
+          data[i * 4 + 1]! - backdrop[1]!,
+          data[i * 4 + 2]! - backdrop[2]!,
+        );
 
       const alpha = new Uint8ClampedArray(width * height).fill(255);
       const seen = new Uint8Array(width * height);
