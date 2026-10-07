@@ -1,0 +1,948 @@
+{
+  "createdAt": "2026-10-07T00:57:51.657Z",
+  "designs": 98,
+  "clean": 86,
+  "p10": {
+    "thresholds": {
+      "headline": 0.19,
+      "cta": 0.05,
+      "product": 0.13
+    },
+    "cleanFlagged": 17,
+    "originalsFlagged": 5,
+    "flaggedCleanSources": [
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#3"
+    ]
+  },
+  "p20": {
+    "thresholds": {
+      "headline": 0.21,
+      "cta": 0.09,
+      "product": 0.15
+    },
+    "cleanFlagged": 34,
+    "originalsFlagged": 9,
+    "flaggedCleanSources": [
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:competing-headline:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-sonnet-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-opus-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-opus-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-sonnet-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-sonnet-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-opus-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-sonnet-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-sonnet-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-sonnet-5-5#3",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#1",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#2",
+      "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#3"
+    ]
+  },
+  "samples": [
+    {
+      "source": "fixture:ad-sneaker-sale.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.19452500162075737,
+        "cta": 0.228971182238638,
+        "product": 0.31093615342241687
+      }
+    },
+    {
+      "source": "fixture:banner-saas.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.33285903279488593,
+        "cta": 0.05610632814205019,
+        "product": 0.11933806155239912
+      }
+    },
+    {
+      "source": "fixture:clean-poster.json",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "fixture:competing-headline.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.17303597673725202,
+        "cta": 0.12299800495384261,
+        "product": 0.21314482524564937
+      }
+    },
+    {
+      "source": "fixture:low-contrast-on-image.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.2539060718751145,
+        "cta": 0.2980877885056543
+      }
+    },
+    {
+      "source": "fixture:misaligned.json",
+      "clean": true,
+      "shares": {
+        "headline": 0.2642131979480826,
+        "cta": 0.10076381276667234,
+        "product": 0.157106027645721
+      }
+    },
+    {
+      "source": "fixture:off-canvas.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.25110096656608505,
+        "cta": 0.10261925556369533,
+        "product": 0.1815873196633646
+      }
+    },
+    {
+      "source": "fixture:overlap-headline-product.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.08727096431928594,
+        "cta": 0.13546220761236327,
+        "product": 0.22575193747820776
+      }
+    },
+    {
+      "source": "fixture:promo-food.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.3155530659429928,
+        "cta": 0.08553919835321722,
+        "product": 0.17130028370807518
+      }
+    },
+    {
+      "source": "fixture:story-concert.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.059976608206795845,
+        "cta": 0.061964297950908076
+      }
+    },
+    {
+      "source": "fixture:stretched-image.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.26122316978532467,
+        "cta": 0.09966420360797201,
+        "product": 0.1400365337976628
+      }
+    },
+    {
+      "source": "fixture:text-overflow.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.20388698242798853,
+        "cta": 0.1178467172467208,
+        "product": 0.14381916481656276
+      }
+    },
+    {
+      "source": "fixture:tiny-text.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.27728623184977863,
+        "cta": 0.10954332838991832,
+        "product": 0.16576799782500018
+      }
+    },
+    {
+      "source": "fixture:worst.json",
+      "clean": false,
+      "shares": {
+        "headline": 0.16497041767524934,
+        "cta": 0.07671728972945857,
+        "product": 0.4081212429535874
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:ad-sneaker-sale:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.21796781575266877,
+        "cta": 0.13168620847795864,
+        "product": 0.23428557194837119
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:ad-sneaker-sale:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.21335822182166142,
+        "cta": 0.125840538700686,
+        "product": 0.22406895336959698
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:ad-sneaker-sale:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.22613688562943146,
+        "cta": 0.13816407778540452,
+        "product": 0.21381905459924688
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:ad-sneaker-sale:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.24600439521424544,
+        "cta": 0.16700381603777714,
+        "product": 0.19528472809039688
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:ad-sneaker-sale:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.2580071455709678,
+        "cta": 0.11046814309020192,
+        "product": 0.2064417810895458
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:ad-sneaker-sale:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2300975670706169,
+        "cta": 0.15768467934094588,
+        "product": 0.2290456395164271
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.5229147368754639,
+        "cta": 0.050637881773582194,
+        "product": 0.04744716749806743
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.529503019623462,
+        "cta": 0.07464131604865543,
+        "product": 0.06912637004406186
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.4970885950642696,
+        "cta": 0.04987264218380005,
+        "product": 0.056655095750901996
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.502596348719635,
+        "cta": 0.04936370409495794,
+        "product": 0.05655255747941723
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.5160675014230947,
+        "cta": 0.04629220602919304,
+        "product": 0.054581757709436296
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:banner-saas:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.5162151797835577,
+        "cta": 0.05009859486881396,
+        "product": 0.04658188464536828
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:clean-poster:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:clean-poster:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:clean-poster:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:clean-poster:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:clean-poster:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:clean-poster:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:competing-headline:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.20682401016108898,
+        "cta": 0.10209925040908274,
+        "product": 0.17409312864743498
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:competing-headline:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.22830876730451521,
+        "cta": 0.10209925040908274,
+        "product": 0.17409312864743498
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:competing-headline:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2278921246607668,
+        "cta": 0.10541668411860883,
+        "product": 0.1748269446420565
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:competing-headline:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.2577279070418097,
+        "cta": 0.09978014194348361,
+        "product": 0.16881902558010609
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:competing-headline:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.2577279070418097,
+        "cta": 0.09978014194348361,
+        "product": 0.16881902558010609
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:competing-headline:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2577279070418097,
+        "cta": 0.09978014194348361,
+        "product": 0.16881902558010609
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:low-contrast-on-image:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.34281084257668226,
+        "cta": 0.2198127039719111
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:low-contrast-on-image:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.32670943800133045,
+        "cta": 0.22914774381752068
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:low-contrast-on-image:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.3356608847750522,
+        "cta": 0.22167649227958464
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:low-contrast-on-image:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.3219318080925859,
+        "cta": 0.16548848515776626
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:low-contrast-on-image:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.3219318080925859,
+        "cta": 0.16548848515776626
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:low-contrast-on-image:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.3219318080925859,
+        "cta": 0.16548848515776626
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:misaligned:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.2642131979480826,
+        "cta": 0.10076381276667234,
+        "product": 0.157106027645721
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:misaligned:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.2642131979480826,
+        "cta": 0.10076381276667234,
+        "product": 0.157106027645721
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:misaligned:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2642131979480826,
+        "cta": 0.10076381276667234,
+        "product": 0.157106027645721
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:misaligned:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.2642131979480826,
+        "cta": 0.10076381276667234,
+        "product": 0.157106027645721
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:misaligned:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.2642131979480826,
+        "cta": 0.10076381276667234,
+        "product": 0.157106027645721
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:misaligned:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2642131979480826,
+        "cta": 0.10076381276667234,
+        "product": 0.157106027645721
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:off-canvas:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.24910573535332503,
+        "cta": 0.09237156410199532,
+        "product": 0.16611250994830584
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:off-canvas:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.24910573535332503,
+        "cta": 0.09237156410199532,
+        "product": 0.16611250994830584
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:off-canvas:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.24836877861045537,
+        "cta": 0.0924937509062147,
+        "product": 0.16797651239079414
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:off-canvas:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.2515836069747266,
+        "cta": 0.09073064977565082,
+        "product": 0.16166741719388256
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:off-canvas:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.2518026556905326,
+        "cta": 0.09094427170384733,
+        "product": 0.16217232941849602
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:off-canvas:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.25091195555749124,
+        "cta": 0.09063654868441517,
+        "product": 0.1617130087694818
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.2067033543163994,
+        "cta": 0.10208823730499716,
+        "product": 0.2077612747629871
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.190635586976871,
+        "cta": 0.10549266585621808,
+        "product": 0.2132685836376993
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2067033543163994,
+        "cta": 0.10208823730499716,
+        "product": 0.2077612747629871
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.27600685078467535,
+        "cta": 0.09512278927468287,
+        "product": 0.16662358536902744
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:overlap-headline-product:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.25874640069616817,
+        "cta": 0.09562964911128802,
+        "product": 0.16650266344719356
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.29296297787900016,
+        "cta": 0.1064140795970161,
+        "product": 0.15571906734362229
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.26087923035149174,
+        "cta": 0.10570508671480638,
+        "product": 0.16354591878224733
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.3035397174687944,
+        "cta": 0.077930153232046,
+        "product": 0.17094223196611313
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.23393049641720154,
+        "cta": 0.11365146697880846,
+        "product": 0.13472794538411625
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.27128930967548115,
+        "cta": 0.12837098606451036,
+        "product": 0.1265091847111448
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:promo-food:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.30208984229135183,
+        "cta": 0.09798158604553464,
+        "product": 0.14307768229900053
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.08587887910346126,
+        "cta": 0.09964930537898908
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.0802979547216296,
+        "cta": 0.09412109327604412
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.10730812246083588,
+        "cta": 0.07221826326349401
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.07456114715489548,
+        "cta": 0.08497083974361885
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.07998253373568787,
+        "cta": 0.1161745978442923
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:story-concert:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.10231087989427579,
+        "cta": 0.10609670701887808
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.25370512696530767,
+        "cta": 0.1052605496133765,
+        "product": 0.14453633988521064
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.25370512696530767,
+        "cta": 0.1052605496133765,
+        "product": 0.14453633988521064
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.25370512696530767,
+        "cta": 0.1052605496133765,
+        "product": 0.14453633988521064
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.2614111317859127,
+        "cta": 0.09717717606690712,
+        "product": 0.15464403427934492
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.2614111317859127,
+        "cta": 0.09717717606690712,
+        "product": 0.15464403427934492
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:stretched-image:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2614111317859127,
+        "cta": 0.09717717606690712,
+        "product": 0.15464403427934492
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.20295026877280975,
+        "cta": 0.1294948675604246,
+        "product": 0.14594334008638477
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.20295026877280975,
+        "cta": 0.1294948675604246,
+        "product": 0.14594334008638477
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2001209681281395,
+        "cta": 0.11393512371978431,
+        "product": 0.14665812070049
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.24502021427506548,
+        "cta": 0.07770228023218806,
+        "product": 0.17748371332405455
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.24131802844775763,
+        "cta": 0.08321850645279483,
+        "product": 0.1761438715194359
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:text-overflow:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2189626516651728,
+        "cta": 0.10907550992578763,
+        "product": 0.15994655279428116
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:tiny-text:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.26623953697750835,
+        "cta": 0.10692290847691766,
+        "product": 0.1667387398783653
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:tiny-text:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.2669920578912297,
+        "cta": 0.10938095875644649,
+        "product": 0.1671659690490408
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:tiny-text:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.26623953697750835,
+        "cta": 0.10692290847691766,
+        "product": 0.1667387398783653
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:tiny-text:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.26728125564260097,
+        "cta": 0.10744412605163234,
+        "product": 0.16670722864976284
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:tiny-text:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.2584253989997194,
+        "cta": 0.10815543115859327,
+        "product": 0.16497609546693326
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:tiny-text:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.26623953697750835,
+        "cta": 0.10692290847691766,
+        "product": 0.1667387398783653
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-sonnet-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.17143697590974494,
+        "cta": 0.05658001129359036,
+        "product": 0.2013582243550518
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-sonnet-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.20144242770859577,
+        "cta": 0.05223833340096462,
+        "product": 0.21861174230930747
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-sonnet-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.2333221486351249,
+        "cta": 0.06832221486092749,
+        "product": 0.1924299601302044
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#1",
+      "clean": true,
+      "shares": {
+        "headline": 0.21955619181915598,
+        "cta": 0.04943168261070241,
+        "product": 0.20394359647030047
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#2",
+      "clean": true,
+      "shares": {
+        "headline": 0.20436323151709068,
+        "cta": 0.04565430963657491,
+        "product": 0.19220799361842467
+      }
+    },
+    {
+      "source": "2026-10-07T00-10-51-680Z_claude-sonnet-5-5+claude-opus-5-5.json:worst:claude-opus-5-5#3",
+      "clean": true,
+      "shares": {
+        "headline": 0.1799721994488297,
+        "cta": 0.0493009696901936,
+        "product": 0.2266306949010688
+      }
+    }
+  ]
+}
