@@ -15,6 +15,11 @@ export default defineConfig({
         replacement: src('./packages/checker/src/node/index.ts'),
       },
       { find: /^@simonlunay\/redline$/, replacement: src('./packages/checker/src/core/index.ts') },
+      {
+        find: /^@simonlunay\/redline-agent\/node$/,
+        replacement: src('./packages/agent/src/node/index.ts'),
+      },
+      { find: /^@simonlunay\/redline-agent$/, replacement: src('./packages/agent/src/index.ts') },
     ],
   },
 });

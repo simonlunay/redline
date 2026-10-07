@@ -5,7 +5,13 @@ export { FixSchema, applyFixes } from './fixes.js';
 export type { ApplyFixesResult, FixOp, RejectedFix } from './fixes.js';
 export { designJsonSchema, fixJsonSchema } from './json-schema.js';
 export type { JsonSchema } from './json-schema.js';
-export { DesignSchema, DesignValidationError, FORMAT_VERSION, parseDesign } from './schema.js';
+export {
+  DesignSchema,
+  DesignValidationError,
+  FORMAT_VERSION,
+  RoleSchema,
+  parseDesign,
+} from './schema.js';
 export type {
   Canvas,
   Design,

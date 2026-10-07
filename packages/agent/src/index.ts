@@ -33,3 +33,4 @@ export {
 } from './editors/anthropic.js';
 export type { AnthropicEditorOptions, Effort } from './editors/anthropic.js';
 export { SUBMIT_TOOL_NAME, buildSystemPrompt, buildUserMessage, layoutTable } from './prompt.js';
+export { estimateCostUsd } from './pricing.js';

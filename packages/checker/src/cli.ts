@@ -28,6 +28,7 @@ ${pc.bold('Usage')}
   redline rules                      List built-in rules and their defaults
   redline setup attention            Download the saliency model used by --attention (50 MB)
   redline fix <design.json> [...]    AI fix loop (needs @simonlunay/redline-agent; see fix --help)
+  redline generate "<prompt>" [...]  Prompt to design (needs @simonlunay/redline-generate; see generate --help)
 
 ${pc.bold('Options')}
   --format <pretty|json>   Output format (default: pretty)
@@ -156,8 +157,43 @@ async function runFix(argv: string[]): Promise<number> {
   }
 }
 
+interface GenerateModule {
+  runGenerateCommand(argv: string[]): Promise<number>;
+  GenerateUsageError: new (...args: never[]) => Error;
+  GENERATE_HELP: string;
+}
+
+/** `redline generate` lives in the optional @simonlunay/redline-generate package (same pattern as fix). */
+async function runGenerate(argv: string[]): Promise<number> {
+  const specifier = '@simonlunay/redline-generate/node';
+  let generate: GenerateModule;
+  try {
+    generate = (await import(specifier)) as GenerateModule;
+  } catch (err) {
+    const missing =
+      (err as { code?: string }).code === 'ERR_MODULE_NOT_FOUND' &&
+      String((err as Error).message).includes('redline-generate');
+    if (!missing) throw err;
+    console.error(
+      pc.red('redline generate needs the generate package: npm install @simonlunay/redline-generate'),
+    );
+    return EXIT_USAGE;
+  }
+  try {
+    return await generate.runGenerateCommand(argv);
+  } catch (err) {
+    if (err instanceof generate.GenerateUsageError) {
+      console.error(pc.red(err.message));
+      console.error(generate.GENERATE_HELP);
+      return EXIT_USAGE;
+    }
+    throw err;
+  }
+}
+
 async function main(argv: string[]): Promise<number> {
   if (argv[0] === 'fix') return runFix(argv.slice(1));
+  if (argv[0] === 'generate') return runGenerate(argv.slice(1));
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,

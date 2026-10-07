@@ -17,8 +17,12 @@ export default tseslint.config(
   {
     // The core must run in the browser too, so Node built-ins are banned there.
     // This turns "isomorphic" from a convention into something CI enforces.
-    files: ['packages/checker/src/core/**/*.ts', 'packages/agent/src/**/*.ts'],
-    ignores: ['packages/agent/src/node/**'],
+    files: [
+      'packages/checker/src/core/**/*.ts',
+      'packages/agent/src/**/*.ts',
+      'packages/generate/src/**/*.ts',
+    ],
+    ignores: ['packages/agent/src/node/**', 'packages/generate/src/node/**'],
     rules: {
       'no-restricted-imports': [
         'error',
