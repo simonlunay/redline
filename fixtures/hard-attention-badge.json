@@ -1,0 +1,101 @@
+{
+  "version": "0.1",
+  "name": "Hard: layout-clean banner where a badge outshines the headline",
+  "canvas": {
+    "width": 1200,
+    "height": 628,
+    "background": "#1e293b"
+  },
+  "elements": [
+    {
+      "id": "headline",
+      "type": "text",
+      "content": "Learn to code in 12 weeks",
+      "x": 70,
+      "y": 120,
+      "width": 620,
+      "height": 130,
+      "fontSize": 52,
+      "fontWeight": 600,
+      "color": "#94a3b8",
+      "align": "left",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "headline"
+    },
+    {
+      "id": "body",
+      "type": "text",
+      "content": "Live classes, real projects, career support",
+      "x": 70,
+      "y": 278,
+      "width": 620,
+      "height": 40,
+      "fontSize": 26,
+      "fontWeight": 400,
+      "color": "#cbd5e1",
+      "align": "left",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "body"
+    },
+    {
+      "id": "cta-button",
+      "type": "shape",
+      "kind": "rect",
+      "x": 70,
+      "y": 400,
+      "width": 260,
+      "height": 72,
+      "fill": "#334155",
+      "cornerRadius": 36,
+      "zIndex": 1,
+      "role": "cta"
+    },
+    {
+      "id": "cta-label",
+      "type": "text",
+      "content": "Apply now",
+      "x": 90,
+      "y": 418,
+      "width": 220,
+      "height": 36,
+      "fontSize": 28,
+      "fontWeight": 700,
+      "color": "#e2e8f0",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 3,
+      "role": "cta"
+    },
+    {
+      "id": "badge",
+      "type": "shape",
+      "kind": "ellipse",
+      "x": 780,
+      "y": 120,
+      "width": 340,
+      "height": 340,
+      "fill": "#facc15",
+      "cornerRadius": 0,
+      "zIndex": 1,
+      "role": "decoration"
+    },
+    {
+      "id": "badge-label",
+      "type": "text",
+      "content": "SPOTS LEFT",
+      "x": 800,
+      "y": 262,
+      "width": 300,
+      "height": 56,
+      "fontSize": 40,
+      "fontWeight": 900,
+      "color": "#111827",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "decoration"
+    }
+  ]
+}

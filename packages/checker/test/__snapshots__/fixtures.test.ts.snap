@@ -729,6 +729,567 @@ exports[`fixtures (Node env: real fonts + image pixels) > competing-headline.jso
 }
 `;
 
+exports[`fixtures (Node env: real fonts + image pixels) > hard-attention-badge.json matches its report snapshot 1`] = `
+{
+  "issues": [],
+  "passed": true,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 100,
+  "summary": {
+    "errors": 0,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > hard-attention-burst.json matches its report snapshot 1`] = `
+{
+  "issues": [],
+  "passed": true,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 100,
+  "summary": {
+    "errors": 0,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > hard-busy-photo-tiny-cta.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "cta-button",
+      ],
+      "fix": [
+        {
+          "dx": 0,
+          "dy": -8,
+          "elementId": "cta-button",
+          "op": "move",
+        },
+      ],
+      "measured": 46,
+      "message": "cta "cta-button" is 46px from the bottom edge; keep at least 54px (5% of the shorter side).",
+      "ruleId": "safe-margins",
+      "severity": "warning",
+      "threshold": 54,
+      "unit": "px",
+    },
+    {
+      "elementIds": [
+        "cta-label",
+      ],
+      "fix": [
+        {
+          "dx": 0,
+          "dy": -1,
+          "elementId": "cta-label",
+          "op": "move",
+        },
+      ],
+      "measured": 53,
+      "message": "cta "cta-label" is 53px from the bottom edge; keep at least 54px (5% of the shorter side).",
+      "ruleId": "safe-margins",
+      "severity": "warning",
+      "threshold": 54,
+      "unit": "px",
+    },
+  ],
+  "passed": true,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 2,
+      "ruleId": "safe-margins",
+      "score": 94,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 94,
+  "summary": {
+    "errors": 0,
+    "infos": 0,
+    "warnings": 2,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > hard-cluttered-flyer.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "headline",
+      ],
+      "fix": [
+        {
+          "elementId": "headline",
+          "fontSize": 89,
+          "op": "setFontSize",
+        },
+      ],
+      "measured": 220.8,
+      "message": "headline "headline" needs 220.8px (2 lines at 92px x 1.2) but its box is 110px tall.",
+      "ruleId": "text-overflow",
+      "severity": "error",
+      "threshold": 110,
+      "unit": "px",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 1,
+      "ruleId": "text-overflow",
+      "score": 76,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 76,
+  "summary": {
+    "errors": 1,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > hard-leaderboard.json matches its report snapshot 1`] = `
+{
+  "issues": [
+    {
+      "elementIds": [
+        "product",
+      ],
+      "fix": [
+        {
+          "elementId": "product",
+          "height": 100,
+          "op": "resize",
+          "width": 160,
+        },
+      ],
+      "measured": 28.21,
+      "message": "product "product" is stretched horizontally by 28.21% (box 2.05:1 vs image 1.6:1).",
+      "ruleId": "image-aspect-ratio",
+      "severity": "error",
+      "threshold": 2,
+      "unit": "% distortion",
+    },
+  ],
+  "passed": false,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 1,
+      "ruleId": "image-aspect-ratio",
+      "score": 84,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 84,
+  "summary": {
+    "errors": 1,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > hard-skyscraper.json matches its report snapshot 1`] = `
+{
+  "issues": [],
+  "passed": true,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 100,
+  "summary": {
+    "errors": 0,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
+exports[`fixtures (Node env: real fonts + image pixels) > hard-story-hero.json matches its report snapshot 1`] = `
+{
+  "issues": [],
+  "passed": true,
+  "rules": [
+    {
+      "issues": 0,
+      "ruleId": "text-contrast",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "off-canvas",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "min-text-size",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "image-aspect-ratio",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "safe-margins",
+      "score": 100,
+      "weight": 1,
+    },
+    {
+      "issues": 0,
+      "ruleId": "hierarchy",
+      "score": 100,
+      "weight": 2,
+    },
+    {
+      "issues": 0,
+      "ruleId": "unintended-overlap",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "text-overflow",
+      "score": 100,
+      "weight": 3,
+    },
+    {
+      "issues": 0,
+      "ruleId": "alignment",
+      "score": 100,
+      "weight": 1,
+    },
+  ],
+  "score": 100,
+  "summary": {
+    "errors": 0,
+    "infos": 0,
+    "warnings": 0,
+  },
+}
+`;
+
 exports[`fixtures (Node env: real fonts + image pixels) > low-contrast-on-image.json matches its report snapshot 1`] = `
 {
   "issues": [

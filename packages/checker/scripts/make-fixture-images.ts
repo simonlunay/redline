@@ -173,3 +173,65 @@ save('food.png', 1000, 1000, (ctx) => {
   circle(ctx, 590, 470, 70, '#d64933');
   circle(ctx, 500, 600, 90, '#fff8dc');
 });
+
+// ---- Images for the hard (attention) fixtures (phase 3 eval) ----
+
+// A busy, saturated market scene: lots of high-contrast detail competing for attention.
+save('market.png', 1080, 1080, (ctx) => {
+  ctx.fillStyle = '#3b2f2f';
+  ctx.fillRect(0, 0, 1080, 1080);
+  const colors = [
+    '#ef4444',
+    '#f59e0b',
+    '#22c55e',
+    '#3b82f6',
+    '#a855f7',
+    '#f43f5e',
+    '#eab308',
+    '#14b8a6',
+  ];
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
+      const i = row * 9 + col;
+      ctx.fillStyle = colors[(i * 5 + row) % colors.length]!;
+      const x = col * 120 + ((row * 37) % 40);
+      const y = row * 120 + ((col * 23) % 30);
+      if (i % 3 === 0) circle(ctx, x + 50, y + 50, 38, ctx.fillStyle as string);
+      else ctx.fillRect(x + 10, y + 10, 90, 80);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x + 20, y + 85, 50, 12);
+    }
+  }
+  ctx.fillStyle = '#fef3c7';
+  for (let i = 0; i < 6; i++) ctx.fillRect(0, i * 190 + 100, 1080, 6);
+});
+
+// A stylized face (portrait orientation). Saliency models are strongly drawn to faces.
+save('portrait.png', 900, 1200, (ctx) => {
+  const g = ctx.createLinearGradient(0, 0, 0, 1200);
+  g.addColorStop(0, '#1f2937');
+  g.addColorStop(1, '#111827');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 900, 1200);
+  ctx.fillStyle = '#7c3aed';
+  ctx.beginPath();
+  ctx.ellipse(450, 1150, 380, 330, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f2c4a0';
+  ctx.beginPath();
+  ctx.ellipse(450, 520, 230, 290, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#3f2a1d';
+  ctx.beginPath();
+  ctx.ellipse(450, 330, 250, 150, 0, Math.PI, Math.PI * 2);
+  ctx.fill();
+  for (const x of [370, 530]) {
+    circle(ctx, x, 500, 34, '#ffffff');
+    circle(ctx, x, 505, 18, '#1e3a8a');
+    circle(ctx, x, 505, 8, '#000000');
+  }
+  ctx.fillStyle = '#c2410c';
+  ctx.beginPath();
+  ctx.ellipse(450, 660, 80, 30, 0, 0, Math.PI);
+  ctx.fill();
+});

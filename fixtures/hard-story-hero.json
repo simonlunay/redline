@@ -1,0 +1,99 @@
+{
+  "version": "0.1",
+  "name": "Hard: story where the hero face pulls attention from the CTA",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "background": "#111827"
+  },
+  "elements": [
+    {
+      "id": "hero",
+      "type": "image",
+      "src": "images/portrait.png",
+      "naturalWidth": 900,
+      "naturalHeight": 1200,
+      "x": 0,
+      "y": 0,
+      "width": 1080,
+      "height": 1440,
+      "fit": "fill",
+      "zIndex": 0,
+      "role": "product"
+    },
+    {
+      "id": "headline-panel",
+      "type": "shape",
+      "kind": "rect",
+      "x": 60,
+      "y": 1460,
+      "width": 960,
+      "height": 180,
+      "fill": "#111827",
+      "cornerRadius": 16,
+      "zIndex": 1,
+      "role": "decoration"
+    },
+    {
+      "id": "headline",
+      "type": "text",
+      "content": "Meet the artist",
+      "x": 90,
+      "y": 1490,
+      "width": 900,
+      "height": 110,
+      "fontSize": 88,
+      "fontWeight": 900,
+      "color": "#ffffff",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "headline"
+    },
+    {
+      "id": "subheading",
+      "type": "text",
+      "content": "Live interview, Thursday 8pm",
+      "x": 90,
+      "y": 1660,
+      "width": 900,
+      "height": 50,
+      "fontSize": 40,
+      "fontWeight": 600,
+      "color": "#9ca3af",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "subheading"
+    },
+    {
+      "id": "cta-button",
+      "type": "shape",
+      "kind": "rect",
+      "x": 410,
+      "y": 1760,
+      "width": 260,
+      "height": 70,
+      "fill": "#374151",
+      "cornerRadius": 35,
+      "zIndex": 1,
+      "role": "cta"
+    },
+    {
+      "id": "cta-label",
+      "type": "text",
+      "content": "Remind me",
+      "x": 430,
+      "y": 1776,
+      "width": 220,
+      "height": 38,
+      "fontSize": 30,
+      "fontWeight": 700,
+      "color": "#d1d5db",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 3,
+      "role": "cta"
+    }
+  ]
+}

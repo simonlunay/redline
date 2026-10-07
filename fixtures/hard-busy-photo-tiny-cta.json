@@ -1,0 +1,100 @@
+{
+  "version": "0.1",
+  "name": "Hard: busy market photo with a tiny CTA",
+  "canvas": {
+    "width": 1080,
+    "height": 1080,
+    "background": "#3b2f2f"
+  },
+  "elements": [
+    {
+      "id": "photo",
+      "type": "image",
+      "src": "images/market.png",
+      "naturalWidth": 1080,
+      "naturalHeight": 1080,
+      "x": 0,
+      "y": 0,
+      "width": 1080,
+      "height": 1080,
+      "fit": "cover",
+      "zIndex": 0,
+      "role": "background"
+    },
+    {
+      "id": "headline-panel",
+      "type": "shape",
+      "kind": "rect",
+      "x": 60,
+      "y": 60,
+      "width": 960,
+      "height": 190,
+      "fill": "#111827",
+      "cornerRadius": 16,
+      "zIndex": 1,
+      "opacity": 0.85,
+      "role": "decoration"
+    },
+    {
+      "id": "headline",
+      "type": "text",
+      "content": "Fresh Market Fridays",
+      "x": 90,
+      "y": 90,
+      "width": 900,
+      "height": 100,
+      "fontSize": 80,
+      "fontWeight": 900,
+      "color": "#ffffff",
+      "align": "left",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "headline"
+    },
+    {
+      "id": "subheading",
+      "type": "text",
+      "content": "Local produce, live music, street food",
+      "x": 90,
+      "y": 196,
+      "width": 900,
+      "height": 44,
+      "fontSize": 34,
+      "fontWeight": 600,
+      "color": "#e5e7eb",
+      "align": "left",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "subheading"
+    },
+    {
+      "id": "cta-button",
+      "type": "shape",
+      "kind": "rect",
+      "x": 880,
+      "y": 990,
+      "width": 140,
+      "height": 44,
+      "fill": "#f97316",
+      "cornerRadius": 22,
+      "zIndex": 2,
+      "role": "cta"
+    },
+    {
+      "id": "cta-label",
+      "type": "text",
+      "content": "Visit",
+      "x": 890,
+      "y": 997,
+      "width": 120,
+      "height": 30,
+      "fontSize": 24,
+      "fontWeight": 700,
+      "color": "#111827",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 3,
+      "role": "cta"
+    }
+  ]
+}

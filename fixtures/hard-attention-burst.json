@@ -1,0 +1,112 @@
+{
+  "version": "0.1",
+  "name": "Hard: layout-clean but a decoration steals attention",
+  "canvas": {
+    "width": 1080,
+    "height": 1080,
+    "background": "#f8fafc"
+  },
+  "elements": [
+    {
+      "id": "headline",
+      "type": "text",
+      "content": "Spring Collection",
+      "x": 90,
+      "y": 90,
+      "width": 900,
+      "height": 110,
+      "fontSize": 84,
+      "fontWeight": 900,
+      "color": "#0f172a",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "headline"
+    },
+    {
+      "id": "burst",
+      "type": "shape",
+      "kind": "ellipse",
+      "x": 560,
+      "y": 300,
+      "width": 430,
+      "height": 430,
+      "fill": "#ef4444",
+      "cornerRadius": 0,
+      "zIndex": 1,
+      "role": "decoration"
+    },
+    {
+      "id": "burst-ring",
+      "type": "shape",
+      "kind": "ellipse",
+      "x": 610,
+      "y": 350,
+      "width": 330,
+      "height": 330,
+      "fill": "#fde047",
+      "cornerRadius": 0,
+      "zIndex": 1,
+      "role": "decoration"
+    },
+    {
+      "id": "product",
+      "type": "image",
+      "src": "images/product.png",
+      "naturalWidth": 800,
+      "naturalHeight": 800,
+      "x": 90,
+      "y": 300,
+      "width": 430,
+      "height": 430,
+      "fit": "fill",
+      "zIndex": 1,
+      "role": "product"
+    },
+    {
+      "id": "body",
+      "type": "text",
+      "content": "Lightweight layers for in-between weather",
+      "x": 90,
+      "y": 790,
+      "width": 900,
+      "height": 44,
+      "fontSize": 32,
+      "fontWeight": 400,
+      "color": "#334155",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 2,
+      "role": "body"
+    },
+    {
+      "id": "cta-button",
+      "type": "shape",
+      "kind": "rect",
+      "x": 415,
+      "y": 900,
+      "width": 250,
+      "height": 80,
+      "fill": "#e2e8f0",
+      "cornerRadius": 40,
+      "zIndex": 1,
+      "role": "cta"
+    },
+    {
+      "id": "cta-label",
+      "type": "text",
+      "content": "Browse",
+      "x": 435,
+      "y": 920,
+      "width": 210,
+      "height": 40,
+      "fontSize": 30,
+      "fontWeight": 600,
+      "color": "#334155",
+      "align": "center",
+      "lineHeight": 1.2,
+      "zIndex": 3,
+      "role": "cta"
+    }
+  ]
+}
