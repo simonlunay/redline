@@ -43,7 +43,8 @@
     "dist",
     "fonts",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "NOTICE"
   ],
   "sideEffects": false,
   "publishConfig": {
@@ -53,7 +54,7 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "fixture-images": "tsx scripts/make-fixture-images.ts",
-    "prepack": "npm run build && node -e \"for (const f of ['README.md','LICENSE']) require('fs').copyFileSync('../../' + f, f)\""
+    "prepack": "npm run build && node -e \"for (const f of ['README.md','LICENSE','NOTICE']) require('fs').copyFileSync('../../' + f, f)\""
   },
   "engines": {
     "node": ">=20"
