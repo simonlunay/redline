@@ -12,6 +12,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { freemem } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs, stripVTControlCharacters } from 'node:util';
@@ -35,6 +36,7 @@ import { createFileLedger } from '../src/node/spend-file.js';
 import { createWorkspace } from '../src/node/workspace.js';
 import { createReplicateFluxProvider } from '../src/providers/replicate.js';
 import { ctaShare } from '../src/select.js';
+import { BudgetExceededError, withRunBudget } from '../src/spend.js';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const RESULTS = fileURLToPath(new URL('./results/', import.meta.url));
@@ -53,6 +55,8 @@ const { values } = parseArgs({
     'max-regenerations': { type: 'string' },
     concurrency: { type: 'string' },
     cap: { type: 'string' },
+    budget: { type: 'string' },
+    'min-free-mb': { type: 'string' },
     offline: { type: 'boolean' },
     'no-save': { type: 'boolean' },
     label: { type: 'string' },
@@ -76,7 +80,14 @@ if (!offline && (!process.env.ANTHROPIC_API_KEY || !process.env.REPLICATE_API_TO
   console.error(pc.red('ANTHROPIC_API_KEY and REPLICATE_API_TOKEN are needed (or use --offline).'));
   process.exit(2);
 }
-const ledger = createFileLedger(join(RESULTS, 'spend-ledger.json'), Number(values.cap ?? 15));
+const fileLedger = createFileLedger(join(RESULTS, 'spend-ledger.json'), Number(values.cap ?? 15));
+/** --budget caps this run on top of the shared ledger (whose stored cap only ever goes down). */
+const ledger =
+  values.budget === undefined ? fileLedger : withRunBudget(fileLedger, Number(values.budget));
+const ledgerAtStart = ledger.spentUsd();
+/** Below this much free memory no new prompt is started; the run stops and reports instead. */
+const minFreeMb = Number(values['min-free-mb'] ?? 1500);
+let stopped: string | undefined;
 const remover = offline ? createBackdropKeyRemover() : createAutoRemover();
 const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 const runLabel = values.label ?? (offline ? 'offline' : model);
@@ -88,6 +99,8 @@ interface Row {
   size: string;
   ok: boolean;
   error?: string;
+  /** Not run: the eval stopped early (low memory, budget). */
+  skipped?: string;
   first?: number;
   bestOfN?: number;
   final?: number;
@@ -105,6 +118,16 @@ interface Row {
   llmUsd?: number;
   imageUsd?: number;
   directorRetried?: boolean;
+  /** The director's first plan stated facts the prompt didn't give (and was retried). */
+  directorRetriedForFacts?: boolean;
+  /** Candidate #1 / the best-of-N winner already met the target with no errors. */
+  firstAtTarget?: boolean;
+  bestOfNAtTarget?: boolean;
+  /** copy-grounded issues on the winner and on the final design. */
+  copyGroundedWinner?: number;
+  copyGroundedFinal?: number;
+  copyEditsApplied?: number;
+  acceptedIterations?: number;
   cutouts?: string[];
   durationMs?: number;
   out?: string;
@@ -113,6 +136,19 @@ interface Row {
 }
 
 async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
+  const skip = (reason: string): Row => ({
+    id: p.id,
+    prompt: p.prompt,
+    size: p.size,
+    ok: false,
+    skipped: reason,
+  });
+  if (stopped) return skip(stopped);
+  const freeMb = Math.round(freemem() / 1024 ** 2);
+  if (freeMb < minFreeMb) {
+    stopped = `stopped before ${p.id}: only ${freeMb} MB of memory free (minimum ${minFreeMb} MB)`;
+    return skip(stopped);
+  }
   const dir = join(outRoot, p.id);
   const canvas = parseSize(p.size);
   try {
@@ -177,6 +213,17 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
       llmUsd: result.spend.llmUsd,
       imageUsd: result.spend.imageUsd,
       directorRetried: Boolean(result.director.retriedAfter),
+      directorRetriedForFacts: Boolean(
+        result.director.retriedAfter?.startsWith("The copy states facts the prompt doesn't give"),
+      ),
+      firstAtTarget: result.candidates[0]!.score >= target && result.candidates[0]!.errors === 0,
+      bestOfNAtTarget: winner.score >= target && winner.errors === 0,
+      copyGroundedWinner: winner.report.issues.filter((i) => i.ruleId === 'copy-grounded').length,
+      copyGroundedFinal: final.issues.filter((i) => i.ruleId === 'copy-grounded').length,
+      copyEditsApplied: result.loop.history
+        .filter((h) => h.status === 'accepted')
+        .reduce((s, h) => s + (h.copyEdits ?? []).filter((c) => c.status === 'applied').length, 0),
+      acceptedIterations: result.loop.history.filter((h) => h.status === 'accepted').length,
       cutouts: manifest.images
         .filter((i) => i.kind === 'subject')
         .map((i) => i.cutout?.remover ?? 'none'),
@@ -188,6 +235,7 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
       warnings: result.warnings,
     };
   } catch (err) {
+    if (err instanceof BudgetExceededError) stopped = `stopped at ${p.id}: ${err.message}`;
     return { id: p.id, prompt: p.prompt, size: p.size, ok: false, error: (err as Error).message };
   }
 }
@@ -203,7 +251,7 @@ async function pool<T, R>(items: T[], limit: number, fn: (t: T) => Promise<R>): 
         const r = out[i] as Row;
         process.stderr.write(
           pc.dim(
-            `  ${r.id}: ${r.ok ? `${r.first} → ${r.bestOfN} → ${r.final} · $${r.costUsd?.toFixed(3)}` : `failed: ${r.error}`} · ledger $${ledger.spentUsd().toFixed(2)}\n`,
+            `  ${r.id}: ${r.ok ? `${r.first} → ${r.bestOfN} → ${r.final} · $${r.costUsd?.toFixed(3)}` : r.skipped ? `skipped (${r.skipped})` : `failed: ${r.error}`} · run $${(ledger.spentUsd() - ledgerAtStart).toFixed(2)} · free ${Math.round(freemem() / 1024 ** 2)} MB · rss ${Math.round(process.memoryUsage.rss() / 1024 ** 2)} MB\n`,
           ),
         );
       }
@@ -237,7 +285,21 @@ const summary = {
   meanFirst: Number(mean(ok.map((r) => r.first!)).toFixed(1)),
   meanBestOfN: Number(mean(ok.map((r) => r.bestOfN!)).toFixed(1)),
   meanFinal: Number(mean(ok.map((r) => r.final!)).toFixed(1)),
+  skipped: rows.filter((r) => r.skipped).length,
+  stopped: stopped ?? null,
   reachedTarget: ok.filter((r) => r.final! >= target && r.finalErrors === 0).length,
+  firstAtTarget: ok.filter((r) => r.firstAtTarget).length,
+  bestOfNAtTarget: ok.filter((r) => r.bestOfNAtTarget).length,
+  /** Best-of-N missed the target and the loop got it there (with accepted edits). */
+  loopReachedTarget: ok.filter(
+    (r) => !r.bestOfNAtTarget && r.final! >= target && r.finalErrors === 0,
+  ).length,
+  loopImproved: ok.filter((r) => (r.acceptedIterations ?? 0) > 0).length,
+  directorRetriedForFacts: ok.filter((r) => r.directorRetriedForFacts).length,
+  copyGroundedWinners: ok.filter((r) => (r.copyGroundedWinner ?? 0) > 0).length,
+  copyGroundedFinals: ok.filter((r) => (r.copyGroundedFinal ?? 0) > 0).length,
+  copyEditsApplied: ok.reduce((s, r) => s + (r.copyEditsApplied ?? 0), 0),
+  runSpentUsd: Number((ledger.spentUsd() - ledgerAtStart).toFixed(4)),
   meanIterations: Number(mean(ok.map((r) => r.iterations!)).toFixed(2)),
   totalRegenerations: ok.reduce((s, r) => s + (r.regenerations ?? 0), 0),
   regenerationsKept: ok.reduce((s, r) => s + (r.regenerationsKept ?? 0), 0),
@@ -277,7 +339,7 @@ const body = rows.map((r) =>
         `${pct(r.ctaBefore)} → ${pct(r.ctaAfter)}`,
         `$${r.costUsd!.toFixed(3)}`,
       ]
-    : [r.id, r.size, pc.red('failed'), '', '', '', '', '', ''],
+    : [r.id, r.size, r.skipped ? pc.yellow('skipped') : pc.red('failed'), '', '', '', '', '', ''],
 );
 const totalRow = [
   pc.bold('mean'),
@@ -299,10 +361,13 @@ for (const row of body) console.log(line(row));
 console.log(line(totalRow));
 console.log(
   pc.dim(
-    `\n  reached target ${summary.reachedTarget}/${ok.length} · CTA below 5% after: ${summary.ctaBelowMinimumAfter} · ledger total $${summary.ledgerTotalUsd}`,
+    `\n  at target: first ${summary.firstAtTarget}/${ok.length} · best-of-N ${summary.bestOfNAtTarget}/${ok.length} · final ${summary.reachedTarget}/${ok.length} (loop got ${summary.loopReachedTarget} there; accepted edits on ${summary.loopImproved}) · CTA below 5% after: ${summary.ctaBelowMinimumAfter}` +
+      `\n  invented facts: director retried ${summary.directorRetriedForFacts} · in winner ${summary.copyGroundedWinners} · in final ${summary.copyGroundedFinals} · replaced by the loop ${summary.copyEditsApplied}` +
+      `\n  this run $${summary.runSpentUsd} · ledger total $${summary.ledgerTotalUsd}${summary.stopped ? ` · ${summary.stopped}` : ''}`,
   ),
 );
-for (const r of rows.filter((x) => !x.ok)) console.log(pc.red(`  ${r.id}: ${r.error}`));
+for (const r of rows.filter((x) => !x.ok && !x.skipped))
+  console.log(pc.red(`  ${r.id}: ${r.error}`));
 for (const r of ok.filter((x) => x.failingRules?.length))
   console.log(pc.dim(`  ${r.id}: still failing ${r.failingRules!.join(', ')}`));
 

@@ -57,6 +57,26 @@ export function createMemoryLedger(capUsd = Infinity, initial: SpendEntry[] = []
 }
 
 /**
+ * Caps one run at `budgetUsd` on top of a shared ledger, without touching the ledger's own cap
+ * (a file ledger's stored cap can only go down, so lowering it for one run would be permanent).
+ */
+export function withRunBudget(ledger: SpendLedger, budgetUsd: number): SpendLedger {
+  const capUsd = Math.min(ledger.capUsd, ledger.spentUsd() + budgetUsd);
+  return {
+    capUsd,
+    spentUsd: () => ledger.spentUsd(),
+    guard(estimateUsd, what) {
+      const spent = ledger.spentUsd();
+      if (spent + estimateUsd > capUsd)
+        throw new BudgetExceededError(spent, capUsd, estimateUsd, what);
+      ledger.guard(estimateUsd, what);
+    },
+    record: (entry) => ledger.record(entry),
+    entries: () => ledger.entries(),
+  };
+}
+
+/**
  * Worst-case cost of one Claude call, used by the guard. Generous on purpose (a long design
  * JSON, two images, plenty of thinking), so the cap can't be crossed by one unexpected call.
  */

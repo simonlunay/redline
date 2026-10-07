@@ -9,6 +9,7 @@ import {
   BudgetExceededError,
   budgetedEditor,
   createMemoryLedger,
+  withRunBudget,
   worstCaseLlmCallUsd,
 } from '../src/spend.js';
 import { tempDir } from './helpers.js';
@@ -101,5 +102,20 @@ describe('spend ledger', () => {
     });
     expect(result.stopReason).toBe('editor-error');
     expect(result.error).toMatch(/Spend cap reached/);
+  });
+});
+
+describe('per-run budget', () => {
+  it('caps one run on top of a file ledger without lowering the stored cap', () => {
+    const path = join(tempDir(), 'ledger.json');
+    const file = createFileLedger(path, 15);
+    file.record({ kind: 'llm', what: 'earlier run', model: 'm', costUsd: 1 });
+    const run = withRunBudget(file, 0.5);
+    expect(run.capUsd).toBe(1.5);
+    run.guard(0.4, 'image');
+    run.record({ kind: 'image', what: 'image', model: 'm', costUsd: 0.4 });
+    expect(() => run.guard(0.2, 'next image')).toThrow(BudgetExceededError);
+    expect(file.spentUsd()).toBeCloseTo(1.4);
+    expect(JSON.parse(readFileSync(path, 'utf8')).capUsd).toBe(15);
   });
 });
