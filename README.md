@@ -716,12 +716,12 @@ prompt ──► art director (Claude, strict tool) ──► plan: copy, palett
    - **Pexels** stock search (`PEXELS_API_KEY`), using the slot's short `stockQuery`.
    - **Your images** (`--logo`, `--image`), copied into the assets folder and never modified.
    - A deterministic **mock** (seeded gradients and shapes) used by every test.
-   Subjects (a product, a runner, a dog) are generated separately "isolated on a plain light-grey studio background", then cut out locally with **BiRefNet_lite** through `onnxruntime-node` and trimmed to their visible pixels, so the element box matches the subject. If the model can't load, a flood-fill keyer removes the plain backdrop instead.
-4. **Best-of-N.** Candidate *i* uses layout `i mod L` and background variant `⌊i / L⌋`, so the default (4 candidates, 2 layouts) tries both layouts with two different backgrounds each. Subjects are made once per layout. Each candidate is assembled into the design format and scored with `checkAsync`, with layout and attention rules. The winner has the highest score, then fewest errors, then fewest warnings, then the most CTA attention. All candidates are kept.
+     Subjects (a product, a runner, a dog) are generated separately "isolated on a plain light-grey studio background", then cut out locally with **BiRefNet_lite** through `onnxruntime-node` and trimmed to their visible pixels, so the element box matches the subject. If the model can't load, a flood-fill keyer removes the plain backdrop instead.
+4. **Best-of-N.** Candidate _i_ uses layout `i mod L` and background variant `⌊i / L⌋`, so the default (4 candidates, 2 layouts) tries both layouts with two different backgrounds each. Subjects are made once per layout. Each candidate is assembled into the design format and scored with `checkAsync`, with layout and attention rules. The winner has the highest score, then fewest errors, then fewest warnings, then the most CTA attention. All candidates are kept.
 5. **Fix loop.** The existing loop runs on the winner, with attention and vision on and a default target of 95.
 6. **Image-aware fixing.** In generation mode the loop's editor gets one extra op, `regenerateImage {elementId, brief, reason}`. When an issue comes from the image itself, for example text contrast over a busy area or a background hot spot competing with the CTA, Claude can choose between layout edits (a scrim, moving text) and a new image from a revised brief ("…keep the top-left third plain and dark"). Details:
    - Regenerations run before the layout edits in the same response.
-   - The new prompt's text zones come from the *current* layout.
+   - The new prompt's text zones come from the _current_ layout.
    - The result is accepted or rolled back like any edit.
    - Regenerations are capped per run (`--max-regenerations`, default 2) and counted when attempted, since they cost money even if rolled back.
    - Each one is recorded in history and in the manifest with its reason and the image it replaced.
@@ -737,13 +737,13 @@ prompt ──► art director (Claude, strict tool) ──► plan: copy, palett
 
 `--out poster.json` writes:
 
-| Path                           | Contents                                                                                                            |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `poster.json`                  | The final design (relative image paths)                                                                             |
-| `poster.assets/`               | Every image file                                                                                                    |
-| `poster.assets/manifest.json`  | Per image: prompt, provider, model, seed, cost, license, cutout model and license, and the reason for any regeneration |
-| `poster.candidates/*.json`     | Every candidate as a standalone design you can `redline check`                                                      |
-| `poster.generation.json`       | The plan, every candidate's score and attention, the ranking, the full fix-loop history, and the spend              |
+| Path                          | Contents                                                                                                               |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `poster.json`                 | The final design (relative image paths)                                                                                |
+| `poster.assets/`              | Every image file                                                                                                       |
+| `poster.assets/manifest.json` | Per image: prompt, provider, model, seed, cost, license, cutout model and license, and the reason for any regeneration |
+| `poster.candidates/*.json`    | Every candidate as a standalone design you can `redline check`                                                         |
+| `poster.generation.json`      | The plan, every candidate's score and attention, the ranking, the full fix-loop history, and the spend                 |
 
 ### CLI
 
@@ -751,27 +751,27 @@ prompt ──► art director (Claude, strict tool) ──► plan: copy, palett
 redline generate "<prompt>" [options]
 ```
 
-| Option                     | Description                                                                                       |
-| -------------------------- | ------------------------------------------------------------------------------------------------- |
-| `--out <path>`             | Design to write (default `generated/<slug>.json`)                                                 |
-| `--size <WxH>`             | Canvas size (default `1080x1350`)                                                                 |
-| `--candidates <n>`         | Candidates to build and score (default 4, max 12)                                                 |
-| `--layouts <n>`            | Distinct layouts among them (default `min(2, candidates)`)                                        |
-| `--target <score>`         | Fix-loop target, with no errors (default 95)                                                      |
-| `--max-iterations <n>`     | Fix-loop iterations (default 4)                                                                   |
-| `--max-regenerations <n>`  | Image regenerations the fix loop may use (default 2, `0` = layout edits only)                     |
-| `--render-steps <dir>`     | Contact sheet, candidate renders and per-step PNGs + heatmaps                                     |
-| `--provider <name>`        | `replicate`, `pexels` or `mock`. Default: the first one with a key, otherwise `mock`             |
-| `--cutout <name>`          | `auto` (BiRefNet, keying fallback), `birefnet`, `key` or `none`                                   |
-| `--director <name>`        | `anthropic` (default) or `template` (offline, deterministic)                                      |
-| `--editor <name>`          | `anthropic` (default) or `suggested` (offline)                                                    |
-| `--model`, `--effort`      | Claude model and effort for the art director and the fix loop (default Sonnet 5.5, `medium`)      |
-| `--brand-colors <list>`    | Hex colors the plan must use                                                                      |
-| `--font <Family=path>`     | Register a font file the plan may use (repeatable; Inter is bundled)                              |
-| `--logo`, `--image <path>` | Your logo / images; used as supplied                                                              |
-| `--budget <usd>`           | Spend cap for this run (default $2); paid calls that could cross it are refused                   |
-| `--ledger <path>`          | Persistent spend ledger, so a cap holds across runs                                               |
-| `--seed`, `--no-attention`, `--no-vision`, `--format` | As expected                                                            |
+| Option                                                | Description                                                                                  |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `--out <path>`                                        | Design to write (default `generated/<slug>.json`)                                            |
+| `--size <WxH>`                                        | Canvas size (default `1080x1350`)                                                            |
+| `--candidates <n>`                                    | Candidates to build and score (default 4, max 12)                                            |
+| `--layouts <n>`                                       | Distinct layouts among them (default `min(2, candidates)`)                                   |
+| `--target <score>`                                    | Fix-loop target, with no errors (default 95)                                                 |
+| `--max-iterations <n>`                                | Fix-loop iterations (default 4)                                                              |
+| `--max-regenerations <n>`                             | Image regenerations the fix loop may use (default 2, `0` = layout edits only)                |
+| `--render-steps <dir>`                                | Contact sheet, candidate renders and per-step PNGs + heatmaps                                |
+| `--provider <name>`                                   | `replicate`, `pexels` or `mock`. Default: the first one with a key, otherwise `mock`         |
+| `--cutout <name>`                                     | `auto` (BiRefNet, keying fallback), `birefnet`, `key` or `none`                              |
+| `--director <name>`                                   | `anthropic` (default) or `template` (offline, deterministic)                                 |
+| `--editor <name>`                                     | `anthropic` (default) or `suggested` (offline)                                               |
+| `--model`, `--effort`                                 | Claude model and effort for the art director and the fix loop (default Sonnet 5.5, `medium`) |
+| `--brand-colors <list>`                               | Hex colors the plan must use                                                                 |
+| `--font <Family=path>`                                | Register a font file the plan may use (repeatable; Inter is bundled)                         |
+| `--logo`, `--image <path>`                            | Your logo / images; used as supplied                                                         |
+| `--budget <usd>`                                      | Spend cap for this run (default $2); paid calls that could cross it are refused              |
+| `--ledger <path>`                                     | Persistent spend ledger, so a cap holds across runs                                          |
+| `--seed`, `--no-attention`, `--no-vision`, `--format` | As expected                                                                                  |
 
 Fully offline (no keys, no cost): `redline generate "…" --director template --provider mock --editor suggested`.
 
@@ -779,13 +779,46 @@ Fully offline (no keys, no cost): `redline generate "…" --director template --
 
 ### Models and licenses
 
-| Model                         | Used for                 | License                                                                                                                                                                                   | How it's obtained                                                                                                                                                            |
-| ----------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Claude Sonnet 5.5 (default)   | Art director, fix loop   | Anthropic API terms                                                                                                                                                                       | API (`ANTHROPIC_API_KEY`)                                                                                                                                                    |
-| FLUX.1 [schnell]              | Backgrounds and subjects | **Apache-2.0**: the model card says it "can be used for personal, scientific, and commercial purposes" ([license](https://github.com/black-forest-labs/flux/blob/main/model_licenses/LICENSE-FLUX1-schnell), checked 2026-10-06) | Hosted on Replicate, `black-forest-labs/flux-schnell`, $0.003/image                                                                                                         |
-| BiRefNet_lite                 | Subject cutouts          | **MIT** ([ZhengPeng7/BiRefNet_lite](https://huggingface.co/ZhengPeng7/BiRefNet_lite)); see NOTICE for training-data caveats                                                                 | ONNX from [`onnx-community/BiRefNet_lite-ONNX`](https://huggingface.co/onnx-community/BiRefNet_lite-ONNX) at commit `de15b22`, 224,005,088 bytes, SHA-256 `56000243…f03333`. Downloaded from Hugging Face into the Redline cache on first use (not re-hosted), verified before use, about 15 s per cutout on a laptop CPU |
-| MSI-Net                       | Attention check          | MIT                                                                                                                                                                                       | See [Attention check](#attention-check)                                                                                                                                      |
-| Pexels (optional)             | Stock backgrounds        | [Pexels License](https://www.pexels.com/license/)                                                                                                                                          | API (`PEXELS_API_KEY`)                                                                                                                                                       |
+| Model                       | Used for                 | License                                                                                                                                                                                                                          | How it's obtained                                                                                                                                                                                                                                                                                                         |
+| --------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Sonnet 5.5 (default) | Art director, fix loop   | Anthropic API terms                                                                                                                                                                                                              | API (`ANTHROPIC_API_KEY`)                                                                                                                                                                                                                                                                                                 |
+| FLUX.1 [schnell]            | Backgrounds and subjects | **Apache-2.0**: the model card says it "can be used for personal, scientific, and commercial purposes" ([license](https://github.com/black-forest-labs/flux/blob/main/model_licenses/LICENSE-FLUX1-schnell), checked 2026-10-06) | Hosted on Replicate, `black-forest-labs/flux-schnell`, $0.003/image                                                                                                                                                                                                                                                       |
+| BiRefNet_lite               | Subject cutouts          | **MIT** ([ZhengPeng7/BiRefNet_lite](https://huggingface.co/ZhengPeng7/BiRefNet_lite)); see NOTICE for training-data caveats                                                                                                      | ONNX from [`onnx-community/BiRefNet_lite-ONNX`](https://huggingface.co/onnx-community/BiRefNet_lite-ONNX) at commit `de15b22`, 224,005,088 bytes, SHA-256 `56000243…f03333`. Downloaded from Hugging Face into the Redline cache on first use (not re-hosted), verified before use, about 15 s per cutout on a laptop CPU |
+| MSI-Net                     | Attention check          | MIT                                                                                                                                                                                                                              | See [Attention check](#attention-check)                                                                                                                                                                                                                                                                                   |
+| Pexels (optional)           | Stock backgrounds        | [Pexels License](https://www.pexels.com/license/)                                                                                                                                                                                | API (`PEXELS_API_KEY`)                                                                                                                                                                                                                                                                                                    |
+
+### Evaluation
+
+```bash
+npm run eval:generate                       # 14 prompts, Sonnet 5.5 + FLUX.1 schnell, ~$0.10/prompt
+npm run eval:generate -- --prompts charity-5k,saas-banner
+npm run eval:generate -- --offline          # template director + mock images + rules editor, free
+```
+
+`packages/generate/eval/prompts.json` has 14 prompts covering ads, posters and social posts in five sizes: 1080×1350, 1080×1080, 1080×1920 (story), 1200×628 and 1500×500 (wide banners). The styles range from photographic to flat illustration. For each prompt the eval reports:
+
+- the score of candidate #1 alone (what you'd get without best-of-N)
+- the best-of-N winner's score
+- the final score after the fix loop
+- iterations and regenerations used
+- the CTA's share of predicted attention before and after the loop
+- the cost
+
+There's also a summary row with means. Every paid call goes through the persistent ledger `packages/generate/eval/results/spend-ledger.json`, which also enforces a cap.
+
+**Status: the full live eval has not completed yet.** Two attempts on 2026-10-07 were cut short:
+
+1. The first attempt exposed two bugs, both fixed and tested. The art director returned empty layouts (see the `designPlanSchema` comment), and Replicate throttled us to 6 predictions per minute, which the retry budget didn't survive.
+2. The second attempt was stopped by the host because the machine ran low on memory. That's likely BiRefNet and MSI-Net in ONNX Runtime with two prompts running in parallel. Its first two prompts had already failed on network errors (`fetch failed`), which are now retried too.
+
+Live results so far, all Sonnet 5.5 + FLUX.1 schnell with 4 candidates:
+
+| Prompt                                              | Size      | First | Best-of-4 | Final | Iterations | Cost   |
+| --------------------------------------------------- | --------- | ----- | --------- | ----- | ---------- | ------ |
+| poster for a charity 5K, energetic, blue and orange | 1080×1350 | 76    | 100       | 100   | 0          | $0.052 |
+| (same prompt, first eval attempt)                   | 1080×1350 | 100   | 100       | 100   | 0          | $0.088 |
+
+That's too little to draw conclusions from. Run `npm run eval:generate -- --concurrency 1` on a machine with free memory to fill this table. Total spend so far is $0.43, including the debugging calls.
 
 ### Limits
 
