@@ -1,0 +1,72 @@
+[
+  {
+    "id": "charity-5k",
+    "size": "1080x1350",
+    "prompt": "poster for a charity 5K, energetic, blue and orange"
+  },
+  {
+    "id": "coffee-latte",
+    "size": "1080x1080",
+    "prompt": "Instagram post announcing a new oat milk latte at a neighborhood coffee shop, cozy, warm morning light"
+  },
+  {
+    "id": "sneaker-drop",
+    "size": "1080x1920",
+    "prompt": "story ad for a limited sneaker drop, bold streetwear style, neon green on black"
+  },
+  {
+    "id": "saas-banner",
+    "size": "1200x628",
+    "prompt": "LinkedIn banner ad for a project management SaaS, clean, trustworthy, minimal, free trial"
+  },
+  {
+    "id": "jazz-night",
+    "size": "1080x1350",
+    "prompt": "poster for a late-night jazz concert in a small club, moody, deep purple and gold, vintage"
+  },
+  {
+    "id": "summer-sale",
+    "size": "1080x1080",
+    "prompt": "summer sale social post for a beachwear brand, 40% off, bright and playful, turquoise and coral"
+  },
+  {
+    "id": "farmers-market",
+    "size": "1080x1920",
+    "prompt": "story for a Saturday farmers market, fresh vegetables, friendly, natural greens and earthy tones"
+  },
+  {
+    "id": "headphones-launch",
+    "size": "1500x500",
+    "prompt": "wide web banner launching premium wireless headphones, sleek, dark studio look, silver accents"
+  },
+  {
+    "id": "yoga-retreat",
+    "size": "1080x1350",
+    "prompt": "ad for a weekend yoga retreat in the mountains, calm, airy, soft pastel colors"
+  },
+  {
+    "id": "pizza-delivery",
+    "size": "1200x628",
+    "prompt": "Facebook ad for a pizza delivery app, free delivery this week, appetizing, red and cream, fun"
+  },
+  {
+    "id": "tech-conference",
+    "size": "1080x1080",
+    "prompt": "square post for a developer conference, futuristic, flat geometric illustration style, indigo and cyan"
+  },
+  {
+    "id": "pet-adoption",
+    "size": "1080x1350",
+    "prompt": "poster for a pet adoption day at the local animal shelter, heartwarming, friendly, sunny yellow"
+  },
+  {
+    "id": "skincare-serum",
+    "size": "1080x1920",
+    "prompt": "story ad for a vitamin C face serum, luxurious, minimal, soft peach and white, product hero"
+  },
+  {
+    "id": "bookstore-event",
+    "size": "1500x500",
+    "prompt": "wide banner for an author reading night at an independent bookstore, literary, warm lamplight, deep green"
+  }
+]
