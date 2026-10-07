@@ -5,6 +5,7 @@ import { KEY_ROLES, analyzeAttention, pct } from '../core/attention/shares.js';
 import type { AttentionAnalysis } from '../core/attention/shares.js';
 import { shortSide } from '../core/geometry.js';
 import type { Design, DesignElement } from '../core/schema.js';
+import { isBacking } from '../core/rules/attention-competition.js';
 import { cssFont } from './fonts.js';
 import { renderPng } from './render.js';
 import type { RenderOptions } from './render.js';
@@ -105,7 +106,8 @@ export async function renderHeatmapPng(
   }
   for (const el of design.elements) {
     const share = attention.elementShares[el.id] ?? 0;
-    if (el.role === 'decoration' && share >= 0.05) {
+    // Same definition as attention-competition: panels behind content aren't competitors.
+    if (el.role === 'decoration' && share >= 0.05 && !isBacking(design, el)) {
       label(ctx, `decoration ${pct(share)}`, el.x, el.y + el.height, size, W);
     }
   }

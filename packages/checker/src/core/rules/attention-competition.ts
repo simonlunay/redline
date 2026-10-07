@@ -11,7 +11,7 @@ import { isBelow, label, paintOrder } from './util.js';
  * fix loop) is part of that content, not a competitor: attention spilling from the text onto
  * its panel must not be counted against the panel.
  */
-function isBacking(design: Design, decoration: DesignElement): boolean {
+export function isBacking(design: Design, decoration: DesignElement): boolean {
   return design.elements.some(
     (el) =>
       el !== decoration &&
