@@ -4,10 +4,10 @@ import { z } from 'zod';
 /**
  * The art director's output: everything needed to build candidate designs, except pixels.
  *
- * The schema doubles as the strict tool schema sent to Claude, so it avoids nullable fields
- * (unused strings are "") and keeps unions to one discriminated union per element kind. Numeric
- * ranges, hex formats and cross-references are checked in validatePlan() instead, and its error
- * text is written to be fed back to the model on a retry.
+ * Claude fills in a closely related output format (ToolDesignPlanSchema, sent as a structured
+ * output schema) with no unions and no nullable fields (unused strings are ""): each layout lists
+ * its texts, shapes and images in separate arrays. parsePlan() converts it into this internal one. Numeric ranges, hex formats and
+ * cross-references are checked in validatePlan(), whose error text is fed back on a retry.
  */
 
 const hex = z.string().describe('Hex color like #1a2b3c');
@@ -107,6 +107,62 @@ export const DesignPlanSchema = z.object({
   layouts: z.array(LayoutSchema),
 });
 
+/** The strict tool format: per-kind arrays instead of a union (see the comment at the top). */
+export const ToolLayoutSchema = z.object({
+  name: LayoutSchema.shape.name,
+  rationale: LayoutSchema.shape.rationale,
+  imageSlots: LayoutSchema.shape.imageSlots,
+  texts: z
+    .array(PlanTextSchema.omit({ kind: true }))
+    .describe('Every text element: headline, subheading, body, CTA label'),
+  shapes: z
+    .array(PlanShapeSchema.omit({ kind: true }))
+    .describe('Every shape: CTA button, panels behind text, accents ([] if none)'),
+  images: z
+    .array(PlanImageSchema.omit({ kind: true }))
+    .describe('Every image element: the background, subject, logo'),
+});
+
+export const ToolDesignPlanSchema = DesignPlanSchema.extend({
+  layouts: z.array(ToolLayoutSchema),
+});
+
+export type ToolDesignPlan = z.infer<typeof ToolDesignPlanSchema>;
+
+/** Tool format -> internal format. */
+export function fromToolPlan(plan: ToolDesignPlan): DesignPlan {
+  return {
+    ...plan,
+    layouts: plan.layouts.map(({ texts, shapes, images, ...layout }) => ({
+      ...layout,
+      elements: [
+        ...images.map((el) => ({ kind: 'image' as const, ...el })),
+        ...shapes.map((el) => ({ kind: 'shape' as const, ...el })),
+        ...texts.map((el) => ({ kind: 'text' as const, ...el })),
+      ],
+    })),
+  };
+}
+
+/** Internal format -> tool format (tests and examples). */
+export function toToolPlan(plan: DesignPlan): ToolDesignPlan {
+  return {
+    ...plan,
+    layouts: plan.layouts.map(({ elements, ...layout }) => ({
+      ...layout,
+      texts: elements.flatMap(({ kind, ...el }) =>
+        kind === 'text' ? [el as Omit<PlanText, 'kind'>] : [],
+      ),
+      shapes: elements.flatMap(({ kind, ...el }) =>
+        kind === 'shape' ? [el as Omit<PlanShape, 'kind'>] : [],
+      ),
+      images: elements.flatMap(({ kind, ...el }) =>
+        kind === 'image' ? [el as Omit<PlanImage, 'kind'>] : [],
+      ),
+    })),
+  };
+}
+
 export type PlanText = z.infer<typeof PlanTextSchema>;
 export type PlanShape = z.infer<typeof PlanShapeSchema>;
 export type PlanImage = z.infer<typeof PlanImageSchema>;
@@ -143,9 +199,17 @@ const normalize = (s: string) =>
  */
 export function parsePlan(raw: unknown, ctx: PlanContext): PlanParseResult {
   if (raw === undefined) {
-    return { ok: false, error: 'No submit_design_plan tool call was made. Call it exactly once.' };
+    return { ok: false, error: 'No plan was returned. Respond with the JSON plan.' };
   }
-  const parsed = DesignPlanSchema.safeParse(raw);
+  if (raw && typeof raw === 'object' && 'invalid' in raw && typeof raw.invalid === 'string') {
+    return { ok: false, error: raw.invalid };
+  }
+  // Claude answers in the tool format; templates and tests may pass the internal one.
+  const layouts = (raw as { layouts?: unknown[] } | null)?.layouts;
+  const internal =
+    Array.isArray(layouts) &&
+    layouts.some((l) => (l as object | null) && 'elements' in (l as object));
+  const parsed = internal ? DesignPlanSchema.safeParse(raw) : ToolDesignPlanSchema.safeParse(raw);
   if (!parsed.success) {
     const details = parsed.error.issues
       .slice(0, 10)
@@ -153,7 +217,7 @@ export function parsePlan(raw: unknown, ctx: PlanContext): PlanParseResult {
       .join('\n');
     return { ok: false, error: `The plan did not match the schema:\n${details}` };
   }
-  const plan = parsed.data;
+  const plan = internal ? (parsed.data as DesignPlan) : fromToolPlan(parsed.data as ToolDesignPlan);
   const problems = validatePlan(plan, ctx);
   if (problems.length > 0) {
     const shown = problems.slice(0, 15);
@@ -219,6 +283,10 @@ export function validatePlan(plan: DesignPlan, ctx: PlanContext): string[] {
       problems.push(`${at}: needs one image slot of kind "background"`);
     }
 
+    if (layout.elements.length === 0) {
+      problems.push(`${at}: has no elements; list its texts, shapes and images`);
+      return;
+    }
     const ids = new Set<string>();
     let headlines = 0;
     const usedSlots = new Set<string>();

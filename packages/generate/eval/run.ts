@@ -126,7 +126,11 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
         : createAnthropicArtDirector({ model, effort, ledger, tag: p.id }),
       provider: offline
         ? createMockImageProvider()
-        : createReplicateFluxProvider({ token: process.env.REPLICATE_API_TOKEN! }),
+        : createReplicateFluxProvider({
+            token: process.env.REPLICATE_API_TOKEN!,
+            // Replicate allows 6 predictions/minute (burst 1) on accounts with under $5 credit.
+            minIntervalMs: Number(process.env.REPLICATE_MIN_INTERVAL_MS ?? 10_500),
+          }),
       remover,
       editor: offline
         ? createSuggestedFixesEditor()

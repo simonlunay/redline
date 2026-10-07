@@ -42,6 +42,7 @@ It's part of a larger project: an AI design assistant that generates a design, c
 ```bash
 npm install @simonlunay/redline           # checker library + CLI
 npm install @simonlunay/redline-agent     # optional: the AI fix loop (redline fix)
+# generation (redline generate) lives in packages/generate in this repo; not published yet
 npx @simonlunay/redline check design.json
 ```
 
@@ -54,6 +55,7 @@ redline check <design.json> [options]
 redline fix <design.json> [options]    # AI fix loop, see below
 redline rules                          # list rules, defaults and weights
 redline setup attention                # download the saliency model (50 MB, once)
+redline generate "<prompt>" [options]  # prompt to design, see Generation below
 ```
 
 | Option                  | Description                                                                         |
@@ -660,6 +662,139 @@ Each cell is score / errors. For the models, the score is the mean (min–max) o
 - **The checker is also the judge.** A high score means "passes these 9 rules", not "is a good design". I spot-checked the fixed renders (`redline fix --render-steps`), and they're genuine layout repairs rather than games played against the rules. A vision- or human-rated quality check would be the next step.
 - **LLM runs vary.** Results come from the requested model only (no fallbacks), but sampling isn't deterministic. That's why the table reports min–max over 3 runs.
 
+## Generation
+
+`redline generate` turns a one-line prompt into a finished, editable design in the Redline format. It plans the design, generates the images in layers, builds several candidates, scores them with the checker, picks the best, and repairs it with the fix loop.
+
+```
+$ redline generate "poster for a charity 5K, energetic, blue and orange" --out charity.json --render-steps steps/
+
+ redline generate  "poster for a charity 5K, energetic, blue and orange"
+  1080x1350 · 4 candidates · target 95 · director anthropic:claude-sonnet-5-5 · images replicate + cutout auto · …
+
+  Plan (anthropic:claude-sonnet-5-5)
+    A burst of motion: runners racing toward a sunrise, cobalt blue sky with vivid orange energy…
+    copy  RUN FOR HOPE · Charity 5K · Saturday, June 14 · City Park · [Register Now]
+    layout 1 headline top, runners below
+    layout 2 text on bottom panel, hero runner
+
+  Candidates
+  #1   76  ████████░░  1 error · 0 warnings · CTA 17% · layout 1, background 1
+  #2  100  ██████████  0 errors · 0 warnings · CTA 11% · layout 2, background 1
+  #3   58  ██████░░░░  2 errors · 0 warnings · CTA 15% · layout 1, background 2
+  #4  100  ██████████  0 errors · 0 warnings · CTA 10% · layout 2, background 2
+
+  ★ Winner: candidate 2 of 4 (100) · text on bottom panel, hero runner
+
+  ✔ first candidate 76 → best of 4 100 → final 100 · 0 iterations · stop: no-issues
+    spend this run ≈ $0.052 (LLM $0.037 · images $0.015) · 84.5s
+```
+
+`--render-steps` writes `contact-sheet.png`: every candidate with its score, CTA/headline attention and heatmap, the winner outlined, and the final design after the fix loop. It also writes one annotated PNG (plus heatmap) per candidate and per fix-loop step.
+
+### How it works
+
+```
+prompt ──► art director (Claude, strict tool) ──► plan: copy, palette, 2 layouts, image briefs
+                                                      │
+              ┌───────────────────────────────────────┘
+              ▼
+   images per slot: background (FLUX.1 schnell / Pexels / yours) · subject (generated on a
+   plain backdrop → BiRefNet cutout) · logo and supplied images (used as-is)
+              │
+              ▼
+   N candidates = layouts × background seeds ──► checkAsync (layout + attention rules)
+              │
+              ▼
+   best of N (score, then errors, warnings, CTA attention) ──► fix loop (+ image regeneration)
+```
+
+1. **Art director.** One Claude call returns a design plan through a `submit_design_plan` tool with `strict: true`. The schema is generated from Zod and kept simple for strict mode (no nullable fields, one discriminated union per element kind). The plan has the concept, a palette, all the copy, 1–3 alternative layouts (element roles, boxes, z-order, text styling) and an image brief per slot. Code then checks what a schema can't, and sends any problems back for **one retry**: exactly one headline, every image element points to a slot, boxes inside the canvas, hex colors, fonts that are actually available, a `calmAreas` description on every background ("keep the top third calm for the headline"), and **no copy inside any image brief**. Text is always a separate, editable text element. The image model is never asked to draw words.
+2. **Image prompts.** The prompt sent to the image model is built in code: the brief, the art director's calm areas, a description of the text zones computed from the layout's boxes ("Text will be placed over the top 32% (headline, subheading) and the bottom 18%, center side (cta): keep those areas calm…"), the style, and "No text, no letters, no words, no logos". So the text-safe areas are right even when the model's own description is vague.
+3. **Layered images.** Every source sits behind one `ImageProvider` interface:
+   - **FLUX.1 [schnell]** on Replicate (`REPLICATE_API_TOKEN`), $0.003 per image. Seeds are derived from the prompt, so runs are reproducible.
+   - **Pexels** stock search (`PEXELS_API_KEY`), using the slot's short `stockQuery`.
+   - **Your images** (`--logo`, `--image`), copied into the assets folder and never modified.
+   - A deterministic **mock** (seeded gradients and shapes) used by every test.
+   Subjects (a product, a runner, a dog) are generated separately "isolated on a plain light-grey studio background", then cut out locally with **BiRefNet_lite** through `onnxruntime-node` and trimmed to their visible pixels, so the element box matches the subject. If the model can't load, a flood-fill keyer removes the plain backdrop instead.
+4. **Best-of-N.** Candidate *i* uses layout `i mod L` and background variant `⌊i / L⌋`, so the default (4 candidates, 2 layouts) tries both layouts with two different backgrounds each. Subjects are made once per layout. Each candidate is assembled into the design format and scored with `checkAsync`, with layout and attention rules. The winner has the highest score, then fewest errors, then fewest warnings, then the most CTA attention. All candidates are kept.
+5. **Fix loop.** The existing loop runs on the winner, with attention and vision on and a default target of 95.
+6. **Image-aware fixing.** In generation mode the loop's editor gets one extra op, `regenerateImage {elementId, brief, reason}`. When an issue comes from the image itself, for example text contrast over a busy area or a background hot spot competing with the CTA, Claude can choose between layout edits (a scrim, moving text) and a new image from a revised brief ("…keep the top-left third plain and dark"). Details:
+   - Regenerations run before the layout edits in the same response.
+   - The new prompt's text zones come from the *current* layout.
+   - The result is accepted or rolled back like any edit.
+   - Regenerations are capped per run (`--max-regenerations`, default 2) and counted when attempted, since they cost money even if rolled back.
+   - Each one is recorded in history and in the manifest with its reason and the image it replaced.
+   - **`redline fix` on your own designs is unchanged.** The op isn't in its tool schema or prompt, a regeneration request there fails validation, and the guardrail still rejects any change to an image `src`. A test runs `redline fix` with an editor that asks to regenerate and checks that every `src` is untouched.
+
+### Assembly details
+
+- The background fills the canvas with `fit: cover`, so any generated size works.
+- Subjects, logos and supplied images get the largest box with their **real** aspect ratio inside the planned box (`fit: contain`). They're never stretched.
+- CTA labels are snapped to their text's real height and centered in their button. Text renders from the top of its box, so a label box that fills its button sits visibly high. Nothing overflows or overlaps there, so the checker can't flag it, and the first live run showed exactly this.
+
+### Output files
+
+`--out poster.json` writes:
+
+| Path                           | Contents                                                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `poster.json`                  | The final design (relative image paths)                                                                             |
+| `poster.assets/`               | Every image file                                                                                                    |
+| `poster.assets/manifest.json`  | Per image: prompt, provider, model, seed, cost, license, cutout model and license, and the reason for any regeneration |
+| `poster.candidates/*.json`     | Every candidate as a standalone design you can `redline check`                                                      |
+| `poster.generation.json`       | The plan, every candidate's score and attention, the ranking, the full fix-loop history, and the spend              |
+
+### CLI
+
+```bash
+redline generate "<prompt>" [options]
+```
+
+| Option                     | Description                                                                                       |
+| -------------------------- | ------------------------------------------------------------------------------------------------- |
+| `--out <path>`             | Design to write (default `generated/<slug>.json`)                                                 |
+| `--size <WxH>`             | Canvas size (default `1080x1350`)                                                                 |
+| `--candidates <n>`         | Candidates to build and score (default 4, max 12)                                                 |
+| `--layouts <n>`            | Distinct layouts among them (default `min(2, candidates)`)                                        |
+| `--target <score>`         | Fix-loop target, with no errors (default 95)                                                      |
+| `--max-iterations <n>`     | Fix-loop iterations (default 4)                                                                   |
+| `--max-regenerations <n>`  | Image regenerations the fix loop may use (default 2, `0` = layout edits only)                     |
+| `--render-steps <dir>`     | Contact sheet, candidate renders and per-step PNGs + heatmaps                                     |
+| `--provider <name>`        | `replicate`, `pexels` or `mock`. Default: the first one with a key, otherwise `mock`             |
+| `--cutout <name>`          | `auto` (BiRefNet, keying fallback), `birefnet`, `key` or `none`                                   |
+| `--director <name>`        | `anthropic` (default) or `template` (offline, deterministic)                                      |
+| `--editor <name>`          | `anthropic` (default) or `suggested` (offline)                                                    |
+| `--model`, `--effort`      | Claude model and effort for the art director and the fix loop (default Sonnet 5.5, `medium`)      |
+| `--brand-colors <list>`    | Hex colors the plan must use                                                                      |
+| `--font <Family=path>`     | Register a font file the plan may use (repeatable; Inter is bundled)                              |
+| `--logo`, `--image <path>` | Your logo / images; used as supplied                                                              |
+| `--budget <usd>`           | Spend cap for this run (default $2); paid calls that could cross it are refused                   |
+| `--ledger <path>`          | Persistent spend ledger, so a cap holds across runs                                               |
+| `--seed`, `--no-attention`, `--no-vision`, `--format` | As expected                                                            |
+
+Fully offline (no keys, no cost): `redline generate "…" --director template --provider mock --editor suggested`.
+
+**Spend control.** Every paid call goes through a spend ledger. Before a call, the ledger checks a worst-case estimate against the cap; after it, the ledger records the real cost. A Claude call's worst case is priced at 30k input + 16k output tokens. For images, crossing the cap switches to the mock provider for candidates, or refuses a regeneration. In the fix loop, it stops the loop with `editor-error`. Image calls running in parallel count against the cap while they're in flight, so they can't all slip past it at once.
+
+### Models and licenses
+
+| Model                         | Used for                 | License                                                                                                                                                                                   | How it's obtained                                                                                                                                                            |
+| ----------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Sonnet 5.5 (default)   | Art director, fix loop   | Anthropic API terms                                                                                                                                                                       | API (`ANTHROPIC_API_KEY`)                                                                                                                                                    |
+| FLUX.1 [schnell]              | Backgrounds and subjects | **Apache-2.0**: the model card says it "can be used for personal, scientific, and commercial purposes" ([license](https://github.com/black-forest-labs/flux/blob/main/model_licenses/LICENSE-FLUX1-schnell), checked 2026-10-06) | Hosted on Replicate, `black-forest-labs/flux-schnell`, $0.003/image                                                                                                         |
+| BiRefNet_lite                 | Subject cutouts          | **MIT** ([ZhengPeng7/BiRefNet_lite](https://huggingface.co/ZhengPeng7/BiRefNet_lite)); see NOTICE for training-data caveats                                                                 | ONNX from [`onnx-community/BiRefNet_lite-ONNX`](https://huggingface.co/onnx-community/BiRefNet_lite-ONNX) at commit `de15b22`, 224,005,088 bytes, SHA-256 `56000243…f03333`. Downloaded from Hugging Face into the Redline cache on first use (not re-hosted), verified before use, about 15 s per cutout on a laptop CPU |
+| MSI-Net                       | Attention check          | MIT                                                                                                                                                                                       | See [Attention check](#attention-check)                                                                                                                                      |
+| Pexels (optional)             | Stock backgrounds        | [Pexels License](https://www.pexels.com/license/)                                                                                                                                          | API (`PEXELS_API_KEY`)                                                                                                                                                       |
+
+### Limits
+
+- **The checker is still the judge.** A generated design that scores 100 passes the layout and attention rules. It isn't necessarily a good design. The eval below lists the cases I found that score well but look wrong.
+- **Fonts:** only Inter is bundled. The art director can use other families only if you register them with `--font`.
+- **Cutouts** are as good as BiRefNet on a plain backdrop: fine for products, people and animals, weaker on thin structures. The keying fallback leaves halos on shadows.
+- **FLUX schnell** sometimes ignores parts of the brief, including "no text". The calm-area instruction is a request, not a guarantee, which is exactly what the regeneration op and the contrast rule are there to catch.
+- **No visual-quality model** judges aesthetics yet. Best-of-N picks by rule score, so two very different candidates that both score 100 are a tie broken by warnings and CTA attention.
+
 ## Development
 
 ```bash
@@ -673,6 +808,8 @@ npm run redline -- fix fixtures/worst.json --editor suggested    # offline
 npm run eval -- --no-llm
 npm run fixture-images -w packages/checker   # regenerate placeholder images
 npm run calibrate-attention -w packages/agent  # re-derive attention thresholds
+npm run eval:generate -- --offline              # generation eval with mocks, free
+npm run redline -- generate "poster for a bake sale" --director template --provider mock --editor suggested
 ```
 
 **Reproducing the saliency model:** `packages/checker/scripts/convert-msi-net.py` (Python 3.11, TensorFlow 2.15.1, tf2onnx 1.16.1). On Windows, use a short venv path, because TensorFlow exceeds the 260-character path limit otherwise. A real-model smoke test runs only if the model is already in the cache, so CI never downloads it.
@@ -687,6 +824,11 @@ packages/checker/            @simonlunay/redline
   src/node/     Node-only: fonts, image sampler, renderer, pretty formatter
   src/cli.ts
   fonts/        Inter (SIL Open Font License), for identical results on every OS
+packages/generate/           @simonlunay/redline-generate (private for now)
+  src/          isomorphic: plan schema, art directors, image prompts, providers, assembly,
+                best-of-N selection, spend ledger
+  src/node/     generate command, pipeline, cutouts (BiRefNet), assets + manifest, contact sheet
+  eval/         npm run eval:generate, prompts.json, results/ (incl. spend-ledger.json)
 packages/agent/              @simonlunay/redline-agent
   src/          isomorphic: loop, edit schema + guardrails, prompt, editors/
   src/node/     redline fix command, sessions, output formatting
@@ -701,10 +843,10 @@ ESLint's `no-restricted-imports` rule forbids `node:*`, `fs`, `path` and `@napi-
 1. ~~**Checker**: rules, scoring, machine-readable fixes, CLI.~~ Done.
 2. ~~**AI fix loop**: check → LLM edits → re-check with rollback, plus an eval harness.~~ Done.
 3. ~~**Attention check**: a saliency model predicts where viewers look, key elements get per-element attention shares, and the fix loop improves them. Plus a harder `--strict` benchmark.~~ Done.
-4. **Generation**: produce designs in this format from a brief, then run them through the loop.
+4. ~~**Generation**: produce designs in this format from a brief, then run them through the loop.~~ Done (see [Generation](#generation)).
 5. **Resizing**: adapt a design across formats (Instagram post, story, banner) and re-check every version.
 6. **Web app**: a React canvas editor (`apps/web`) that runs the checker live in the browser and replays fix-loop histories.
 
 ## License
 
-MIT © Simon Lunay. The bundled Inter font is © The Inter Project Authors, licensed under the [SIL Open Font License 1.1](packages/checker/fonts/OFL.txt). The MSI-Net saliency model (downloaded on demand) is MIT-licensed. See [NOTICE](NOTICE) for attributions and training-data caveats.
+MIT © Simon Lunay. The bundled Inter font is © The Inter Project Authors, licensed under the [SIL Open Font License 1.1](packages/checker/fonts/OFL.txt). The MSI-Net saliency model and the BiRefNet_lite cutout model (both downloaded on demand) are MIT-licensed; FLUX.1 [schnell] (called as an API) is Apache-2.0. See [NOTICE](NOTICE) for attributions and training-data caveats.

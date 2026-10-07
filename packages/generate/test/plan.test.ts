@@ -4,9 +4,9 @@ import {
   headlineFromPrompt,
   templatePlan,
 } from '../src/director/template.js';
-import { designPlanTool } from '../src/director/anthropic.js';
+import { designPlanSchema } from '../src/director/anthropic.js';
 import { NO_TEXT, buildImagePrompt, describeTextZones } from '../src/image-prompt.js';
-import { parsePlan, validatePlan } from '../src/plan.js';
+import { parsePlan, toToolPlan, validatePlan } from '../src/plan.js';
 import type { DesignPlan } from '../src/plan.js';
 import { brief } from './helpers.js';
 
@@ -35,11 +35,11 @@ describe('design plan validation', () => {
     }
   });
 
-  it('explains a missing tool call', () => {
+  it('explains a missing plan', () => {
     const result = parsePlan(undefined, ctx);
     expect(result).toEqual({
       ok: false,
-      error: expect.stringContaining('No submit_design_plan tool call'),
+      error: expect.stringContaining('No plan was returned'),
     });
   });
 
@@ -97,9 +97,20 @@ describe('design plan validation', () => {
     );
   });
 
-  it('builds a strict tool schema with every object closed and no unsupported keywords', () => {
-    const tool = designPlanTool();
-    expect(tool.strict).toBe(true);
+  it('accepts the tool format (per-kind arrays) and explains empty layouts', () => {
+    const tool = toToolPlan(plan());
+    const parsed = parsePlan(tool, ctx);
+    expect(parsed.ok).toBe(true);
+    tool.layouts[0]!.texts = [];
+    tool.layouts[0]!.shapes = [];
+    tool.layouts[0]!.images = [];
+    const empty = parsePlan(tool, ctx);
+    expect(empty.ok).toBe(false);
+    if (!empty.ok) expect(empty.error).toMatch(/layouts\[0\]: has no elements/);
+  });
+
+  it('builds a structured-output schema with every object closed and no unsupported keywords', () => {
+    const schema = designPlanSchema();
     const walk = (node: unknown): void => {
       if (Array.isArray(node)) return node.forEach(walk);
       if (!node || typeof node !== 'object') return;
@@ -113,7 +124,9 @@ describe('design plan validation', () => {
       }
       Object.values(obj).forEach(walk);
     };
-    walk(tool.input_schema);
+    walk(schema);
+    // Per-kind arrays instead of a union: simpler for constrained decoding to follow.
+    expect(JSON.stringify(schema)).not.toMatch(/"anyOf"|"oneOf"/);
   });
 });
 

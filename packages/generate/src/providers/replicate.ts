@@ -33,8 +33,14 @@ export interface ReplicateOptions {
   pollMs?: number;
   /** Give up after this long (ms). */
   timeoutMs?: number;
-  /** Retries on 429 / 5xx. */
+  /** Retries on 429 / 5xx (default 10). */
   maxRetries?: number;
+  /**
+   * Minimum time between prediction requests (ms). Default 0, but after the first 429 it is
+   * raised to the server's retry_after (Replicate allows 6 per minute, burst 1, on accounts with
+   * under $5 credit), so a run adapts instead of failing.
+   */
+  minIntervalMs?: number;
   sleep?: (ms: number) => Promise<void>;
 }
 
@@ -55,7 +61,16 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
   const sleep = options.sleep ?? defaultSleep;
   const pollMs = options.pollMs ?? 1000;
   const timeoutMs = options.timeoutMs ?? 120_000;
-  const maxRetries = options.maxRetries ?? 4;
+  const maxRetries = options.maxRetries ?? 10;
+  let interval = options.minIntervalMs ?? 0;
+  let nextSlot = 0;
+  /** Spaces prediction requests `interval` apart, in call order. */
+  async function waitForSlot() {
+    const now = Date.now();
+    const at = Math.max(now, nextSlot);
+    nextSlot = at + interval;
+    if (at > now) await sleep(at - now);
+  }
   const headers = {
     Authorization: `Bearer ${options.token}`,
     'Content-Type': 'application/json',
@@ -66,10 +81,20 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
       const response = await fetchImpl(url, init);
       const retryable = response.status === 429 || response.status >= 500;
       if (!retryable || attempt >= maxRetries) return response;
-      const retryAfter = Number(response.headers.get('retry-after'));
+      let retryAfter = Number(response.headers.get('retry-after'));
+      if (response.status === 429) {
+        // Replicate puts retry_after (seconds) in the JSON body.
+        const body = (await response.json().catch(() => ({}))) as { retry_after?: number };
+        if (!(retryAfter > 0) && typeof body.retry_after === 'number')
+          retryAfter = body.retry_after;
+        interval = Math.max(interval, (retryAfter > 0 ? retryAfter : 10) * 1000);
+      }
       await sleep(
-        Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 2000 * 2 ** attempt,
+        Number.isFinite(retryAfter) && retryAfter > 0
+          ? retryAfter * 1000 + 250
+          : Math.min(30_000, 2000 * 2 ** attempt),
       );
+      if (init.method === 'POST') await waitForSlot();
     }
   }
 
@@ -90,6 +115,7 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
         output_quality: 95,
         num_inference_steps: 4,
       };
+      await waitForSlot();
       const created = await request(`${API}/models/${FLUX_SCHNELL.model}/predictions`, {
         method: 'POST',
         headers: { ...headers, Prefer: 'wait=60' },

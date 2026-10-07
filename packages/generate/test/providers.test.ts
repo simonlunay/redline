@@ -135,6 +135,37 @@ describe('Replicate FLUX.1 [schnell] provider', () => {
     expect(calls.filter((c) => c.url.endsWith('/predictions/p1'))).toHaveLength(2);
   });
 
+  it('learns the rate limit from a 429 and spaces later requests', async () => {
+    let creates = 0;
+    const sleeps: number[] = [];
+    const { impl } = fakeFetch([
+      [
+        /predictions$/,
+        () =>
+          ++creates === 1
+            ? Response.json({ detail: 'throttled', retry_after: 10 }, { status: 429 })
+            : Response.json({
+                id: 'p1',
+                status: 'succeeded',
+                output: ['https://replicate.delivery/o.png'],
+              }),
+      ],
+      [/replicate\.delivery/, () => new Response(PNG)],
+    ]);
+    const provider = createReplicateFluxProvider({
+      token: 't',
+      fetchImpl: impl,
+      sleep: async (ms) => {
+        sleeps.push(ms);
+      },
+    });
+    await provider.generate(request());
+    await provider.generate(request());
+    expect(creates).toBe(3);
+    expect(sleeps[0]).toBe(10_250); // the server's retry_after
+    expect(sleeps.some((ms) => ms > 9000 && ms <= 10_000)).toBe(true); // next create waits its slot
+  });
+
   it('retries rate limits and never puts the token in error messages', async () => {
     let attempts = 0;
     const { impl } = fakeFetch([

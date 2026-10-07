@@ -8,12 +8,10 @@ import {
 import type { Effort, TokenUsage } from '@simonlunay/redline-agent';
 import { builtinRules } from '@simonlunay/redline';
 import { z } from 'zod';
-import { DesignPlanSchema, parsePlan } from '../plan.js';
+import { ToolDesignPlanSchema, parsePlan } from '../plan.js';
 import type { SpendLedger } from '../spend.js';
 import { worstCaseLlmCallUsd } from '../spend.js';
 import type { ArtDirector, CreativeBrief, DirectorResult } from './types.js';
-
-export const PLAN_TOOL_NAME = 'submit_design_plan';
 
 export interface AnthropicDirectorOptions {
   model?: string;
@@ -25,13 +23,17 @@ export interface AnthropicDirectorOptions {
   tag?: string;
 }
 
-export function designPlanTool(): Anthropic.Tool {
-  return {
-    name: PLAN_TOOL_NAME,
-    description: 'Submit the complete design plan. Call exactly once.',
-    strict: true,
-    input_schema: toStrictSchema(z.toJSONSchema(DesignPlanSchema)) as Anthropic.Tool.InputSchema,
-  };
+/**
+ * JSON Schema for the plan, used as a structured-output format (output_config.format).
+ *
+ * Why not a strict tool like submit_edits: the plan is deeply nested (layouts -> elements), and
+ * as a tool parameter Claude Sonnet 5.5 tended to serialize `layouts` as a JSON *string*. With
+ * `strict: true` the grammar then forced an array, and the result collapsed to one layout with
+ * no elements (seen in live runs, 2026-10-07). As structured output the whole response is the
+ * JSON object, and both layouts come back complete.
+ */
+export function designPlanSchema(): Record<string, unknown> {
+  return toStrictSchema(z.toJSONSchema(ToolDesignPlanSchema)) as Record<string, unknown>;
 }
 
 /** Stable system prompt (no per-request data), so it is prompt-cached across calls. */
@@ -40,12 +42,13 @@ export function buildDirectorSystemPrompt(): string {
   return `You are the art director of an automated design studio. From a short creative prompt you plan a finished graphic design (poster, social post, ad or banner): the copy, the colors, the layout, and briefs for the images. A pipeline then generates the images, assembles your layout, scores it with an automated design checker (Redline), and repairs remaining problems.
 
 # Output
-Call the ${PLAN_TOOL_NAME} tool exactly once with the plan. Plan the number of alternative layouts you are asked for. Make them genuinely different compositions (e.g. headline top vs. text on a panel at the bottom vs. text beside the subject), not small variations.
+Respond with the plan as a single JSON object matching the required schema. Plan the number of alternative layouts you are asked for. Make them genuinely different compositions (e.g. headline top vs. text on a panel at the bottom vs. text beside the subject), not small variations.
 
 # Coordinates
 All boxes are canvas pixels, origin top-left: x, y, width, height. zIndex is the paint order: the background image is 0, subjects 1, panels behind text 1-2, text 2-4, CTA button 3 with its label 4 on top.
 
 # Elements
+Each layout lists its elements in three arrays: texts, shapes and images. Every layout needs at least a background image, a headline text and (if there is a CTA) a CTA shape plus its label.
 - One image element with role "background" covering the full canvas (x 0, y 0, full width and height), using a slot of kind "background".
 - Exactly one text element with role "headline". Optional "subheading" and "body" text. A CTA is a rect or rounded shape with role "cta" plus a text label with role "cta" fully inside it (centered, same box or inset).
 - Optional subject image (role "product") using a slot of kind "subject": the product, person, animal or object that is the hero. It is generated separately and cut out from its background, so it can sit over the background photo. Give it a box with roughly the aspect ratio of the subject.
@@ -105,10 +108,10 @@ export function buildDirectorMessage(brief: CreativeBrief, validationError?: str
   }
   if (validationError) {
     lines.push(
-      `# Your previous plan was invalid\n${validationError}\nCall ${PLAN_TOOL_NAME} again with a corrected, complete plan.`,
+      `# Your previous plan was invalid\n${validationError}\nSend a corrected, complete plan.`,
     );
   }
-  lines.push(`Call ${PLAN_TOOL_NAME} now.`);
+  lines.push('Respond with the JSON plan now.');
   return lines.join('\n\n');
 }
 
@@ -122,7 +125,7 @@ function usageOf(usage: Anthropic.Usage): TokenUsage {
 }
 
 /**
- * Claude as art director: one stateless request, strict tool, cached system prompt, and one
+ * Claude as art director: one stateless request, structured JSON output, cached system prompt, and one
  * retry with the validation errors if the plan is unusable. Like the fix-loop editor, no
  * server-side model fallback is enabled, so results always come from the recorded model.
  */
@@ -131,7 +134,7 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
   const effort = options.effort ?? DEFAULT_EFFORT;
   const client = options.client ?? new Anthropic({ maxRetries: 4 });
   const system = buildDirectorSystemPrompt();
-  const tool = designPlanTool();
+  const schema = designPlanSchema();
 
   async function call(brief: CreativeBrief, validationError?: string) {
     options.ledger?.guard(worstCaseLlmCallUsd(model), `art director (${model})`);
@@ -148,9 +151,7 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
     const response = await client.messages.create({
       model,
       max_tokens: options.maxTokens ?? 16000,
-      tools: [tool],
-      tool_choice: { type: 'auto' },
-      output_config: { effort },
+      output_config: { effort, format: { type: 'json_schema', schema } },
       system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content }],
     });
@@ -165,10 +166,18 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
     if (response.stop_reason === 'refusal') {
       throw new Error(`${response.model} declined the request (stop_reason: refusal)`);
     }
-    const toolUse = response.content.find(
-      (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use' && b.name === PLAN_TOOL_NAME,
-    );
-    return { raw: toolUse?.input, usage, model: response.model };
+    if (response.stop_reason === 'max_tokens') {
+      const raw = { invalid: 'The response hit max_tokens and was cut off.' };
+      return { raw, usage, model: response.model };
+    }
+    const text = response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('');
+    let raw: unknown;
+    try {
+      raw = text ? JSON.parse(text) : undefined;
+    } catch (err) {
+      raw = { invalid: `The response was not valid JSON: ${(err as Error).message}` };
+    }
+    return { raw, usage, model: response.model };
   }
 
   return {

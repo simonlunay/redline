@@ -4,7 +4,11 @@ export {
   ImageSlotSchema,
   LayoutSchema,
   PlanElementSchema,
+  ToolDesignPlanSchema,
+  ToolLayoutSchema,
+  fromToolPlan,
   parsePlan,
+  toToolPlan,
   validatePlan,
 } from './plan.js';
 export type {
@@ -17,6 +21,7 @@ export type {
   PlanParseResult,
   PlanShape,
   PlanText,
+  ToolDesignPlan,
 } from './plan.js';
 export { NO_TEXT, SUBJECT_BACKDROP, buildImagePrompt, describeTextZones } from './image-prompt.js';
 export type { ZoneElement } from './image-prompt.js';
@@ -60,10 +65,9 @@ export {
   templatePlan,
 } from './director/template.js';
 export {
-  PLAN_TOOL_NAME,
   buildDirectorMessage,
   buildDirectorSystemPrompt,
   createAnthropicArtDirector,
-  designPlanTool,
+  designPlanSchema,
 } from './director/anthropic.js';
 export type { AnthropicDirectorOptions } from './director/anthropic.js';
