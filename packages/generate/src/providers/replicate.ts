@@ -78,7 +78,21 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
 
   async function request(url: string, init: RequestInit): Promise<Response> {
     for (let attempt = 0; ; attempt++) {
-      const response = await fetchImpl(url, init);
+      let response: Response;
+      try {
+        response = await fetchImpl(url, init);
+      } catch (err) {
+        // Network-level failure ("fetch failed": reset, DNS, TLS). Retried like a 5xx. A retried
+        // POST can create a second prediction; at $0.003 that beats failing the whole design.
+        if (attempt >= maxRetries) {
+          throw new Error(
+            `Replicate request failed after ${attempt + 1} attempts: ${(err as Error).message}`,
+            { cause: err },
+          );
+        }
+        await sleep(Math.min(30_000, 2000 * 2 ** attempt));
+        continue;
+      }
       const retryable = response.status === 429 || response.status >= 500;
       if (!retryable || attempt >= maxRetries) return response;
       let retryAfter = Number(response.headers.get('retry-after'));

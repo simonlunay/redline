@@ -135,6 +135,36 @@ describe('Replicate FLUX.1 [schnell] provider', () => {
     expect(calls.filter((c) => c.url.endsWith('/predictions/p1'))).toHaveLength(2);
   });
 
+  it('retries network failures ("fetch failed") and gives up with a clear error', async () => {
+    let calls = 0;
+    const flaky = (async (input: string | URL | Request) => {
+      calls++;
+      const url = String(input);
+      if (calls <= 2) throw new TypeError('fetch failed');
+      if (url.includes('replicate.delivery')) return new Response(PNG);
+      return Response.json({
+        id: 'p1',
+        status: 'succeeded',
+        output: ['https://replicate.delivery/o.png'],
+      });
+    }) as typeof fetch;
+    const provider = createReplicateFluxProvider({ token: 't', fetchImpl: flaky, sleep: noSleep });
+    expect((await provider.generate(request())).bytes.length).toBeGreaterThan(0);
+
+    const down = (async () => {
+      throw new TypeError('fetch failed');
+    }) as typeof fetch;
+    const dead = createReplicateFluxProvider({
+      token: 'r8_secret',
+      fetchImpl: down,
+      sleep: noSleep,
+      maxRetries: 2,
+    });
+    const error = await dead.generate(request()).catch((e: Error) => e);
+    expect(String(error)).toMatch(/failed after 3 attempts: fetch failed/);
+    expect(String(error)).not.toContain('r8_secret');
+  });
+
   it('learns the rate limit from a 429 and spaces later requests', async () => {
     let creates = 0;
     const sleeps: number[] = [];
