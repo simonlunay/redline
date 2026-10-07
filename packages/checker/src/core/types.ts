@@ -1,4 +1,5 @@
 import type { RGBA } from './color.js';
+import type { SaliencyMap } from './attention/saliency.js';
 import type { Fix } from './fixes.js';
 import type { Design } from './schema.js';
 import type { TextMeasurer } from './text-measure.js';
@@ -49,7 +50,7 @@ export interface RasterImage {
 }
 
 /** Capabilities a rule can require. Rules whose requirements are missing are skipped. */
-export type RuleRequirement = 'render';
+export type RuleRequirement = 'render' | 'saliency';
 
 export interface RuleContext {
   design: Design;
@@ -60,6 +61,11 @@ export interface RuleContext {
    * checkAsync() when a renderer is provided, e.g. for a future saliency/attention rule.
    */
   render?: () => Promise<RasterImage>;
+  /**
+   * Predicted attention heatmap of the current design (lazy, at most once per check). Only
+   * available in checkAsync() when both a renderer and a saliency model are provided.
+   */
+  saliency?: () => Promise<SaliencyMap>;
 }
 
 /** Richer rule output: issues plus optional per-element scores (e.g. attention share). */
@@ -67,6 +73,8 @@ export interface RuleResult {
   issues: RuleIssue[];
   /** elementId -> score, reported as-is in the rule's RuleScore. */
   elementScores?: Record<string, number>;
+  /** Extra structured data reported as-is in the rule's RuleScore (e.g. viewing order). */
+  details?: Record<string, unknown>;
 }
 
 export type RuleOutput = RuleIssue[] | RuleResult;
@@ -102,6 +110,7 @@ export interface RuleScore {
   weight: number;
   issues: number;
   elementScores?: Record<string, number>;
+  details?: Record<string, unknown>;
 }
 
 export interface SkippedRule {

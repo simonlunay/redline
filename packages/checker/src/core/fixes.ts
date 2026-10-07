@@ -42,6 +42,11 @@ export const FixSchema = z.discriminatedUnion('op', [
     fontWeight: z.number().describe('100-1000, e.g. 400 regular, 700 bold'),
   }),
   z.object({
+    op: z.literal('setOpacity'),
+    elementId: id,
+    opacity: z.number().describe('0-1, e.g. 0.5 to tone down a competing decoration'),
+  }),
+  z.object({
     op: z.literal('insertShape'),
     behindElementId: id.describe('The new shape is painted directly behind this element'),
     kind: z.enum(['rect', 'ellipse']),
@@ -115,6 +120,9 @@ function applyOne(elements: DesignElement[], fix: Fix, insertedIds: string[]): s
     case 'setFontWeight':
       if (el.type !== 'text') return 'setFontWeight only applies to text';
       el.fontWeight = Math.round(clamp(fix.fontWeight, 100, 1000));
+      return null;
+    case 'setOpacity':
+      el.opacity = clamp(fix.opacity, 0, 1);
       return null;
     case 'insertShape': {
       if (!ColorSchema.safeParse(fix.fill).success) return `"${fix.fill}" is not a hex color`;

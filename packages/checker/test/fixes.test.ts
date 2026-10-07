@@ -67,10 +67,11 @@ describe('applyFixes', () => {
       { op: 'resize', elementId: 'box', width: -50, height: 0 },
       { op: 'setFontSize', elementId: 'title', fontSize: 5000 },
       { op: 'setFontWeight', elementId: 'title', fontWeight: 50 },
+      { op: 'setOpacity', elementId: 'box', opacity: 1.7 },
     ]);
     expect(rejected).toEqual([]);
     const byId = Object.fromEntries(design.elements.map((el) => [el.id, el]));
-    expect(byId.box).toMatchObject({ width: 1, height: 1 });
+    expect(byId.box).toMatchObject({ width: 1, height: 1, opacity: 1 });
     expect(byId.title).toMatchObject({ fontSize: 1000, fontWeight: 100 });
   });
 
@@ -157,6 +158,7 @@ describe('JSON Schema export', () => {
       'setColor',
       'setFontSize',
       'setFontWeight',
+      'setOpacity',
       'insertShape',
     ]);
   });

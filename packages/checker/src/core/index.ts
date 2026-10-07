@@ -20,8 +20,11 @@ export { ConfigSchema, resolveRules } from './config.js';
 export type { RedlineConfig, RuleSetting } from './config.js';
 export {
   builtinRules,
+  attentionRules,
   getRule,
   alignment,
+  attentionCompetition,
+  attentionKeyElements,
   hierarchy,
   imageAspectRatio,
   minTextSize,
@@ -55,3 +58,18 @@ export type { FontSpec, TextLayout, TextMeasurer } from './text-measure.js';
 export { contrastRatio, parseHex, relativeLuminance, toHex } from './color.js';
 export type { RGB, RGBA } from './color.js';
 export { SEVERITY_POINTS, overallScore, ruleScore } from './scoring.js';
+export {
+  cachedSaliencyModel,
+  createFakeSaliencyModel,
+  hashRaster,
+  normalizeSaliency,
+} from './attention/saliency.js';
+export type { SaliencyMap, SaliencyModel } from './attention/saliency.js';
+export { BACKGROUND_GRID, KEY_ROLES, analyzeAttention, pct } from './attention/shares.js';
+export type { AttentionAnalysis, BackgroundRegion, KeyRole } from './attention/shares.js';
+export {
+  DEFAULT_ATTENTION_MINIMUMS,
+  attentionScale,
+  growFixes,
+} from './rules/attention-key-elements.js';
+export type { AttentionMinimums } from './rules/attention-key-elements.js';

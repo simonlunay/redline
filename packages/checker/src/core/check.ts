@@ -1,3 +1,4 @@
+import type { SaliencyMap, SaliencyModel } from './attention/saliency.js';
 import { resolveRules } from './config.js';
 import type { RedlineConfig, ResolvedRule } from './config.js';
 import { builtinRules } from './rules/index.js';
@@ -32,6 +33,8 @@ export interface CheckOptions {
 export interface CheckAsyncOptions extends CheckOptions {
   /** Renders a design to pixels. Enables rules with `requires: ['render']`. */
   render?: (design: Design) => Promise<RasterImage>;
+  /** Predicts attention from the render. Enables rules with `requires: ['saliency']`. */
+  saliency?: SaliencyModel;
 }
 
 const SEVERITY_ORDER: Record<Severity, number> = { error: 0, warning: 1, info: 2 };
@@ -54,6 +57,9 @@ function prepare(input: unknown, options: CheckOptions) {
 function missingRequirement(rule: AnyRule, ctx: RuleContext): string | null {
   if (rule.requires?.includes('render') && !ctx.render) {
     return 'needs a renderer (run checkAsync with a render function)';
+  }
+  if (rule.requires?.includes('saliency') && !ctx.saliency) {
+    return 'needs a saliency model and a renderer (run checkAsync with render and saliency)';
   }
   return null;
 }
@@ -89,6 +95,7 @@ function buildReport(runs: RuleRun[], skipped: SkippedRule[]): Report {
       ...('elementScores' in result && result.elementScores
         ? { elementScores: result.elementScores }
         : {}),
+      ...('details' in result && result.details ? { details: result.details } : {}),
     });
   }
 
@@ -148,6 +155,12 @@ export async function checkAsync(input: unknown, options: CheckAsyncOptions = {}
     const render = options.render;
     let rendered: Promise<RasterImage> | undefined;
     ctx.render = () => (rendered ??= render(design));
+    if (options.saliency) {
+      const model = options.saliency;
+      const renderFn = ctx.render;
+      let predicted: Promise<SaliencyMap> | undefined;
+      ctx.saliency = () => (predicted ??= renderFn().then((image) => model.predict(image)));
+    }
   }
   const runs: RuleRun[] = [];
   const skipped: SkippedRule[] = [];

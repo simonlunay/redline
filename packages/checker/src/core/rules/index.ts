@@ -1,4 +1,6 @@
 import type { AnyRule } from '../types.js';
+import { attentionCompetition } from './attention-competition.js';
+import { attentionKeyElements } from './attention-key-elements.js';
 import { alignment } from './alignment.js';
 import { hierarchy } from './hierarchy.js';
 import { imageAspectRatio } from './image-aspect-ratio.js';
@@ -22,12 +24,21 @@ export const builtinRules: AnyRule[] = [
   alignment,
 ];
 
+/**
+ * Attention rules need a render and a saliency model, so they only run in checkAsync().
+ * They are opt-in (`rules: [...builtinRules, ...attentionRules]`, CLI --attention) so that
+ * the browser-friendly check() and existing reports are unchanged.
+ */
+export const attentionRules: AnyRule[] = [attentionKeyElements, attentionCompetition];
+
 export function getRule(id: string): AnyRule | undefined {
-  return builtinRules.find((r) => r.id === id);
+  return [...builtinRules, ...attentionRules].find((r) => r.id === id);
 }
 
 export {
   alignment,
+  attentionCompetition,
+  attentionKeyElements,
   hierarchy,
   imageAspectRatio,
   minTextSize,
