@@ -43,9 +43,10 @@ It's part of a larger project: an AI design assistant that generates a design, c
 ```bash
 npm install @simonlunay/redline           # checker library + CLI
 npm install @simonlunay/redline-agent     # optional: the AI fix loop (redline fix)
-# generation (redline generate) lives in packages/generate in this repo; not published yet
 npx @simonlunay/redline check design.json
 ```
+
+> **`redline generate` is not published to npm yet.** `@simonlunay/redline-generate` is private and only runs from a clone of this repo. Installing the two packages above does **not** give you `redline generate`. See [Running generate from source](#running-generate-from-source).
 
 Node 20+. Rendering uses [`@napi-rs/canvas`](https://github.com/Brooooooklyn/canvas) (Skia with prebuilt binaries), so nothing gets compiled on install on Windows, macOS or Linux.
 
@@ -669,6 +670,24 @@ Each cell is score / errors. For the models, the score is the mean (min–max) o
 
 `redline generate` turns a one-line prompt into a finished, editable design in the Redline format. It plans the design, generates the images in layers, builds several candidates, scores them with the checker, picks the best, and repairs it with the fix loop.
 
+### Running generate from source
+
+The generate package (`packages/generate`, `@simonlunay/redline-generate`) is **not published yet**, so run it from a clone. The workspace links the three packages and `npm run redline` runs the CLI from source (no build needed):
+
+```bash
+git clone https://github.com/simonlunay/redline.git && cd redline
+npm install
+cp .env.example .env     # set ANTHROPIC_API_KEY and REPLICATE_API_TOKEN (optional: PEXELS_API_KEY)
+
+# Live: Claude plans, FLUX.1 schnell draws (~$0.05–0.10 per design, capped by --budget)
+npm run redline -- generate "poster for a charity 5K, energetic, blue and orange" --out out/charity.json --render-steps out/steps
+
+# Offline, no keys, no cost: template director, mock images, rule-based fixes
+npm run redline -- generate "poster for a charity 5K" --director template --provider mock --editor suggested --out out/charity.json
+```
+
+Every example below that starts with `redline generate` means `npm run redline -- generate` in a clone. The output design is a normal Redline file: `npx @simonlunay/redline check out/charity.json` works on it from anywhere.
+
 ```
 $ redline generate "poster for a charity 5K, energetic, blue and orange" --out charity.json --render-steps steps/
 
@@ -852,10 +871,10 @@ Three runs of one prompt are too little to draw conclusions from: on all three, 
 
 ```bash
 npm install
-npm test                 # vitest: checker + agent (no test calls a real API)
+npm test                 # vitest: checker, agent and generate (no test calls a real API)
 npm run lint             # eslint (also blocks Node imports in isomorphic code)
 npm run typecheck
-npm run build                                 # checker, then agent
+npm run build                                 # checker, then agent, then generate
 npm run redline -- check fixtures/worst.json --annotate out/worst.png
 npm run redline -- fix fixtures/worst.json --editor suggested    # offline
 npm run eval -- --no-llm
