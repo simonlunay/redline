@@ -436,7 +436,49 @@ Every fixture is measured four ways, all with the same precise checker the CLI u
 - `worst.json`
 - four messy, ad-like designs, each failing 5–8 rules at once: `ad-sneaker-sale`, `story-concert`, `banner-saas`, `promo-food`
 
-<!-- EVAL-RESULTS -->
+### Results
+
+This run was at commit `c64f2d5`, on 2026-10-07:
+
+- effort `medium`, target 90, max 4 iterations, vision on
+- **3 runs per model**, 14 fixtures
+- raw data in `packages/agent/eval/results/2026-10-07T00-10-51-680Z_*.json`
+
+Each cell is score / errors. For the models, the score is the mean (min–max) over the 3 runs.
+
+| Fixture                  | Before  | Rules once | Rules loop | Sonnet 5.5       | Opus 5.5         |
+| ------------------------ | ------- | ---------- | ---------- | ---------------- | ---------------- |
+| ad-sneaker-sale          | 11 / 7  | 28 / 4     | 35 / 4     | 97 (94–100) / 0  | 97 (94–100) / 0  |
+| banner-saas              | 27 / 5  | 88 / 0     | 97 / 0     | 98 (97–100) / 0  | 99 (97–100) / 0  |
+| clean-poster             | 100 / 0 | 100 / 0    | 100 / 0    | 100 / 0          | 100 / 0          |
+| competing-headline       | 84 / 1  | 100 / 0    | 100 / 0    | 100 / 0          | 100 / 0          |
+| low-contrast-on-image    | 58 / 2  | 100 / 0    | 100 / 0    | 100 / 0          | 100 / 0          |
+| misaligned               | 94 / 0  | 100 / 0    | 94 / 0     | 94 / 0           | 94 / 0           |
+| off-canvas               | 79 / 1  | 97 / 0     | 97 / 0     | 100 / 0          | 100 / 0          |
+| overlap-headline-product | 58 / 2  | 76 / 1     | 100 / 0    | 100 / 0          | 100 / 0          |
+| promo-food               | 11 / 8  | 27 / 5     | 27 / 5     | 97 (97–97) / 0   | 100 / 0          |
+| story-concert            | 22 / 5  | 40 / 3     | 67 / 1     | 99 (97–100) / 0  | 100 / 0          |
+| stretched-image          | 84 / 1  | 100 / 0    | 100 / 0    | 100 / 0          | 100 / 0          |
+| text-overflow            | 58 / 2  | 53 / 2     | 58 / 2     | 100 / 0          | 100 / 0          |
+| tiny-text                | 79 / 1  | 91 / 0     | 91 / 0     | 100 / 0          | 100 / 0          |
+| worst                    | 6 / 11  | 21 / 6     | 54 / 2     | 98 (97–100) / 0  | 98 (97–100) / 0  |
+| **Mean score**           | 55.1    | 72.9       | 80.0       | **98.8**         | **99.1**         |
+| **Errors (total)**       | 46      | 21         | 14         | 0 (every run)    | 0 (every run)    |
+| **Reached goal**         | 2/14    | 7/14       | 9/14       | **42/42 runs**   | **42/42 runs**   |
+| **Cost (3 runs)**        | n/a     | n/a        | n/a        | $0.67 (42 calls) | $1.26 (37 calls) |
+
+**What the numbers show:**
+
+- **The checker's own suggestions only get you so far.** Applied once, they lift the mean score from 55 to 73. Looped, they reach 80, but the four messy ads stay at 27–97, and `text-overflow` doesn't improve at all. Growing the text box pushes it into the button, so the loop correctly rolls that back.
+- **The LLM adds what the rules can't.** It reasons across rules and repairs the whole layout. It moves text off photos, adds translucent backing shapes (`insertShape` was used in 9 of 42 Sonnet runs), and rebalances type sizes. It cleared every error in every run, usually in **one iteration**.
+- **Sonnet 5.5 vs Opus 5.5:** almost identical quality on this set, and Sonnet costs about half as much (about $0.016 per fixed design). That's why Sonnet is the default.
+- **`misaligned` stays at 94 for every loop.** 94 with no errors already meets the goal, so the loop never runs. The "rules once" column applies its suggestions unconditionally, which is why it shows 100 there.
+
+**Limitations to keep in mind:**
+
+- **The benchmark is saturated.** Both models solve every fixture, so it can't separate them, and no rollback fired in any run. It shows the loop works, not how far it can be pushed. Harder fixtures, a stricter target (`--target 100`), or the attention rule will make it informative again.
+- **The checker is also the judge.** A high score means "passes these 9 rules", not "is a good design". I spot-checked the fixed renders (`redline fix --render-steps`), and they're genuine layout repairs rather than games played against the rules. A vision- or human-rated quality check would be the next step.
+- **LLM runs vary.** Results come from the requested model only (no fallbacks), but sampling isn't deterministic. That's why the table reports min–max over 3 runs.
 
 ## Development
 
