@@ -148,6 +148,8 @@ export interface GenerationResult {
   final: { design: Design; report: Report };
   /** The vision judge's reviews, in order (empty without a judge). */
   judgments: Judgment[];
+  /** With a judge: which review's design was shipped (see pickJudged). */
+  finalJudgeRound?: number;
   judge?: string;
   out: string;
   generationFile: string;
@@ -162,6 +164,31 @@ export interface GenerationResult {
   };
   warnings: string[];
   durationMs: number;
+}
+
+/**
+ * Index of the best reviewed design: fewest errors (rules errors + high-severity findings), then
+ * fewest medium findings, then the highest rules score; later rounds win ties.
+ */
+export function pickJudged(judgments: Judgment[]): number {
+  const key = (j: Judgment) => [
+    j.rulesErrors + j.findings.filter((f) => f.severity === 'high').length,
+    j.findings.filter((f) => f.severity === 'medium').length,
+    -j.rulesScore,
+  ];
+  let best = 0;
+  judgments.forEach((j, i) => {
+    const [a, b] = [key(j), key(judgments[best]!)];
+    for (let k = 0; k < a.length; k++) {
+      if (a[k]! < b[k]!) {
+        best = i;
+        return;
+      }
+      if (a[k]! > b[k]!) return;
+    }
+    best = i; // equal: prefer the later round
+  });
+  return best;
 }
 
 /** Long side of the render the judge sees: detailed enough, about 1.4k image tokens. */
@@ -626,13 +653,12 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   // The vision judge sees the clean render, the element table, the rules' open issues and the
   // prompt; never the fixer's reasoning, the edit history, the plan or a score.
   const judgments: Judgment[] = [];
+  /** Every design the judge reviewed, with its verdict: the final pick is made among them. */
+  const reviewed: { design: Design; verdict: JudgeVerdict; judgment: Judgment }[] = [];
   const judgeDesign = async (design: Design, round: number): Promise<boolean> => {
     if (!options.judge) return false;
     try {
-      const rules = await workspace.check(design, [
-        copyGrounded,
-        ...keyElements,
-      ]);
+      const rules = await workspace.check(design, [copyGrounded, ...keyElements]);
       const longSide = Math.max(design.canvas.width, design.canvas.height);
       const png = renderPng(design, {
         images: workspace.images,
@@ -657,6 +683,7 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
         ...(v.costUsd !== undefined ? { costUsd: Number(v.costUsd.toFixed(4)) } : {}),
       };
       judgments.push(judgment);
+      reviewed.push({ design, verdict: v, judgment });
       emit({ type: 'judge', judgment });
       return true;
     } catch (err) {
@@ -679,11 +706,23 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   }
   const loop = mergeLoops(loops);
   if (loop.error) warn(`Fix loop stopped early: ${loop.error}`);
-  // The final report counts the latest judgment of the final design.
-  const finalReport = judgments.length > 1 ? await check(loop.best.design) : loop.best.report;
+  // With a judge, ship the reviewed design that the judge and the rules rate best: fewest
+  // errors (rules errors + high-severity findings), then fewest medium findings, then the rules'
+  // score. The loop alone can't decide this: while a finding is suspended (its element changed),
+  // a regeneration can look like an improvement that the next review shows it wasn't.
+  const pick = reviewed.length > 1 ? pickJudged(reviewed.map((j) => j.judgment)) : -1;
+  const chosen = pick >= 0 ? reviewed[pick]! : undefined;
+  const finalDesign = chosen ? chosen.design : loop.best.design;
+  if (chosen) judgeStore.record(chosen.design, chosen.verdict);
+  const finalReport = reviewed.length > 1 ? await check(finalDesign) : loop.best.report;
+  if (chosen && chosen !== reviewed.at(-1)) {
+    warn(
+      `Kept the design from judge round ${chosen.judgment.round}: the later fixes didn't hold up on review.`,
+    );
+  }
 
   // 6. Write the result and the full record.
-  writeFileSync(out, `${JSON.stringify(loop.best.design, null, 2)}\n`);
+  writeFileSync(out, `${JSON.stringify(finalDesign, null, 2)}\n`);
   const entries = ledger.entries().slice(entriesAtStart);
   const llmUsd = entries.filter((e) => e.kind === 'llm').reduce((s, e) => s + e.costUsd, 0);
   const imageUsd = entries.filter((e) => e.kind === 'image').reduce((s, e) => s + e.costUsd, 0);
@@ -703,7 +742,8 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     ranking,
     winner: winner.index,
     loop,
-    final: { design: loop.best.design, report: finalReport },
+    final: { design: finalDesign, report: finalReport },
+    ...(chosen ? { finalJudgeRound: chosen.judgment.round } : {}),
     judgments,
     ...(options.judge ? { judge: options.judge.name } : {}),
     out,
@@ -787,6 +827,7 @@ export function serializeResult(result: GenerationResult) {
     },
     judge: result.judge ?? null,
     judgments: result.judgments,
+    finalJudgeRound: result.finalJudgeRound ?? null,
     spend: result.spend,
     warnings: result.warnings,
     durationMs: result.durationMs,

@@ -15,7 +15,7 @@ import { createScriptedJudge } from '../src/judge/scripted.js';
 import type { JudgeVerdict } from '../src/judge/types.js';
 import { createBackdropKeyRemover } from '../src/node/cutout.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
-import { generateDesign } from '../src/node/pipeline.js';
+import { generateDesign, pickJudged } from '../src/node/pipeline.js';
 import { createWorkspace } from '../src/node/workspace.js';
 import { buildSystemPrompt } from '@simonlunay/redline-agent';
 import { brightnessSaliency, tempDir } from './helpers.js';
@@ -353,6 +353,25 @@ describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
     expect(result.final.design.elements.find((e) => e.id === 'subject')?.opacity).toBe(1);
   });
 
+  it('ships the best reviewed design: the winner, when the fixes review worse', async () => {
+    // A regeneration suspends the finding and looks like progress; the next reviews say worse.
+    const worse = () => verdict([fakeText('background'), fakeText(null), fakeText('headline')]);
+    const judge = createScriptedJudge([verdict([fakeText('background')]), worse, worse]);
+    const editor = createScriptedEditor([
+      {
+        summary: 'Remake the background.',
+        edits: [
+          { op: 'regenerateImage', elementId: 'background', brief: 'again', reason: 'judge' },
+        ],
+      },
+    ]);
+    const result = await run(judge, editor);
+    expect(result.judgments).toHaveLength(3);
+    expect(result.finalJudgeRound).toBe(0);
+    expect(result.final.design).toEqual(result.candidates[result.winner]!.design);
+    expect(result.warnings.some((w) => /Kept the design from judge round 0/.test(w))).toBe(true);
+  });
+
   it('caps the rounds: at most 3 judge calls and 2 fix loops when the judge never relents', async () => {
     const always = () => verdict([fakeText(null)]);
     const judge = createScriptedJudge([always, always, always, always, always]);
@@ -373,5 +392,36 @@ describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
     const result = await run(broken as ReturnType<typeof createScriptedJudge>);
     expect(result.judgments).toEqual([]);
     expect(result.warnings.some((w) => /vision judge failed.*boom/.test(w))).toBe(true);
+  });
+});
+
+describe('pickJudged', () => {
+  const j = (
+    round: number,
+    rulesErrors: number,
+    rulesScore: number,
+    sev: ('high' | 'medium' | 'low')[],
+  ) => ({
+    round,
+    verdict: 'fix' as const,
+    summary: '',
+    findings: sev.map((s) => fakeText('x', s)),
+    rulesScore,
+    rulesErrors,
+  });
+  it('orders by errors (rules + high findings), then medium findings, then rules score; later wins ties', () => {
+    expect(
+      pickJudged([j(0, 0, 100, ['high']), j(1, 1, 84, ['high']), j(2, 1, 84, ['high', 'high'])]),
+    ).toBe(0);
+    expect(
+      pickJudged([
+        j(0, 1, 64, ['high', 'medium']),
+        j(1, 0, 94, ['high', 'medium']),
+        j(2, 1, 84, ['high']),
+      ]),
+    ).toBe(1);
+    expect(pickJudged([j(0, 0, 90, ['medium']), j(1, 0, 90, [])])).toBe(1);
+    expect(pickJudged([j(0, 0, 90, []), j(1, 0, 90, [])])).toBe(1);
+    expect(pickJudged([j(0, 0, 95, []), j(1, 0, 90, [])])).toBe(0);
   });
 });
