@@ -13,7 +13,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { freemem } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs, stripVTControlCharacters } from 'node:util';
 import { DEFAULT_ATTENTION_MINIMUMS } from '@simonlunay/redline';
@@ -24,8 +24,10 @@ import {
 } from '@simonlunay/redline-agent';
 import type { Effort } from '@simonlunay/redline-agent';
 import { loadDotEnv } from '@simonlunay/redline-agent/node';
+import { createImageAnalyzer } from '@simonlunay/redline/node';
 import pc from 'picocolors';
 import { createAnthropicArtDirector } from '../src/director/anthropic.js';
+import { DEFAULT_JUDGE_MODEL, createAnthropicJudge } from '../src/judge/anthropic.js';
 import { createTemplateArtDirector } from '../src/director/template.js';
 import { ArtDirectorError } from '../src/director/types.js';
 import { createAutoRemover, createBackdropKeyRemover } from '../src/node/cutout.js';
@@ -56,6 +58,11 @@ const { values } = parseArgs({
     'max-regenerations': { type: 'string' },
     concurrency: { type: 'string' },
     cap: { type: 'string' },
+    ledger: { type: 'string' },
+    judge: { type: 'string' },
+    'judge-model': { type: 'string' },
+    'judge-rounds': { type: 'string' },
+    'no-image-checks': { type: 'boolean' },
     budget: { type: 'string' },
     'min-free-mb': { type: 'string' },
     offline: { type: 'boolean' },
@@ -81,7 +88,15 @@ if (!offline && (!process.env.ANTHROPIC_API_KEY || !process.env.REPLICATE_API_TO
   console.error(pc.red('ANTHROPIC_API_KEY and REPLICATE_API_TOKEN are needed (or use --offline).'));
   process.exit(2);
 }
-const fileLedger = createFileLedger(join(RESULTS, 'spend-ledger.json'), Number(values.cap ?? 15));
+const fileLedger = createFileLedger(
+  values.ledger ? resolve(values.ledger) : join(RESULTS, 'spend-ledger.json'),
+  Number(values.cap ?? 15),
+);
+/** The vision judge: on by default online (Opus 5.5), off offline. */
+const judgeName = values.judge ?? (offline ? 'none' : 'anthropic');
+const judgeModel = values['judge-model'] ?? DEFAULT_JUDGE_MODEL;
+const judgeRounds = Number(values['judge-rounds'] ?? 2);
+const imageChecks = !values['no-image-checks'];
 /** --budget caps this run on top of the shared ledger (whose stored cap only ever goes down). */
 const ledger =
   values.budget === undefined ? fileLedger : withRunBudget(fileLedger, Number(values.budget));
@@ -140,6 +155,24 @@ interface Row {
   out?: string;
   failingRules?: string[];
   warnings?: string[];
+  /** Image rules on the best-of-N winner (issues) and on all candidates (candidates flagged). */
+  winnerImageText?: number;
+  winnerCutout?: number;
+  candidatesImageText?: number;
+  candidatesCutout?: number;
+  /** Subject cutouts that were re-cut because the first cut measured as damaged. */
+  recuts?: number;
+  recutsKept?: number;
+  /** The vision judge's reviews: verdicts in order, and findings by severity per review. */
+  judgeVerdicts?: string[];
+  judgeFindings?: { high: number; medium: number; low: number; categories: string[] }[];
+  /** Per review: did the rules pass that design (score >= target, no errors)? */
+  judgeRulesPassed?: boolean[];
+  judgeUsd?: number;
+  /** visual-judge issues left on the final design. */
+  visualJudgeFinal?: number;
+  /** Regenerations by the rule the editor named as the reason. */
+  regenerationReasons?: string[];
 }
 
 async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
@@ -159,7 +192,11 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
   const dir = join(outRoot, p.id);
   const canvas = parseSize(p.size);
   try {
-    const workspace = await createWorkspace(dir, { attention: true, imageChecks: !offline });
+    const workspace = await createWorkspace(dir, {
+      attention: true,
+      // Offline: the cutout check still runs; there's no text detector download.
+      imageChecks: imageChecks && (offline ? createImageAnalyzer({ detector: null }) : true),
+    });
     const result: GenerationResult = await generateDesign({
       prompt: p.prompt,
       canvas,
@@ -178,6 +215,12 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
       editor: offline
         ? createSuggestedFixesEditor()
         : createAnthropicEditor({ model, effort, generation: true }),
+      ...(judgeName === 'anthropic'
+        ? {
+            judge: createAnthropicJudge({ model: judgeModel, ledger, tag: p.id }),
+            judgeRounds,
+          }
+        : {}),
       ...(offline ? {} : { editorModel: model }),
       candidates,
       target,
@@ -195,7 +238,10 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
       (h.regenerations ?? []).map((r) => ({ ...r, kept: h.status === 'accepted' })),
     );
     const manifest = JSON.parse(readFileSync(result.manifestFile, 'utf8')) as {
-      images: { cutout?: { remover: string } | null; kind: string }[];
+      images: {
+        cutout?: { remover: string; recuts?: unknown[]; keptRecut?: string } | null;
+        kind: string;
+      }[];
     };
     return {
       id: p.id,
@@ -242,6 +288,8 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
         ...new Set(final.issues.filter((i) => i.severity !== 'info').map((i) => i.ruleId)),
       ],
       warnings: result.warnings,
+      ...imageStats(result, manifest),
+      ...judgeStats(result),
     };
   } catch (err) {
     if (err instanceof BudgetExceededError) stopped = `stopped at ${p.id}: ${err.message}`;
@@ -254,6 +302,51 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
           : ('other' as const);
     return { id: p.id, prompt: p.prompt, size: p.size, ok: false, error: message, failure };
   }
+}
+
+const issuesOf = (report: GenerationResult['final']['report'], ruleId: string) =>
+  report.issues.filter((i) => i.ruleId === ruleId && i.severity !== 'info').length;
+
+function imageStats(
+  result: GenerationResult,
+  manifest: { images: { cutout?: { recuts?: unknown[]; keptRecut?: string } | null }[] },
+) {
+  const winner = result.candidates[result.winner]!.report;
+  const cutouts = manifest.images.flatMap((i) => (i.cutout ? [i.cutout] : []));
+  return {
+    winnerImageText: issuesOf(winner, 'image-text'),
+    winnerCutout: issuesOf(winner, 'cutout-quality'),
+    candidatesImageText: result.candidates.filter((c) => issuesOf(c.report, 'image-text') > 0)
+      .length,
+    candidatesCutout: result.candidates.filter((c) => issuesOf(c.report, 'cutout-quality') > 0)
+      .length,
+    recuts: cutouts.filter((c) => c.recuts?.length).length,
+    recutsKept: cutouts.filter((c) => c.keptRecut).length,
+    regenerationReasons: result.loop.history.flatMap((h) =>
+      (h.regenerations ?? []).map(
+        (r) =>
+          /\b(image-text|cutout-quality|visual-judge|text-contrast|attention-[a-z-]+)\b/.exec(
+            r.reason,
+          )?.[1] ?? 'other',
+      ),
+    ),
+  };
+}
+
+function judgeStats(result: GenerationResult) {
+  if (result.judgments.length === 0) return {};
+  return {
+    judgeVerdicts: result.judgments.map((j) => j.verdict),
+    judgeFindings: result.judgments.map((j) => ({
+      high: j.findings.filter((f) => f.severity === 'high').length,
+      medium: j.findings.filter((f) => f.severity === 'medium').length,
+      low: j.findings.filter((f) => f.severity === 'low').length,
+      categories: [...new Set(j.findings.map((f) => f.category))],
+    })),
+    judgeRulesPassed: result.judgments.map((j) => j.rulesErrors === 0 && j.rulesScore >= target),
+    judgeUsd: Number(result.judgments.reduce((s, j) => s + (j.costUsd ?? 0), 0).toFixed(4)),
+    visualJudgeFinal: issuesOf(result.final.report, 'visual-judge'),
+  };
 }
 
 async function pool<T, R>(items: T[], limit: number, fn: (t: T) => Promise<R>): Promise<R[]> {
@@ -329,6 +422,38 @@ const summary = {
   totalCostUsd: Number(ok.reduce((s, r) => s + (r.costUsd ?? 0), 0).toFixed(4)),
   meanCostUsd: Number(mean(ok.map((r) => r.costUsd ?? 0)).toFixed(4)),
   ledgerTotalUsd: Number(ledger.spentUsd().toFixed(4)),
+  /** How many best-of-N winners each check flagged (and how many candidates in all). */
+  catches: {
+    imageTextWinners: ok.filter((r) => (r.winnerImageText ?? 0) > 0).length,
+    cutoutWinners: ok.filter((r) => (r.winnerCutout ?? 0) > 0).length,
+    judgeWinners: ok.filter((r) => r.judgeVerdicts && r.judgeVerdicts[0] !== 'ship').length,
+    imageTextCandidates: ok.reduce((s, r) => s + (r.candidatesImageText ?? 0), 0),
+    cutoutCandidates: ok.reduce((s, r) => s + (r.candidatesCutout ?? 0), 0),
+    candidates: ok.reduce((s, r) => s + (r.candidates?.length ?? 0), 0),
+  },
+  recuts: ok.reduce((s, r) => s + (r.recuts ?? 0), 0),
+  recutsKept: ok.reduce((s, r) => s + (r.recutsKept ?? 0), 0),
+  loopRan: ok.filter((r) => (r.iterations ?? 0) > 0).length,
+  regenerationReasons: ok.flatMap((r) => r.regenerationReasons ?? []),
+  judge: (() => {
+    const reviews = ok.flatMap((r) =>
+      (r.judgeVerdicts ?? []).map((v, i) => ({
+        flags: v !== 'ship',
+        rulesPassed: r.judgeRulesPassed![i]!,
+      })),
+    );
+    return {
+      model: judgeName === 'anthropic' ? judgeModel : null,
+      reviews: reviews.length,
+      // Agreement with the rules, over every review (winners and after each fix round).
+      flaggedRulesPassed: reviews.filter((x) => x.flags && x.rulesPassed).length,
+      passedRulesFlagged: reviews.filter((x) => !x.flags && !x.rulesPassed).length,
+      bothFlagged: reviews.filter((x) => x.flags && !x.rulesPassed).length,
+      bothPassed: reviews.filter((x) => !x.flags && x.rulesPassed).length,
+      finalShip: ok.filter((r) => r.judgeVerdicts?.at(-1) === 'ship').length,
+      costUsd: Number(ok.reduce((s, r) => s + (r.judgeUsd ?? 0), 0).toFixed(4)),
+    };
+  })(),
 };
 
 const headers = [
@@ -384,6 +509,15 @@ console.log(
 );
 for (const r of rows.filter((x) => !x.ok && !x.skipped))
   console.log(pc.red(`  ${r.id}: ${r.error}`));
+console.log(
+  pc.dim(
+    `  catches on winners: image-text ${summary.catches.imageTextWinners} · cutout-quality ${summary.catches.cutoutWinners} · judge ${summary.catches.judgeWinners} (candidates: image-text ${summary.catches.imageTextCandidates}, cutout ${summary.catches.cutoutCandidates} of ${summary.catches.candidates}) · re-cuts ${summary.recuts} (${summary.recutsKept} kept)` +
+      `\n  fix loop ran on ${summary.loopRan}/${ok.length} · regenerations ${summary.totalRegenerations} (${summary.regenerationReasons.join(', ') || 'none'})` +
+      (summary.judge.reviews
+        ? `\n  judge (${summary.judge.model}): ${summary.judge.reviews} reviews · flagged what the rules passed ${summary.judge.flaggedRulesPassed} · passed what the rules flagged ${summary.judge.passedRulesFlagged} · both flagged ${summary.judge.bothFlagged} · both passed ${summary.judge.bothPassed} · final ship ${summary.judge.finalShip}/${ok.length} · $${summary.judge.costUsd}`
+        : ''),
+  ),
+);
 for (const r of ok.filter((x) => x.failingRules?.length))
   console.log(pc.dim(`  ${r.id}: still failing ${r.failingRules!.join(', ')}`));
 
@@ -414,6 +548,8 @@ if (!values['no-save']) {
           maxIterations,
           maxRegenerations,
           imageModel: offline ? 'mock' : 'black-forest-labs/flux-schnell',
+          imageChecks,
+          judge: judgeName === 'anthropic' ? { model: judgeModel, rounds: judgeRounds } : null,
         },
         durationMs: Date.now() - started,
         outputs: outRoot.replace(ROOT, ''),
