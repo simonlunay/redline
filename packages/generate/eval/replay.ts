@@ -8,7 +8,7 @@
  * Nothing is regenerated; the only cost is one judge call per winner (--judge none: free).
  */
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { parseDesign } from '@simonlunay/redline';
@@ -46,7 +46,11 @@ const { values } = parseArgs({
 });
 loadDotEnv(join(ROOT, '.env'));
 const runDir = join(ROOT, values.run!);
-const ledger = createFileLedger(values.ledger!, Number(values.cap));
+// npm runs workspace scripts in the package folder; resolve against where npm was started.
+const ledger = createFileLedger(
+  resolve(process.env.INIT_CWD ?? process.cwd(), values.ledger!),
+  Number(values.cap),
+);
 const judge =
   values.judge === 'anthropic'
     ? createAnthropicJudge({ model: values['judge-model'], ledger, tag: 'replay' })

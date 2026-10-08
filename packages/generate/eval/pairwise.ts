@@ -16,7 +16,7 @@
  * plan without calling the API.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
@@ -107,7 +107,11 @@ if (!dry && !process.env.ANTHROPIC_API_KEY) {
   console.error(pc.red('ANTHROPIC_API_KEY is needed (or use --dry-run).'));
   process.exit(2);
 }
-const ledger = createFileLedger(values.ledger!, Number(values.cap));
+// npm runs workspace scripts in the package folder; resolve against where npm was started.
+const ledger = createFileLedger(
+  resolve(process.env.INIT_CWD ?? process.cwd(), values.ledger!),
+  Number(values.cap),
+);
 const judge = createAnthropicJudge({
   model: values.model,
   effort: values.effort as 'low' | 'medium' | 'high',

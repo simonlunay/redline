@@ -89,7 +89,10 @@ if (!offline && (!process.env.ANTHROPIC_API_KEY || !process.env.REPLICATE_API_TO
   process.exit(2);
 }
 const fileLedger = createFileLedger(
-  values.ledger ? resolve(values.ledger) : join(RESULTS, 'spend-ledger.json'),
+  // npm runs workspace scripts in the package folder; resolve against where npm was started.
+  values.ledger
+    ? resolve(process.env.INIT_CWD ?? process.cwd(), values.ledger)
+    : join(RESULTS, 'spend-ledger.json'),
   Number(values.cap ?? 15),
 );
 /** The vision judge: on by default online (Opus 5.5), off offline. */
@@ -323,14 +326,25 @@ function imageStats(
     recuts: cutouts.filter((c) => c.recuts?.length).length,
     recutsKept: cutouts.filter((c) => c.keptRecut).length,
     regenerationReasons: result.loop.history.flatMap((h) =>
-      (h.regenerations ?? []).map(
-        (r) =>
-          /\b(image-text|cutout-quality|visual-judge|text-contrast|attention-[a-z-]+)\b/.exec(
-            r.reason,
-          )?.[1] ?? 'other',
-      ),
+      (h.regenerations ?? []).map((r) => regenerationReason(r.reason)),
     ),
   };
+}
+
+/**
+ * What a regeneration was for, from the editor's free-text reason: a rule id when it names one,
+ * otherwise by keywords (the editor writes prose like "cutout has leftover backdrop slabs").
+ */
+export function regenerationReason(reason: string): string {
+  const named = /\b(image-text|cutout-quality|visual-judge|text-contrast|attention-[a-z-]+)\b/.exec(
+    reason,
+  )?.[1];
+  if (named) return named;
+  if (/cut-?out|backdrop|halo|fringe|slab|torn|see-through|ragged/i.test(reason)) return 'cutout';
+  if (/\btext\b|letter|gibberish|sign|watermark/i.test(reason)) return 'text in image';
+  if (/contrast|busy|bright|legib/i.test(reason)) return 'contrast';
+  if (/attention|compet|hot ?spot|distract/i.test(reason)) return 'attention';
+  return 'other';
 }
 
 function judgeStats(result: GenerationResult) {
