@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { createFontMeasurer, renderPng } from '@simonlunay/redline/node';
-import type { Design, Report } from '@simonlunay/redline';
+import type { AnyRule, Design, Report } from '@simonlunay/redline';
 import { runFixLoop } from '@simonlunay/redline-agent';
 import type {
   DesignEditor,
@@ -17,6 +17,7 @@ import { BUNDLED_FONTS } from '../director/types.js';
 import type { ArtDirector, DirectorResult, UserImageInfo } from '../director/types.js';
 import { checkFactReplacement, createCopyGroundedRule } from '../grounding.js';
 import { buildImagePrompt } from '../image-prompt.js';
+import { createKeyElementsVisibleRule } from '../key-elements.js';
 import { createJudgeStore, judgeElements, judgeKnownIssues } from '../judge/rule.js';
 import type { JudgeVerdict, VisualJudge } from '../judge/types.js';
 import type { DesignPlan, ImageSlot } from '../plan.js';
@@ -277,8 +278,14 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   ];
   const copyGrounded = createCopyGroundedRule(sources);
   const judgeStore = createJudgeStore();
+  /** Set once the winner is known: its key elements must stay visible through the fix loop. */
+  const keyElements: AnyRule[] = [];
   const check = (design: Design) =>
-    workspace.check(design, [copyGrounded, ...(options.judge ? [judgeStore.rule] : [])]);
+    workspace.check(design, [
+      copyGrounded,
+      ...keyElements,
+      ...(options.judge ? [judgeStore.rule] : []),
+    ]);
   const baseSeed =
     options.seed ?? seedFrom(`${options.prompt}|${options.canvas.width}x${options.canvas.height}`);
 
@@ -547,6 +554,7 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const ranking = rankCandidates(candidates.map((c) => c.report));
   const winner = candidates[ranking[0]!]!;
   emit({ type: 'winner', candidate: winner, ranking });
+  keyElements.push(createKeyElementsVisibleRule(winner.design));
 
   // 5. Fix loop on the winner.
   const editor = options.editorModel
@@ -621,7 +629,10 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const judgeDesign = async (design: Design, round: number): Promise<boolean> => {
     if (!options.judge) return false;
     try {
-      const rules = await workspace.check(design, [copyGrounded]);
+      const rules = await workspace.check(design, [
+        copyGrounded,
+        ...keyElements,
+      ]);
       const longSide = Math.max(design.canvas.width, design.canvas.height);
       const png = renderPng(design, {
         images: workspace.images,

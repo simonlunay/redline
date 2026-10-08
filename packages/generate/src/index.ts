@@ -119,3 +119,4 @@ export type {
   PairVerdict,
   VisualJudge,
 } from './judge/types.js';
+export { createKeyElementsVisibleRule } from './key-elements.js';

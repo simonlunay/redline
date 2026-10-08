@@ -329,6 +329,30 @@ describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
     expect(judge.requests[1]!.png.length).toBeGreaterThan(1000); // a real PNG render
   });
 
+  it('does not let the fixer hide the product to clear an issue about it (key-element-visible)', async () => {
+    // The phase 5 eval failure: out of regenerations, the fixer faded the damaged product out.
+    const judge = createScriptedJudge([verdict([fakeText('subject')]), verdict()]);
+    const editor = createScriptedEditor([
+      {
+        summary: 'Hide the damaged cutout.',
+        edits: [{ op: 'setOpacity', elementId: 'subject', opacity: 0, reason: 'hide it' }],
+      },
+    ]);
+    const result = await run(judge, editor);
+    const hidden = result.loop.history.find((h) =>
+      h.edits.some((e) => e.op === 'setOpacity' && e.elementId === 'subject'),
+    );
+    expect(hidden?.report.issues).toContainEqual(
+      expect.objectContaining({
+        ruleId: 'key-element-visible',
+        severity: 'error',
+        elementIds: ['subject'],
+      }),
+    );
+    expect(hidden?.status).toBe('rolled-back');
+    expect(result.final.design.elements.find((e) => e.id === 'subject')?.opacity).toBe(1);
+  });
+
   it('caps the rounds: at most 3 judge calls and 2 fix loops when the judge never relents', async () => {
     const always = () => verdict([fakeText(null)]);
     const judge = createScriptedJudge([always, always, always, always, always]);
