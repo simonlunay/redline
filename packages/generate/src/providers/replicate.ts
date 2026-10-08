@@ -31,8 +31,18 @@ export interface ReplicateOptions {
   fetchImpl?: FetchLike;
   /** Poll interval while a prediction is still running (ms). */
   pollMs?: number;
-  /** Give up after this long (ms). */
+  /**
+   * Overall deadline for one image (ms, default 5 min), covering the create request, rate-limit
+   * waits, polling and the download. Past it the image fails with a timeout naming the stage.
+   */
   timeoutMs?: number;
+  /**
+   * Per-request timeouts (ms). A request that hasn't answered by then is aborted and retried like
+   * a network failure. Without these, one hung connection stalled an eval run for two hours.
+   */
+  requestTimeoutMs?: { create?: number; poll?: number; download?: number };
+  /** Clock, for tests. */
+  now?: () => number;
   /** Retries on 429 / 5xx (default 10). */
   maxRetries?: number;
   /**
@@ -60,37 +70,84 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
   const fetchImpl = options.fetchImpl ?? fetch;
   const sleep = options.sleep ?? defaultSleep;
   const pollMs = options.pollMs ?? 1000;
-  const timeoutMs = options.timeoutMs ?? 120_000;
+  const timeoutMs = options.timeoutMs ?? 300_000;
+  const now = options.now ?? Date.now;
+  const stageTimeout = {
+    // The create request asks the server to wait up to 60 s for the result.
+    create: options.requestTimeoutMs?.create ?? 90_000,
+    poll: options.requestTimeoutMs?.poll ?? 30_000,
+    download: options.requestTimeoutMs?.download ?? 60_000,
+  };
   const maxRetries = options.maxRetries ?? 10;
   let interval = options.minIntervalMs ?? 0;
   let nextSlot = 0;
   /** Spaces prediction requests `interval` apart, in call order. */
   async function waitForSlot() {
-    const now = Date.now();
-    const at = Math.max(now, nextSlot);
+    const t = now();
+    const at = Math.max(t, nextSlot);
     nextSlot = at + interval;
-    if (at > now) await sleep(at - now);
+    if (at > t) await sleep(at - t);
   }
   const headers = {
     Authorization: `Bearer ${options.token}`,
     'Content-Type': 'application/json',
   };
 
-  async function request(url: string, init: RequestInit): Promise<Response> {
+  type Stage = keyof typeof stageTimeout;
+
+  /** Thrown when the overall deadline for an image has passed. */
+  function deadlineError(stage: Stage, deadline: number, id?: string): Error | undefined {
+    if (now() < deadline) return undefined;
+    return new Error(
+      `Replicate ${id ? `prediction ${id} ` : ''}timed out after ${Math.round(timeoutMs / 1000)} s (while ${stage === 'create' ? 'creating the prediction' : stage === 'poll' ? 'waiting for the result' : 'downloading the image'})`,
+    );
+  }
+
+  /** fetch with a per-request timeout; a hung request rejects instead of stalling forever. */
+  async function fetchWithTimeout(url: string, init: RequestInit, ms: number): Promise<Response> {
+    const controller = new AbortController();
+    const timer = setTimeout(
+      () => controller.abort(new Error(`no response within ${Math.round(ms / 1000)} s`)),
+      ms,
+    );
+    try {
+      return await fetchImpl(url, { ...init, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function request(
+    url: string,
+    init: RequestInit,
+    stage: Stage,
+    deadline: number,
+    id?: string,
+  ): Promise<Response> {
+    /** Sleeps, unless that would cross the deadline. */
+    const wait = async (ms: number) => {
+      const late = deadlineError(stage, deadline - ms, id);
+      if (late) throw late;
+      await sleep(ms);
+    };
     for (let attempt = 0; ; attempt++) {
+      const late = deadlineError(stage, deadline, id);
+      if (late) throw late;
+      const ms = Math.max(1, Math.min(stageTimeout[stage], deadline - now()));
       let response: Response;
       try {
-        response = await fetchImpl(url, init);
+        response = await fetchWithTimeout(url, init, ms);
       } catch (err) {
-        // Network-level failure ("fetch failed": reset, DNS, TLS). Retried like a 5xx. A retried
-        // POST can create a second prediction; at $0.003 that beats failing the whole design.
+        // Network-level failure ("fetch failed": reset, DNS, TLS) or a request that hung past its
+        // timeout. Retried like a 5xx. A retried POST can create a second prediction; at $0.003
+        // that beats failing the whole design.
         if (attempt >= maxRetries) {
           throw new Error(
             `Replicate request failed after ${attempt + 1} attempts: ${(err as Error).message}`,
             { cause: err },
           );
         }
-        await sleep(Math.min(30_000, 2000 * 2 ** attempt));
+        await wait(Math.min(30_000, 2000 * 2 ** attempt));
         continue;
       }
       const retryable = response.status === 429 || response.status >= 500;
@@ -103,7 +160,7 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
           retryAfter = body.retry_after;
         interval = Math.max(interval, (retryAfter > 0 ? retryAfter : 10) * 1000);
       }
-      await sleep(
+      await wait(
         Number.isFinite(retryAfter) && retryAfter > 0
           ? retryAfter * 1000 + 250
           : Math.min(30_000, 2000 * 2 ** attempt),
@@ -130,24 +187,36 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
         num_inference_steps: 4,
       };
       await waitForSlot();
-      const created = await request(`${API}/models/${FLUX_SCHNELL.model}/predictions`, {
-        method: 'POST',
-        headers: { ...headers, Prefer: 'wait=60' },
-        body: JSON.stringify({ input }),
-      });
+      // The deadline starts after our own rate-limit slot: queueing isn't the server stalling.
+      const deadline = now() + timeoutMs;
+      const created = await request(
+        `${API}/models/${FLUX_SCHNELL.model}/predictions`,
+        {
+          method: 'POST',
+          headers: { ...headers, Prefer: 'wait=60' },
+          body: JSON.stringify({ input }),
+        },
+        'create',
+        deadline,
+      );
       if (!created.ok) {
         throw new Error(
           `Replicate request failed: HTTP ${created.status} ${(await created.text()).slice(0, 300)}`,
         );
       }
       let prediction = (await created.json()) as Prediction;
-      const started = Date.now();
       while (prediction.status === 'starting' || prediction.status === 'processing') {
-        if (Date.now() - started > timeoutMs)
-          throw new Error(`Replicate prediction ${prediction.id} timed out`);
+        const late = deadlineError('poll', deadline - pollMs, prediction.id);
+        if (late) throw late;
         if (!prediction.urls?.get) throw new Error('Replicate prediction has no polling URL');
         await sleep(pollMs);
-        const polled = await request(prediction.urls.get, { headers });
+        const polled = await request(
+          prediction.urls.get,
+          { headers },
+          'poll',
+          deadline,
+          prediction.id,
+        );
         if (!polled.ok) throw new Error(`Replicate polling failed: HTTP ${polled.status}`);
         prediction = (await polled.json()) as Prediction;
       }
@@ -158,7 +227,7 @@ export function createReplicateFluxProvider(options: ReplicateOptions): ImagePro
       }
       const url = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
       if (!url) throw new Error(`Replicate prediction ${prediction.id} returned no image`);
-      const image = await request(url, {});
+      const image = await request(url, {}, 'download', deadline, prediction.id);
       if (!image.ok)
         throw new Error(`Downloading the generated image failed: HTTP ${image.status}`);
       return {

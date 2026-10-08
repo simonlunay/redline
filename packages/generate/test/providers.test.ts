@@ -165,6 +165,56 @@ describe('Replicate FLUX.1 [schnell] provider', () => {
     expect(String(error)).not.toContain('r8_secret');
   });
 
+  /** A fetch that never answers on its own; it only rejects when its signal aborts. */
+  const hangingUntilAborted = (_url: string, init?: RequestInit) =>
+    new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+    });
+
+  it('aborts a hung request after its timeout and retries it', async () => {
+    const { impl: ok } = routes();
+    let creates = 0;
+    const impl = (async (input: string | URL | Request, init?: RequestInit) => {
+      if (String(input).endsWith('/predictions') && creates++ === 0)
+        return hangingUntilAborted(String(input), init);
+      return ok(input, init);
+    }) as typeof fetch;
+    const provider = createReplicateFluxProvider({
+      token: 't',
+      fetchImpl: impl,
+      sleep: noSleep,
+      requestTimeoutMs: { create: 20 },
+    });
+    const image = await provider.generate(request());
+    expect(image.bytes.length).toBeGreaterThan(0);
+    expect(creates).toBe(2);
+  });
+
+  it('gives up at the overall deadline with an error naming the stage, even if requests hang', async () => {
+    let clock = 0;
+    const { impl: ok } = routes('processing');
+    const impl = (async (input: string | URL | Request, init?: RequestInit) => {
+      // Polls never answer: every one has to be aborted by its own timeout.
+      if (String(input).endsWith('/predictions/p1'))
+        return hangingUntilAborted(String(input), init);
+      return ok(input, init);
+    }) as typeof fetch;
+    const provider = createReplicateFluxProvider({
+      token: 't',
+      fetchImpl: impl,
+      now: () => clock,
+      sleep: async (ms) => {
+        clock += ms;
+      },
+      timeoutMs: 60_000,
+      requestTimeoutMs: { poll: 10 },
+    });
+    await expect(provider.generate(request())).rejects.toThrow(
+      /prediction p1 timed out after 60 s \(while waiting for the result\)/,
+    );
+    expect(clock).toBeLessThanOrEqual(60_000);
+  });
+
   it('learns the rate limit from a 429 and spaces later requests', async () => {
     let creates = 0;
     const sleeps: number[] = [];
