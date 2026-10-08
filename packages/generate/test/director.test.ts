@@ -7,6 +7,7 @@ import {
 } from '../src/director/anthropic.js';
 import { templatePlan } from '../src/director/template.js';
 import { toToolPlan } from '../src/plan.js';
+import { ArtDirectorError } from '../src/director/types.js';
 import { BudgetExceededError, createMemoryLedger } from '../src/spend.js';
 import { brief } from './helpers.js';
 
@@ -107,11 +108,47 @@ describe('Claude art director', () => {
     expect(kept.plan.copy.subheading).toBe('Saturday, June 14 · City Park');
   });
 
-  it('fails after two invalid plans, and treats an empty or broken response as invalid', async () => {
-    const { client } = fakeClient([undefined, undefined]);
-    await expect(createAnthropicArtDirector({ client }).plan(brief())).rejects.toThrow(
-      /invalid twice[\s\S]*No plan was returned/,
-    );
+  it('fails with an ArtDirectorError after three invalid plans, and treats an empty or broken response as invalid', async () => {
+    const { client, requests } = fakeClient([undefined, undefined, undefined]);
+    const err = await createAnthropicArtDirector({ client })
+      .plan(brief())
+      .catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ArtDirectorError);
+    expect((err as ArtDirectorError).attempts).toHaveLength(3);
+    expect((err as Error).message).toMatch(/invalid on all 3 tries[\s\S]*No plan was returned/);
+    expect(requests).toHaveLength(3);
+  });
+
+  /** A template plan with every layout's elements removed: the live failure (jazz-night). */
+  function emptyLayouts() {
+    const plan = templatePlan(brief());
+    for (const layout of plan.layouts) layout.elements = [];
+    return plan;
+  }
+
+  it('makes a third, sharper low-effort try when both answers had empty layouts', async () => {
+    const { client, requests } = fakeClient([
+      emptyLayouts(),
+      emptyLayouts(),
+      templatePlan(brief()),
+    ]);
+    const result = await createAnthropicArtDirector({ client, effort: 'medium' }).plan(brief());
+    expect(result.calls).toBe(3);
+    expect(result.plan.layouts.length).toBe(2);
+    const third = requests[2]!;
+    expect(third.output_config?.effort).toBe('low');
+    expect(JSON.stringify(third.messages)).toContain('empty texts, shapes and images arrays');
+    expect(requests[1]!.output_config?.effort).toBe('medium');
+  });
+
+  it('keeps the usable layout when only one came back empty, without a third call', async () => {
+    const partial = templatePlan(brief());
+    partial.layouts[1]!.elements = [];
+    const { client, requests } = fakeClient([partial, partial]);
+    const result = await createAnthropicArtDirector({ client }).plan(brief());
+    expect(requests).toHaveLength(2);
+    expect(result.plan.layouts).toHaveLength(1);
+    expect(result.droppedLayouts).toMatch(/layouts\[1\]: .*has no elements/);
   });
 
   it('sends supplied images so the model can see them', async () => {

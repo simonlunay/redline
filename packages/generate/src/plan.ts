@@ -181,7 +181,17 @@ export interface PlanContext {
   layouts: number;
 }
 
-export type PlanParseResult = { ok: true; plan: DesignPlan } | { ok: false; error: string };
+export type PlanParseResult =
+  | {
+      ok: true;
+      plan: DesignPlan;
+      /** Set when broken layouts were dropped (salvagePlan). */ dropped?: string;
+    }
+  | {
+      ok: false;
+      error: string;
+      /** Every layout came back with no elements. */ emptyLayouts?: boolean;
+    };
 
 const HEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 /** Copy shorter than this can legitimately appear in a brief ("SALE" vs "a sale rack"). */
@@ -223,12 +233,40 @@ export function parsePlan(raw: unknown, ctx: PlanContext): PlanParseResult {
     const shown = problems.slice(0, 15);
     const more =
       problems.length > shown.length ? `\n(and ${problems.length - shown.length} more)` : '';
+    const emptyLayouts =
+      plan.layouts.length === 0 || plan.layouts.every((l) => l.elements.length === 0);
     return {
       ok: false,
       error: `The plan has problems:\n${shown.map((p) => `- ${p}`).join('\n')}${more}`,
+      ...(emptyLayouts ? { emptyLayouts } : {}),
     };
   }
   return { ok: true, plan };
+}
+
+/**
+ * Keeps the usable layouts of a plan that failed validation only because of some of its layouts
+ * (e.g. one came back with no elements). One good layout is still a usable plan: candidates then
+ * vary by background instead. Fails when plan-level fields are broken too, or no layout is usable.
+ */
+export function salvagePlan(raw: unknown, ctx: PlanContext): PlanParseResult {
+  const full = parsePlan(raw, ctx);
+  if (full.ok) return full;
+  const layouts = (raw as { layouts?: unknown[] } | null)?.layouts;
+  if (!Array.isArray(layouts) || layouts.length === 0) return full;
+  const kept: unknown[] = [];
+  const dropped: string[] = [];
+  layouts.slice(0, ctx.layouts).forEach((layout, i) => {
+    const one = parsePlan({ ...(raw as object), layouts: [layout] }, { ...ctx, layouts: 1 });
+    if (one.ok) kept.push(layout);
+    else dropped.push(`layouts[${i}]: ${one.error.split('\n').slice(1).join(' ')}`);
+  });
+  if (kept.length === 0) return full;
+  const salvaged = parsePlan(
+    { ...(raw as object), layouts: kept },
+    { ...ctx, layouts: kept.length },
+  );
+  return salvaged.ok ? { ...salvaged, dropped: dropped.join('\n') } : full;
 }
 
 /** Semantic checks. Returns human-readable problems (empty when the plan is usable). */

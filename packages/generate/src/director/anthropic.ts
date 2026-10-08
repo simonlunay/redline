@@ -8,11 +8,12 @@ import {
 import type { Effort, TokenUsage } from '@simonlunay/redline-agent';
 import { builtinRules } from '@simonlunay/redline';
 import { z } from 'zod';
-import { ToolDesignPlanSchema, parsePlan } from '../plan.js';
+import { ToolDesignPlanSchema, parsePlan, salvagePlan } from '../plan.js';
 import type { PlanParseResult } from '../plan.js';
 import { planFactProblems } from '../grounding.js';
 import type { SpendLedger } from '../spend.js';
 import { worstCaseLlmCallUsd } from '../spend.js';
+import { ArtDirectorError } from './types.js';
 import type { ArtDirector, CreativeBrief, DirectorResult } from './types.js';
 
 export interface AnthropicDirectorOptions {
@@ -139,7 +140,7 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
   const system = buildDirectorSystemPrompt();
   const schema = designPlanSchema();
 
-  async function call(brief: CreativeBrief, validationError?: string) {
+  async function call(brief: CreativeBrief, validationError?: string, callEffort = effort) {
     options.ledger?.guard(worstCaseLlmCallUsd(model), `art director (${model})`);
     const content: Anthropic.ContentBlockParam[] = [];
     for (const image of brief.userImages ?? []) {
@@ -154,7 +155,7 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
     const response = await client.messages.create({
       model,
       max_tokens: options.maxTokens ?? 16000,
-      output_config: { effort, format: { type: 'json_schema', schema } },
+      output_config: { effort: callEffort, format: { type: 'json_schema', schema } },
       system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content }],
     });
@@ -223,8 +224,34 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
           last = first;
         }
       }
-      if (!parsed.ok)
-        throw new Error(`The art director's plan was invalid twice.\n${parsed.error}`);
+      const attempts: string[] = [];
+      let droppedLayouts: string | undefined;
+      if (!parsed.ok) {
+        attempts.push(retriedAfter ?? parsed.error, parsed.error);
+        // Keep the usable layouts of either answer, preferring the one with more of them.
+        const layoutsOf = (p: PlanParseResult) => (p.ok ? p.plan.layouts.length : 0);
+        const salvaged = [salvagePlan(last.raw, ctx), salvagePlan(first.raw, ctx)].sort(
+          (a, b) => layoutsOf(b) - layoutsOf(a),
+        )[0]!;
+        if (salvaged.ok) {
+          parsed = salvaged;
+          droppedLayouts = salvaged.dropped;
+        }
+      }
+      if (!parsed.ok) {
+        // A third, sharper try. Empty layouts were the common failure in live runs; this says
+        // exactly what was missing and uses a different sampling path (effort low).
+        const message = parsed.emptyLayouts
+          ? `${parsed.error}\nYour previous answers had layouts with empty texts, shapes and images arrays. Each layout must list its elements: at least one background image element (with its slot), one headline text, and a CTA shape with its label text.`
+          : parsed.error;
+        last = await call(brief, message, 'low');
+        calls++;
+        for (const key of Object.keys(usage) as (keyof TokenUsage)[]) usage[key] += last.usage[key];
+        parsed = salvagePlan(last.raw, ctx);
+        if (!parsed.ok) attempts.push(parsed.error);
+        else droppedLayouts = parsed.dropped;
+      }
+      if (!parsed.ok) throw new ArtDirectorError(attempts);
       return {
         plan: parsed.plan,
         model: last.model,
@@ -232,6 +259,7 @@ export function createAnthropicArtDirector(options: AnthropicDirectorOptions = {
         calls,
         costUsd: estimateCostUsd(last.model, usage) ?? undefined,
         ...(retriedAfter ? { retriedAfter } : {}),
+        ...(droppedLayouts ? { droppedLayouts } : {}),
       };
     },
   };

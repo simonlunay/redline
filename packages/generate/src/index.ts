@@ -8,6 +8,7 @@ export {
   ToolLayoutSchema,
   fromToolPlan,
   parsePlan,
+  salvagePlan,
   toToolPlan,
   validatePlan,
 } from './plan.js';
@@ -52,7 +53,7 @@ export {
 export type { ReplicateOptions } from './providers/replicate.js';
 export { PEXELS_LICENSE, createPexelsProvider } from './providers/pexels.js';
 export type { PexelsOptions } from './providers/pexels.js';
-export { BUNDLED_FONTS } from './director/types.js';
+export { ArtDirectorError, BUNDLED_FONTS } from './director/types.js';
 export type {
   ArtDirector,
   CreativeBrief,

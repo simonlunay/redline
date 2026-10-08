@@ -106,6 +106,7 @@ export interface GenerationResult {
     calls: number;
     costUsd?: number;
     retriedAfter?: string;
+    droppedLayouts?: string;
   };
   candidates: CandidateResult[];
   ranking: number[];
@@ -228,6 +229,11 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   });
   const plan = directed.plan;
   emit({ type: 'plan', plan, director: directed });
+  if (directed.droppedLayouts) {
+    warn(
+      `The art director's plan had unusable layouts; kept ${plan.layouts.length}:\n${directed.droppedLayouts}`,
+    );
+  }
   const layouts = Math.min(layoutCount, plan.layouts.length);
 
   // 3. Images. Backgrounds vary per candidate; subjects are made once per layout.
@@ -516,6 +522,7 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       calls: directed.calls,
       ...(directed.costUsd !== undefined ? { costUsd: directed.costUsd } : {}),
       ...(directed.retriedAfter ? { retriedAfter: directed.retriedAfter } : {}),
+      ...(directed.droppedLayouts ? { droppedLayouts: directed.droppedLayouts } : {}),
     },
     candidates,
     ranking,

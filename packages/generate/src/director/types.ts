@@ -34,6 +34,22 @@ export interface DirectorResult {
   costUsd?: number;
   /** Validation errors of a first, rejected answer (if a retry was needed). */
   retriedAfter?: string;
+  /** Layouts dropped because they were unusable; the plan kept the others. */
+  droppedLayouts?: string;
+}
+
+/** The art director couldn't produce a usable plan. `attempts` has each try's problems. */
+export class ArtDirectorError extends Error {
+  readonly attempts: string[];
+  constructor(attempts: string[]) {
+    super(
+      `The art director's plan was invalid on all ${attempts.length} tries.\n${attempts
+        .map((a, i) => `Try ${i + 1}: ${a}`)
+        .join('\n')}`,
+    );
+    this.name = 'ArtDirectorError';
+    this.attempts = attempts;
+  }
 }
 
 /** Turns a creative brief into a design plan: Claude, or the deterministic template director. */

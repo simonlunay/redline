@@ -27,6 +27,7 @@ import { loadDotEnv } from '@simonlunay/redline-agent/node';
 import pc from 'picocolors';
 import { createAnthropicArtDirector } from '../src/director/anthropic.js';
 import { createTemplateArtDirector } from '../src/director/template.js';
+import { ArtDirectorError } from '../src/director/types.js';
 import { createAutoRemover, createBackdropKeyRemover } from '../src/node/cutout.js';
 import { parseSize, renderGenerationSteps } from '../src/node/generate-command.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
@@ -99,6 +100,12 @@ interface Row {
   size: string;
   ok: boolean;
   error?: string;
+  /** What kind of failure: the art director never produced a usable plan, or anything else. */
+  failure?: 'director-failed' | 'image-timeout' | 'other';
+  /** Art-director calls (1 normally, up to 3 with retries). */
+  directorCalls?: number;
+  /** Layouts the director got wrong and the plan dropped. */
+  droppedLayouts?: string;
   /** Not run: the eval stopped early (low memory, budget). */
   skipped?: string;
   first?: number;
@@ -213,6 +220,8 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
       llmUsd: result.spend.llmUsd,
       imageUsd: result.spend.imageUsd,
       directorRetried: Boolean(result.director.retriedAfter),
+      directorCalls: result.director.calls,
+      ...(result.director.droppedLayouts ? { droppedLayouts: result.director.droppedLayouts } : {}),
       directorRetriedForFacts: Boolean(
         result.director.retriedAfter?.startsWith("The copy states facts the prompt doesn't give"),
       ),
@@ -236,7 +245,14 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
     };
   } catch (err) {
     if (err instanceof BudgetExceededError) stopped = `stopped at ${p.id}: ${err.message}`;
-    return { id: p.id, prompt: p.prompt, size: p.size, ok: false, error: (err as Error).message };
+    const message = (err as Error).message;
+    const failure =
+      err instanceof ArtDirectorError
+        ? ('director-failed' as const)
+        : /Replicate .*timed out/.test(message)
+          ? ('image-timeout' as const)
+          : ('other' as const);
+    return { id: p.id, prompt: p.prompt, size: p.size, ok: false, error: message, failure };
   }
 }
 
