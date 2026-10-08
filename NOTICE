@@ -83,6 +83,28 @@ image licenses are not all confirmed to allow commercial use. Get a legal
 review before commercial use.
 
 ------------------------------------------------------------------------------
+PaddleOCR PP-OCRv5 mobile text detection and English recognition models (used
+by the image-text check: `redline generate`, and `--image-checks` on check and
+fix; downloaded on first use from Hugging Face, not stored in this repository
+and not re-hosted)
+------------------------------------------------------------------------------
+Files:   inference.onnx of PaddlePaddle/PP-OCRv5_mobile_det_onnx
+         at commit e6f4fa85f00e168c862bc462aebca69eef9b3d3d
+         (cached as pp-ocrv5-mobile-det-e6f4fa8.onnx, 4,826,518 bytes)
+         SHA-256: a431985659dc921974177a95adcfbb90fd9e51989a5e04d70d0b75f597b6e61d
+         inference.onnx of PaddlePaddle/en_PP-OCRv5_mobile_rec_onnx
+         at commit 3fafbc3b5dcf93dd72add9f48368be8a3a2cd33b
+         (cached as en-pp-ocrv5-mobile-rec-3fafbc3.onnx, 7,848,423 bytes)
+         SHA-256: b5f833dfc5d0eb71da397b4efa06ebeee9b431b690a47d6af40d77d8eabc557f
+Source:  PaddleOCR, https://github.com/PaddlePaddle/PaddleOCR
+License: Apache-2.0 (as declared on both model cards, checked 2026-10-08).
+         Used unmodified; only the detector's output map and the recognizer's
+         per-step probabilities are read (no character dictionary is used).
+Training-data caveat (not legal advice): the model cards don't list the
+training datasets, and I haven't verified their licenses. Get a legal review
+before commercial use.
+
+------------------------------------------------------------------------------
 FLUX.1 [schnell] (image generation; called as a hosted API on Replicate,
 black-forest-labs/flux-schnell; no weights are distributed with Redline)
 ------------------------------------------------------------------------------
