@@ -1,0 +1,1360 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-08T17:44:23.572Z",
+  "git": {
+    "commit": "326c3211eff69415dc7730d61626ea3cf72a1791",
+    "dirty": true
+  },
+  "settings": {
+    "offline": false,
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "candidates": 4,
+    "target": 95,
+    "maxIterations": 4,
+    "maxRegenerations": 2,
+    "imageModel": "black-forest-labs/flux-schnell",
+    "imageChecks": true,
+    "judge": {
+      "model": "claude-opus-5-5",
+      "rounds": 2
+    }
+  },
+  "durationMs": 1953920,
+  "outputs": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus",
+  "summary": {
+    "prompts": 14,
+    "failed": 0,
+    "meanFirst": 77.4,
+    "meanBestOfN": 93.5,
+    "meanFinal": 87.9,
+    "skipped": 0,
+    "stopped": null,
+    "reachedTarget": 5,
+    "firstAtTarget": 1,
+    "bestOfNAtTarget": 7,
+    "loopReachedTarget": 1,
+    "loopImproved": 11,
+    "directorRetriedForFacts": 0,
+    "copyGroundedWinners": 0,
+    "copyGroundedFinals": 0,
+    "copyEditsApplied": 0,
+    "runSpentUsd": 1.8278,
+    "meanIterations": 2.79,
+    "totalRegenerations": 13,
+    "regenerationsKept": 10,
+    "meanCtaBefore": 8.5,
+    "meanCtaAfter": 8.7,
+    "ctaBelowMinimumAfter": 0,
+    "totalCostUsd": 1.8278,
+    "meanCostUsd": 0.1306,
+    "ledgerTotalUsd": 1.8278,
+    "catches": {
+      "imageTextWinners": 0,
+      "cutoutWinners": 4,
+      "judgeWinners": 11,
+      "imageTextCandidates": 1,
+      "cutoutCandidates": 20,
+      "candidates": 56
+    },
+    "recuts": 12,
+    "recutsKept": 11,
+    "loopRan": 11,
+    "regenerationReasons": [
+      "other",
+      "other",
+      "other",
+      "other",
+      "other",
+      "other",
+      "other",
+      "other",
+      "other",
+      "other",
+      "other",
+      "other",
+      "other"
+    ],
+    "judge": {
+      "model": "claude-opus-5-5",
+      "reviews": 33,
+      "flaggedRulesPassed": 12,
+      "passedRulesFlagged": 0,
+      "bothFlagged": 13,
+      "bothPassed": 8,
+      "finalShip": 5,
+      "costUsd": 0.5119
+    }
+  },
+  "prompts": [
+    {
+      "id": "charity-5k",
+      "prompt": "poster for a charity 5K, energetic, blue and orange",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 100,
+      "bestOfN": 100,
+      "final": 99,
+      "candidates": [
+        100,
+        84,
+        100,
+        84
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 0,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.128,
+      "ctaAfter": 0.128,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.0867,
+      "llmUsd": 0.0717,
+      "imageUsd": 0.015,
+      "directorRetried": true,
+      "directorCalls": 2,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": true,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 0,
+      "cutouts": [
+        "backdrop-key"
+      ],
+      "durationMs": 89747,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\charity-5k\\charity-5k.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout2/sub2 was damaged (bites, fragments, leftover-backdrop after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 18)."
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 2,
+      "recuts": 1,
+      "recutsKept": 1,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "composition",
+            "other"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0319,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "coffee-latte",
+      "prompt": "Instagram post announcing a new oat milk latte at a neighborhood coffee shop, cozy, warm morning light",
+      "size": "1080x1080",
+      "ok": true,
+      "first": 71,
+      "bestOfN": 84,
+      "final": 83,
+      "candidates": [
+        71,
+        79,
+        71,
+        84
+      ],
+      "winnerErrors": 1,
+      "finalErrors": 1,
+      "iterations": 5,
+      "regenerations": 2,
+      "regenerationsKept": 1,
+      "ctaBefore": 0.0744,
+      "ctaAfter": 0.08,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.2116,
+      "llmUsd": 0.1876,
+      "imageUsd": 0.024,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 2,
+      "cutouts": [
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key"
+      ],
+      "durationMs": 378004,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\coffee-latte\\coffee-latte.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 3769 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 was damaged (fragments after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45).",
+        "Cutout for regen/sub2/1 was damaged (bites, fragments, leftover-backdrop, jagged-edges after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 18).",
+        "Cutout for regen/sub2/2 was damaged (fragments after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45)."
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 1,
+      "candidatesImageText": 0,
+      "candidatesCutout": 4,
+      "recuts": 3,
+      "recutsKept": 3,
+      "regenerationReasons": [
+        "other",
+        "other"
+      ],
+      "judgeVerdicts": [
+        "reject",
+        "reject",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 2,
+          "medium": 2,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition",
+            "artifact"
+          ]
+        },
+        {
+          "high": 1,
+          "medium": 1,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 1,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        false,
+        true
+      ],
+      "judgeUsd": 0.0487,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "sneaker-drop",
+      "prompt": "story ad for a limited sneaker drop, bold streetwear style, neon green on black",
+      "size": "1080x1920",
+      "ok": true,
+      "first": 94,
+      "bestOfN": 100,
+      "final": 93,
+      "candidates": [
+        94,
+        100,
+        94,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 2,
+      "regenerations": 1,
+      "regenerationsKept": 1,
+      "ctaBefore": 0.129,
+      "ctaAfter": 0.129,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.1133,
+      "llmUsd": 0.0923,
+      "imageUsd": 0.021,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key"
+      ],
+      "durationMs": 107666,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\sneaker-drop\\sneaker-drop.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 3114 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used backdrop-key instead of BiRefNet: only 3101 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/sub2/1 was damaged (leftover-backdrop after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45)."
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 1,
+      "recutsKept": 1,
+      "regenerationReasons": [
+        "other"
+      ],
+      "judgeVerdicts": [
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 0,
+          "categories": [
+            "cutout"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "cutout",
+            "artifact"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0278,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "saas-banner",
+      "prompt": "LinkedIn banner ad for a project management SaaS, clean, trustworthy, minimal, free trial",
+      "size": "1200x628",
+      "ok": true,
+      "first": 86,
+      "bestOfN": 100,
+      "final": 100,
+      "candidates": [
+        86,
+        88,
+        86,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 0,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0512,
+      "ctaAfter": 0.0512,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.0465,
+      "llmUsd": 0.0315,
+      "imageUsd": 0.015,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 0,
+      "cutouts": [
+        "backdrop-key"
+      ],
+      "durationMs": 66114,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\saas-banner\\saas-banner.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 3256 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 2,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "categories": []
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "categories": []
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.012,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "jazz-night",
+      "prompt": "poster for a late-night jazz concert in a small club, moody, deep purple and gold, vintage",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 76,
+      "bestOfN": 100,
+      "final": 93,
+      "candidates": [
+        76,
+        100,
+        100,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 2,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.1453,
+      "ctaAfter": 0.1453,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.1005,
+      "llmUsd": 0.0855,
+      "imageUsd": 0.015,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 2,
+      "cutouts": [
+        "backdrop-key"
+      ],
+      "durationMs": 89241,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\jazz-night\\jazz-night.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 3358 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 1,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "artifact",
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "artifact",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0374,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "summer-sale",
+      "prompt": "summer sale social post for a beachwear brand, 40% off, bright and playful, turquoise and coral",
+      "size": "1080x1080",
+      "ok": true,
+      "first": 53,
+      "bestOfN": 74,
+      "final": 98,
+      "candidates": [
+        53,
+        74,
+        53,
+        74
+      ],
+      "winnerErrors": 1,
+      "finalErrors": 0,
+      "iterations": 1,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.132,
+      "ctaAfter": 0.1041,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.0892,
+      "llmUsd": 0.0742,
+      "imageUsd": 0.015,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "backdrop-key"
+      ],
+      "durationMs": 85598,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\summer-sale\\summer-sale.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 3439 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "cropping",
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "cropping",
+            "artifact"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        true
+      ],
+      "judgeUsd": 0.0354,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "farmers-market",
+      "prompt": "story for a Saturday farmers market, fresh vegetables, friendly, natural greens and earthy tones",
+      "size": "1080x1920",
+      "ok": true,
+      "first": 39,
+      "bestOfN": 94,
+      "final": 83,
+      "candidates": [
+        39,
+        94,
+        39,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 1,
+      "iterations": 4,
+      "regenerations": 2,
+      "regenerationsKept": 1,
+      "ctaBefore": 0.0362,
+      "ctaAfter": 0.0535,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.1688,
+      "llmUsd": 0.1478,
+      "imageUsd": 0.021,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 3,
+      "cutouts": [
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key"
+      ],
+      "durationMs": 123263,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\farmers-market\\farmers-market.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout2/sub2 used backdrop-key instead of BiRefNet: only 3573 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/sub2/1 was damaged (bites, fragments, leftover-backdrop, jagged-edges after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45).",
+        "Cutout for regen/sub2/2 used backdrop-key instead of BiRefNet: only 3471 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 1,
+      "recutsKept": 1,
+      "regenerationReasons": [
+        "other",
+        "other"
+      ],
+      "judgeVerdicts": [
+        "fix",
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 2,
+          "low": 1,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 1,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 1,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        false,
+        true
+      ],
+      "judgeUsd": 0.0455,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "headphones-launch",
+      "prompt": "wide web banner launching premium wireless headphones, sleek, dark studio look, silver accents",
+      "size": "1500x500",
+      "ok": true,
+      "first": 83,
+      "bestOfN": 88,
+      "final": 88,
+      "candidates": [
+        83,
+        88,
+        83,
+        74
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 2,
+      "regenerations": 1,
+      "regenerationsKept": 1,
+      "ctaBefore": 0.0256,
+      "ctaAfter": 0.059,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.0982,
+      "llmUsd": 0.0772,
+      "imageUsd": 0.021,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 2,
+      "cutouts": [
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key"
+      ],
+      "durationMs": 106033,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\headphones-launch\\headphones-launch.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 2499 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used backdrop-key instead of BiRefNet: only 2461 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/sub2/1 used backdrop-key instead of BiRefNet: only 2469 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 1,
+      "candidatesImageText": 0,
+      "candidatesCutout": 4,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [
+        "other"
+      ],
+      "judgeVerdicts": [
+        "reject",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 1,
+          "medium": 2,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 2,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        true
+      ],
+      "judgeUsd": 0.0313,
+      "visualJudgeFinal": 2
+    },
+    {
+      "id": "yoga-retreat",
+      "prompt": "ad for a weekend yoga retreat in the mountains, calm, airy, soft pastel colors",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 81,
+      "bestOfN": 81,
+      "final": 52,
+      "candidates": [
+        81,
+        76,
+        81,
+        76
+      ],
+      "winnerErrors": 1,
+      "finalErrors": 3,
+      "iterations": 7,
+      "regenerations": 2,
+      "regenerationsKept": 2,
+      "ctaBefore": 0.1024,
+      "ctaAfter": 0.0942,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.2605,
+      "llmUsd": 0.2395,
+      "imageUsd": 0.021,
+      "directorRetried": true,
+      "directorCalls": 2,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 5,
+      "cutouts": [
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key"
+      ],
+      "durationMs": 159196,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\yoga-retreat\\yoga-retreat.json",
+      "failingRules": [
+        "cutout-quality",
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 2431 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout1/sub1 was damaged (fragments, leftover-backdrop after re-cutting); no re-cut was better.",
+        "Cutout for regen/sub1/1 was damaged (leftover-backdrop, jagged-edges after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45).",
+        "Cutout for regen/sub1/2 was damaged (uncut, jagged-edges after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 18)."
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 1,
+      "candidatesImageText": 0,
+      "candidatesCutout": 2,
+      "recuts": 3,
+      "recutsKept": 2,
+      "regenerationReasons": [
+        "other",
+        "other"
+      ],
+      "judgeVerdicts": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "judgeFindings": [
+        {
+          "high": 1,
+          "medium": 2,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 2,
+          "medium": 2,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 2,
+          "medium": 2,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        false,
+        false
+      ],
+      "judgeUsd": 0.0497,
+      "visualJudgeFinal": 4
+    },
+    {
+      "id": "pizza-delivery",
+      "prompt": "Facebook ad for a pizza delivery app, free delivery this week, appetizing, red and cream, fun",
+      "size": "1200x628",
+      "ok": true,
+      "first": 74,
+      "bestOfN": 100,
+      "final": 88,
+      "candidates": [
+        74,
+        83,
+        97,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 2,
+      "regenerations": 1,
+      "regenerationsKept": 1,
+      "ctaBefore": 0.0651,
+      "ctaAfter": 0.0731,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.1006,
+      "llmUsd": 0.0796,
+      "imageUsd": 0.021,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key"
+      ],
+      "durationMs": 104582,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\pizza-delivery\\pizza-delivery.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 3145 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used backdrop-key instead of BiRefNet: only 3085 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/sub2/1 used backdrop-key instead of BiRefNet: only 3108 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [
+        "other"
+      ],
+      "judgeVerdicts": [
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 2,
+          "categories": [
+            "cutout",
+            "composition",
+            "artifact"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 2,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0355,
+      "visualJudgeFinal": 2
+    },
+    {
+      "id": "tech-conference",
+      "prompt": "square post for a developer conference, futuristic, flat geometric illustration style, indigo and cyan",
+      "size": "1080x1080",
+      "ok": true,
+      "first": 58,
+      "bestOfN": 100,
+      "final": 98,
+      "candidates": [
+        58,
+        88,
+        76,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 3,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0924,
+      "ctaAfter": 0.0921,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.111,
+      "llmUsd": 0.096,
+      "imageUsd": 0.015,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 3,
+      "cutouts": [
+        "backdrop-key"
+      ],
+      "durationMs": 97308,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\tech-conference\\tech-conference.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 3154 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "artifact",
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0392,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "pet-adoption",
+      "prompt": "poster for a pet adoption day at the local animal shelter, heartwarming, friendly, sunny yellow",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 81,
+      "bestOfN": 94,
+      "final": 74,
+      "candidates": [
+        81,
+        94,
+        81,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 1,
+      "iterations": 6,
+      "regenerations": 2,
+      "regenerationsKept": 2,
+      "ctaBefore": 0.0293,
+      "ctaAfter": 0.0557,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.2004,
+      "llmUsd": 0.1764,
+      "imageUsd": 0.024,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 5,
+      "cutouts": [
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key"
+      ],
+      "durationMs": 153801,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\pet-adoption\\pet-adoption.json",
+      "failingRules": [
+        "visual-judge",
+        "cutout-quality"
+      ],
+      "warnings": [
+        "Cutout for layout1/subj1 was damaged (leftover-backdrop after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45).",
+        "Cutout for layout2/subj2 used backdrop-key instead of BiRefNet: only 3108 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/subj2/1 used backdrop-key instead of BiRefNet: only 3200 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 2,
+      "recuts": 1,
+      "recutsKept": 1,
+      "regenerationReasons": [
+        "other",
+        "other"
+      ],
+      "judgeVerdicts": [
+        "fix",
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 1,
+          "medium": 2,
+          "low": 1,
+          "categories": [
+            "cutout",
+            "cropping",
+            "composition"
+          ]
+        },
+        {
+          "high": 1,
+          "medium": 1,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 1,
+          "medium": 1,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        false,
+        false
+      ],
+      "judgeUsd": 0.044,
+      "visualJudgeFinal": 2
+    },
+    {
+      "id": "skincare-serum",
+      "prompt": "story ad for a vitamin C face serum, luxurious, minimal, soft peach and white, product hero",
+      "size": "1080x1920",
+      "ok": true,
+      "first": 94,
+      "bestOfN": 94,
+      "final": 83,
+      "candidates": [
+        94,
+        79,
+        94,
+        88
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 1,
+      "iterations": 5,
+      "regenerations": 2,
+      "regenerationsKept": 1,
+      "ctaBefore": 0.1094,
+      "ctaAfter": 0.0857,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.195,
+      "llmUsd": 0.171,
+      "imageUsd": 0.024,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 4,
+      "cutouts": [
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key",
+        "backdrop-key"
+      ],
+      "durationMs": 159094,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\skincare-serum\\skincare-serum.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout2/sub2 was damaged (bites after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45).",
+        "Cutout for layout1/sub1 used backdrop-key instead of BiRefNet: only 3274 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/sub1/1 used backdrop-key instead of BiRefNet: only 3261 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/sub1/2 was damaged (fixed after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45)."
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 1,
+      "candidatesImageText": 0,
+      "candidatesCutout": 4,
+      "recuts": 2,
+      "recutsKept": 2,
+      "regenerationReasons": [
+        "other",
+        "other"
+      ],
+      "judgeVerdicts": [
+        "fix",
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 1,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "artifact",
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 1,
+          "medium": 1,
+          "low": 0,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        },
+        {
+          "high": 1,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "cutout",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        true,
+        true
+      ],
+      "judgeUsd": 0.0585,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "bookstore-event",
+      "prompt": "wide banner for an author reading night at an independent bookstore, literary, warm lamplight, deep green",
+      "size": "1500x500",
+      "ok": true,
+      "first": 94,
+      "bestOfN": 100,
+      "final": 99,
+      "candidates": [
+        94,
+        100,
+        71,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 0,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0668,
+      "ctaAfter": 0.0668,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.0455,
+      "llmUsd": 0.0335,
+      "imageUsd": 0.012,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 0,
+      "cutouts": [],
+      "durationMs": 52880,
+      "out": "out\\eval-generate\\2026-10-08T17-11-49-703Z_phase5-sonnet_judge-opus\\bookstore-event\\bookstore-event.json",
+      "failingRules": [],
+      "warnings": [],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.015,
+      "visualJudgeFinal": 0
+    }
+  ]
+}

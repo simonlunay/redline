@@ -1,6 +1,6 @@
 {
   "capUsd": 8,
-  "spentUsd": 1.6131,
+  "spentUsd": 3.4409,
   "entries": [
     {
       "at": "2026-10-08T16:57:20.606Z",
@@ -1057,6 +1057,1470 @@
       "model": "claude-opus-5-5",
       "costUsd": 0.0192512,
       "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:11:55.857Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.017736,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:12:13.576Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.022091200000000002,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:12:16.018Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:12:26.624Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:12:36.159Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:12:46.359Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:12:57.128Z",
+      "kind": "image",
+      "what": "subject image (layout2/sub2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:13:13.479Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0176792,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:13:20.614Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.014179200000000001,
+      "tag": "charity-5k"
+    },
+    {
+      "at": "2026-10-08T17:13:59.840Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.021321200000000002,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:14:01.821Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:14:11.648Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:14:22.497Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:14:33.160Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:14:43.762Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:14:54.294Z",
+      "kind": "image",
+      "what": "subject image (layout2/sub2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:15:08.140Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.017543200000000002,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:15:19.806Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0302945,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:15:21.524Z",
+      "kind": "image",
+      "what": "subject image (regen/sub2/1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:15:32.950Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.013403799999999999,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:15:34.736Z",
+      "kind": "image",
+      "what": "subject image (regen/sub2/2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:19:33.613Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0170258,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:19:38.763Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0146712,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:19:42.802Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.013049799999999999,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:19:46.053Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.012947799999999999,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:19:51.891Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.015101799999999999,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:19:57.342Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0157798,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:20:04.681Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0164552,
+      "tag": "coffee-latte"
+    },
+    {
+      "at": "2026-10-08T17:20:40.348Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.032982,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:20:42.938Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:20:53.153Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:21:13.076Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:21:23.895Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:21:34.412Z",
+      "kind": "image",
+      "what": "subject image (layout2/sub2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:21:45.037Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:21:52.041Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0131552,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:21:56.553Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0164118,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:21:58.092Z",
+      "kind": "image",
+      "what": "subject image (regen/sub2/1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:22:04.049Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0151458,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:22:10.913Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.014635200000000001,
+      "tag": "sneaker-drop"
+    },
+    {
+      "at": "2026-10-08T17:22:34.596Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0194572,
+      "tag": "saas-banner"
+    },
+    {
+      "at": "2026-10-08T17:22:35.823Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "saas-banner"
+    },
+    {
+      "at": "2026-10-08T17:22:46.679Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "saas-banner"
+    },
+    {
+      "at": "2026-10-08T17:22:57.101Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "saas-banner"
+    },
+    {
+      "at": "2026-10-08T17:23:07.481Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "saas-banner"
+    },
+    {
+      "at": "2026-10-08T17:23:17.989Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "saas-banner"
+    },
+    {
+      "at": "2026-10-08T17:23:22.756Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0058712,
+      "tag": "saas-banner"
+    },
+    {
+      "at": "2026-10-08T17:23:25.425Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0061312,
+      "tag": "saas-banner"
+    },
+    {
+      "at": "2026-10-08T17:23:42.062Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0204412,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:23:43.246Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:23:53.798Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:24:05.756Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:24:16.253Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:24:30.540Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:24:42.041Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0185312,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:24:46.030Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0131398,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:24:50.606Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.014501799999999999,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:24:59.096Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0189112,
+      "tag": "jazz-night"
+    },
+    {
+      "at": "2026-10-08T17:25:26.193Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.020301200000000002,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:25:27.759Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:25:37.928Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:25:49.075Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:25:58.919Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:26:09.701Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:26:19.627Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0191792,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:26:28.905Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.018469799999999998,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:26:35.246Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0162312,
+      "tag": "summer-sale"
+    },
+    {
+      "at": "2026-10-08T17:27:00.946Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0234172,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:27:02.637Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:27:13.056Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:27:25.383Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:27:36.397Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:27:46.179Z",
+      "kind": "image",
+      "what": "subject image (layout2/sub2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:27:56.979Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0170072,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:28:04.301Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0198578,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:28:07.974Z",
+      "kind": "image",
+      "what": "subject image (regen/sub2/1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:28:17.224Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0191898,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:28:25.353Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0178272,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:28:31.354Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.020061799999999998,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:28:34.537Z",
+      "kind": "image",
+      "what": "subject image (regen/sub2/2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:28:44.876Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0197858,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:28:49.469Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.010651200000000001,
+      "tag": "farmers-market"
+    },
+    {
+      "at": "2026-10-08T17:29:39.021Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.020627200000000002,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:29:43.979Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:29:50.643Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:30:01.216Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:30:11.988Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:30:25.418Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:30:33.296Z",
+      "kind": "image",
+      "what": "subject image (layout2/sub2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:30:40.732Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0123992,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:30:45.889Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0145718,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:30:47.351Z",
+      "kind": "image",
+      "what": "subject image (regen/sub2/1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:30:52.178Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0106918,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:31:01.474Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0189392,
+      "tag": "headphones-launch"
+    },
+    {
+      "at": "2026-10-08T17:31:10.841Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0063932,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:31:27.572Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.020627200000000002,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:31:29.306Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:31:42.240Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:31:50.060Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:00.812Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:12.673Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:22.041Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.015227200000000001,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:27.167Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0156418,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:29.078Z",
+      "kind": "image",
+      "what": "subject image (regen/sub1/1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:36.696Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0144838,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:39.669Z",
+      "kind": "image",
+      "what": "subject image (regen/sub1/2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:47.001Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.012529799999999999,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:53.209Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.016631200000000002,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:32:58.388Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0149778,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:33:05.668Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0166058,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:33:10.638Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.014213799999999999,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:33:16.991Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0171518,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:33:22.130Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0133598,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:33:27.243Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.014987799999999999,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:33:31.225Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.013403799999999999,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:33:36.303Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0153818,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:33:44.292Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0178512,
+      "tag": "yoga-retreat"
+    },
+    {
+      "at": "2026-10-08T17:34:16.946Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0219572,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:34:19.770Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:34:28.790Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:34:39.608Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:34:49.720Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:35:02.246Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:35:11.626Z",
+      "kind": "image",
+      "what": "subject image (layout2/sub2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:35:22.631Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0182712,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:35:26.171Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0107818,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:35:29.237Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0113958,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:35:30.986Z",
+      "kind": "image",
+      "what": "subject image (regen/sub2/1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:35:43.555Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0171712,
+      "tag": "pizza-delivery"
+    },
+    {
+      "at": "2026-10-08T17:36:05.002Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0199172,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:36:06.270Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:36:16.979Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:36:27.431Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:36:37.848Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:36:51.147Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:37:05.304Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0200072,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:37:08.825Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.011367799999999999,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:37:12.550Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0117278,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:37:18.376Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.013797799999999999,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:37:26.591Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0192272,
+      "tag": "tech-conference"
+    },
+    {
+      "at": "2026-10-08T17:37:52.948Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0221792,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:37:54.118Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:38:04.874Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:38:18.750Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:38:33.108Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:38:43.619Z",
+      "kind": "image",
+      "what": "subject image (layout1/subj1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:38:51.441Z",
+      "kind": "image",
+      "what": "subject image (layout2/subj2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:00.755Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0176352,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:07.051Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.018143799999999998,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:10.417Z",
+      "kind": "image",
+      "what": "subject image (regen/subj2/1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:21.627Z",
+      "kind": "image",
+      "what": "background image (regen/bg2/2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:30.418Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0157698,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:34.290Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0124798,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:39.468Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0130992,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:44.704Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0148198,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:52.390Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.018507799999999998,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:39:59.813Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0167758,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:40:04.584Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.013715799999999998,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:40:09.484Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013279200000000001,
+      "tag": "pet-adoption"
+    },
+    {
+      "at": "2026-10-08T17:40:46.152Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0238252,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:40:52.234Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:40:58.140Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:41:13.023Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:41:26.179Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:41:52.659Z",
+      "kind": "image",
+      "what": "subject image (layout2/sub2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:41:56.375Z",
+      "kind": "image",
+      "what": "subject image (layout1/sub1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:42:08.814Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0225072,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:42:12.992Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0170178,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:42:16.501Z",
+      "kind": "image",
+      "what": "subject image (regen/sub1/1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:42:27.411Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0191032,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:42:32.815Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0176678,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:42:36.393Z",
+      "kind": "image",
+      "what": "subject image (regen/sub1/2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:42:46.464Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0216178,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:42:57.903Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0175978,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:43:01.341Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0147978,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:43:09.650Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0169032,
+      "tag": "skincare-serum"
+    },
+    {
+      "at": "2026-10-08T17:43:34.360Z",
+      "kind": "llm",
+      "what": "art-director",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0184612,
+      "tag": "bookstore-event"
+    },
+    {
+      "at": "2026-10-08T17:43:39.079Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "bookstore-event"
+    },
+    {
+      "at": "2026-10-08T17:43:50.064Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v1)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "bookstore-event"
+    },
+    {
+      "at": "2026-10-08T17:44:00.387Z",
+      "kind": "image",
+      "what": "background image (layout1/bg1/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "bookstore-event"
+    },
+    {
+      "at": "2026-10-08T17:44:08.129Z",
+      "kind": "image",
+      "what": "background image (layout2/bg2/v2)",
+      "model": "black-forest-labs/flux-schnell",
+      "costUsd": 0.003,
+      "tag": "bookstore-event"
+    },
+    {
+      "at": "2026-10-08T17:44:12.766Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0077031999999999995,
+      "tag": "bookstore-event"
+    },
+    {
+      "at": "2026-10-08T17:44:15.881Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0073232,
+      "tag": "bookstore-event"
     }
   ]
 }
