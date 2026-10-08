@@ -41,7 +41,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "eval": "tsx --conditions=@simonlunay/source eval/run.ts"
+    "eval": "tsx --conditions=@simonlunay/source eval/run.ts",
+    "eval:pairwise": "tsx --conditions=@simonlunay/source eval/pairwise.ts"
   },
   "engines": {
     "node": ">=20"

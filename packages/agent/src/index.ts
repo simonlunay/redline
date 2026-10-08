@@ -10,6 +10,7 @@ export {
   ReplaceTextEditSchema,
   parseEditResponse,
   protectedFieldViolations,
+  toFix,
 } from './edits.js';
 export type { EditResponse } from './edits.js';
 export { createSuggestedFixesEditor, suggestedEdits } from './editors/suggested.js';
