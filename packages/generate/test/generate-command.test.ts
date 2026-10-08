@@ -1,5 +1,5 @@
 import { stripVTControlCharacters } from 'node:util';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createSuggestedFixesEditor } from '@simonlunay/redline-agent';
 import { describe, expect, it } from 'vitest';
@@ -12,6 +12,7 @@ import {
   slugify,
 } from '../src/node/generate-command.js';
 import type { GenerateCommandIO } from '../src/node/generate-command.js';
+import { createScriptedJudge } from '../src/judge/scripted.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
 import { createImageAnalyzer } from '@simonlunay/redline/node';
 import { brightnessSaliency, tempDir } from './helpers.js';
@@ -75,6 +76,54 @@ describe('redline generate', () => {
     expect(files).toContain('final.png');
     expect(files.some((f) => f.startsWith('fix-00-initial'))).toBe(true);
     expect(existsSync(join(dir, 'd.generation.json'))).toBe(true);
+  }, 60_000);
+
+  it('prints the vision judge and records its reviews; --judge none turns it off', async () => {
+    const dir = tempDir();
+    const judge = createScriptedJudge([
+      {
+        verdict: 'fix',
+        summary: 'A gibberish pill sits under the CTA.',
+        findings: [
+          {
+            category: 'fake-text',
+            severity: 'medium',
+            elementId: 'background',
+            box: null,
+            description: 'gibberish pill under the CTA',
+            suggestion: 'regenerate-image',
+          },
+        ],
+      },
+    ]);
+    const { out, io: testIO } = io({ ...offline(), judge });
+    await runGenerateCommand(
+      ['poster for a bake sale', '--out', join(dir, 'd.json'), '--candidates', '1'],
+      testIO,
+    );
+    const text = stripVTControlCharacters(out.join('\n'));
+    expect(text).toMatch(/Vision judge: winner[\s\S]*fix · A gibberish pill/);
+    expect(text).toMatch(/medium fake-text \[background\]: gibberish pill/);
+    expect(text).toMatch(/vision judge: fix → ship \(2 reviews\)/);
+    const record = JSON.parse(readFileSync(join(dir, 'd.generation.json'), 'utf8'));
+    expect(record.judge).toBe('scripted');
+    expect(record.judgments).toHaveLength(2);
+
+    const off = createScriptedJudge();
+    const second = io({ ...offline(), judge: off });
+    await runGenerateCommand(
+      [
+        'poster for a bake sale',
+        '--out',
+        join(dir, 'e.json'),
+        '--candidates',
+        '1',
+        '--judge',
+        'none',
+      ],
+      second.io,
+    );
+    expect(off.requests).toHaveLength(0);
   }, 60_000);
 
   it('prints the full record as JSON with --format json', async () => {

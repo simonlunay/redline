@@ -83,3 +83,39 @@ export {
   planFactProblems,
 } from './grounding.js';
 export type { Fact, FactKind } from './grounding.js';
+export {
+  DEFAULT_JUDGE_MODEL,
+  buildJudgeMessage,
+  buildJudgeSystemPrompt,
+  buildPairSystemPrompt,
+  createAnthropicJudge,
+  worstCaseJudgeCallUsd,
+} from './judge/anthropic.js';
+export type { AnthropicJudgeOptions } from './judge/anthropic.js';
+export { comparePair, seededRandom } from './judge/pairwise.js';
+export type { PairOutcome } from './judge/pairwise.js';
+export {
+  createJudgeStore,
+  designFingerprint,
+  elementFingerprint,
+  judgeElements,
+  judgeKnownIssues,
+} from './judge/rule.js';
+export type { JudgeStore } from './judge/rule.js';
+export { createScriptedJudge } from './judge/scripted.js';
+export {
+  FINDING_CATEGORIES,
+  JudgeFindingSchema,
+  JudgeVerdictSchema,
+  PairVerdictSchema,
+} from './judge/types.js';
+export type {
+  JudgeElement,
+  JudgeFinding,
+  JudgeKnownIssue,
+  JudgeRequest,
+  JudgeVerdict,
+  PairRequest,
+  PairVerdict,
+  VisualJudge,
+} from './judge/types.js';

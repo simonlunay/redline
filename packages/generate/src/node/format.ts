@@ -3,7 +3,7 @@ import pc from 'picocolors';
 import type { DirectorResult } from '../director/types.js';
 import type { DesignPlan } from '../plan.js';
 import type { ManifestEntry } from './assets.js';
-import type { CandidateResult, GenerationResult } from './pipeline.js';
+import type { CandidateResult, GenerationResult, Judgment } from './pipeline.js';
 
 function color(score: number) {
   return score >= 85 ? pc.green : score >= 60 ? pc.yellow : pc.red;
@@ -66,6 +66,20 @@ export function formatWinner(c: CandidateResult, total: number): string {
   return `\n  ${pc.green('★')} ${pc.bold(`Winner: candidate ${c.index + 1}`)} of ${total} (${c.score}) ${pc.dim(`· ${c.layoutName}`)}\n\n  ${pc.bold('Fix loop')}`;
 }
 
+const VERDICT = { ship: pc.green('ship'), fix: pc.yellow('fix'), reject: pc.red('reject') };
+const SEVERITY = { high: pc.red('high'), medium: pc.yellow('medium'), low: pc.dim('low') };
+
+export function formatJudgment(j: Judgment): string {
+  const head = `\n  ${pc.bold(j.round === 0 ? 'Vision judge: winner' : `Vision judge: after fix round ${j.round}`)} ${pc.dim(`(${j.model ?? 'judge'}${j.costUsd !== undefined ? ` · $${j.costUsd.toFixed(3)}` : ''})`)}`;
+  const lines = [head, `    ${VERDICT[j.verdict]} ${pc.dim('·')} ${j.summary}`];
+  for (const f of j.findings) {
+    lines.push(
+      `    ${SEVERITY[f.severity]} ${f.category}${f.elementId ? pc.dim(` [${f.elementId}]`) : ''}: ${f.description}`,
+    );
+  }
+  return lines.join('\n');
+}
+
 export function formatIterationLine(record: Parameters<typeof formatIteration>[0]): string {
   return formatIteration(record);
 }
@@ -103,6 +117,14 @@ export function formatGenerateSummary(result: GenerationResult, editorModel?: st
     ...new Set(final.issues.filter((i) => i.severity !== 'info').map((i) => i.ruleId)),
   ];
   if (remaining.length > 0) lines.push(pc.dim(`    still failing: ${remaining.join(', ')}`));
+  const verdict = result.judgments.at(-1);
+  if (verdict) {
+    lines.push(
+      pc.dim(
+        `    vision judge: ${result.judgments.map((j) => j.verdict).join(' → ')} (${plural(result.judgments.length, 'review')})`,
+      ),
+    );
+  }
   lines.push(pc.dim(`    wrote ${result.out}`));
   lines.push(pc.dim(`          ${result.generationFile} (plan, all candidates, loop history)`));
   lines.push(pc.dim(`          ${result.manifestFile}`));

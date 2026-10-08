@@ -15,6 +15,8 @@ import { loadDotEnv } from '@simonlunay/redline-agent/node';
 import { createAnthropicArtDirector } from '../director/anthropic.js';
 import { createTemplateArtDirector } from '../director/template.js';
 import type { ArtDirector } from '../director/types.js';
+import { DEFAULT_JUDGE_MODEL, createAnthropicJudge } from '../judge/anthropic.js';
+import type { VisualJudge } from '../judge/types.js';
 import { createPexelsProvider } from '../providers/pexels.js';
 import { createReplicateFluxProvider } from '../providers/replicate.js';
 import type { ImageProvider } from '../providers/types.js';
@@ -28,6 +30,7 @@ import {
   formatGenerateSummary,
   formatImage,
   formatIterationLine,
+  formatJudgment,
   formatPlan,
   formatWinner,
 } from './format.js';
@@ -74,6 +77,11 @@ Options
   --no-attention           Skip the attention rules (no saliency model)
   --no-image-checks        Skip the image rules (text drawn into images, damaged cutouts)
   --no-vision              Don't send renders to the fix-loop model
+  --judge <name>           anthropic | none. A vision model reviews the winner's render for
+                           defects the rules can't see, and again after the fix loop.
+                           Default: anthropic when ANTHROPIC_API_KEY is set, else none
+  --judge-model <id>       Model for the judge (default claude-opus-5-5: not the fixer's model)
+  --judge-rounds <n>       Re-judgments after a fix loop (default 2: at most 3 judge calls)
   --format <pretty|json>   Output format (default pretty)
 
 Needs ANTHROPIC_API_KEY (unless --director template --editor suggested) and an image key for
@@ -99,6 +107,7 @@ export interface GenerateCommandIO {
   saliency?: SaliencyModel;
   /** Image analyzer for the image rules (tests pass one with a fake or no text detector). */
   imageAnalyzer?: ImageAnalyzer;
+  judge?: VisualJudge;
 }
 
 const defaultIO: GenerateCommandIO = {
@@ -169,6 +178,9 @@ export async function runGenerateCommand(
       seed: { type: 'string' },
       'no-attention': { type: 'boolean' },
       'no-image-checks': { type: 'boolean' },
+      judge: { type: 'string' },
+      'judge-model': { type: 'string' },
+      'judge-rounds': { type: 'string' },
       'no-vision': { type: 'boolean' },
       format: { type: 'string' },
       help: { type: 'boolean', short: 'h' },
@@ -290,6 +302,22 @@ export async function runGenerateCommand(
     } else throw new GenerateUsageError(`Unknown --editor "${editorName}"`);
   }
 
+  // Vision judge
+  const judgeName = values.judge ?? (io.judge || env.ANTHROPIC_API_KEY ? 'anthropic' : 'none');
+  let judge = io.judge;
+  if (!judge && judgeName === 'anthropic') {
+    if (!env.ANTHROPIC_API_KEY)
+      throw new GenerateUsageError('ANTHROPIC_API_KEY is not set (needed by --judge anthropic).');
+    judge = createAnthropicJudge({
+      model: values['judge-model'] ?? DEFAULT_JUDGE_MODEL,
+      ledger,
+    });
+  } else if (judgeName !== 'anthropic' && judgeName !== 'none')
+    throw new GenerateUsageError(`Unknown --judge "${judgeName}"`);
+  if (judgeName === 'none') judge = undefined;
+  const judgeRounds =
+    values['judge-rounds'] === undefined ? 2 : int(values['judge-rounds'], '--judge-rounds', 0);
+
   const userImages: UserImageInput[] = [];
   if (values.logo) userImages.push({ id: 'logo', path: resolve(values.logo), use: 'logo' });
   (values.image ?? []).forEach((path, i) =>
@@ -334,6 +362,9 @@ export async function runGenerateCommand(
           case 'iteration':
             io.stdout(formatIterationLine(event.record));
             break;
+          case 'judge':
+            io.stdout(formatJudgment(event.judgment));
+            break;
           case 'warning':
             io.stderr(`  ! ${event.message}`);
             break;
@@ -363,6 +394,7 @@ export async function runGenerateCommand(
     ledger,
     ...(seed !== undefined ? { seed } : {}),
     workspace,
+    ...(judge ? { judge, judgeRounds } : {}),
     ...(onEvent ? { onEvent } : {}),
   });
   result.warnings.push(...warnings);

@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
-import { createFontMeasurer } from '@simonlunay/redline/node';
+import { createFontMeasurer, renderPng } from '@simonlunay/redline/node';
 import type { Design, Report } from '@simonlunay/redline';
 import { runFixLoop } from '@simonlunay/redline-agent';
 import type {
@@ -17,6 +17,8 @@ import { BUNDLED_FONTS } from '../director/types.js';
 import type { ArtDirector, DirectorResult, UserImageInfo } from '../director/types.js';
 import { checkFactReplacement, createCopyGroundedRule } from '../grounding.js';
 import { buildImagePrompt } from '../image-prompt.js';
+import { createJudgeStore, judgeElements, judgeKnownIssues } from '../judge/rule.js';
+import type { JudgeVerdict, VisualJudge } from '../judge/types.js';
 import type { DesignPlan, ImageSlot } from '../plan.js';
 import type { GeneratedImage, ImageProvider, ImageRequest } from '../providers/types.js';
 import { candidateVariant, ctaShare, rankCandidates, roleShares, seedFrom } from '../select.js';
@@ -75,6 +77,13 @@ export interface GenerateOptions {
   seed?: number;
   /** Injected in tests to skip loading the saliency model. */
   workspace?: Workspace;
+  /**
+   * The vision judge: reviews the winner's render, and the fix loop's result, for visible
+   * defects the rules can't see. Without one, no judge runs.
+   */
+  judge?: VisualJudge;
+  /** Re-judgments after a fix loop (default 2): at most 1 + judgeRounds judge calls. */
+  judgeRounds?: number;
   onEvent?: (event: GenerateEvent) => void;
 }
 
@@ -84,6 +93,7 @@ export type GenerateEvent =
   | { type: 'candidate'; candidate: CandidateResult }
   | { type: 'winner'; candidate: CandidateResult; ranking: number[] }
   | { type: 'iteration'; record: IterationRecord }
+  | { type: 'judge'; judgment: Judgment }
   | { type: 'warning'; message: string };
 
 export interface CandidateResult {
@@ -102,6 +112,21 @@ export interface CandidateResult {
   file: string;
 }
 
+/** One review by the vision judge. */
+export interface Judgment {
+  /** 0 = the best-of-N winner, 1.. = after each fix loop. */
+  round: number;
+  verdict: JudgeVerdict['verdict'];
+  summary: string;
+  findings: JudgeVerdict['findings'];
+  /** The rules' score of the design the judge looked at (without the judge's own findings). */
+  rulesScore: number;
+  /** The rules' errors on that design. */
+  rulesErrors: number;
+  model?: string;
+  costUsd?: number;
+}
+
 export interface GenerationResult {
   prompt: string;
   canvas: { width: number; height: number };
@@ -117,8 +142,12 @@ export interface GenerationResult {
   candidates: CandidateResult[];
   ranking: number[];
   winner: number;
+  /** The fix loop (with the judge: every round's loop merged into one history). */
   loop: LoopResult;
   final: { design: Design; report: Report };
+  /** The vision judge's reviews, in order (empty without a judge). */
+  judgments: Judgment[];
+  judge?: string;
   out: string;
   generationFile: string;
   manifestFile: string;
@@ -132,6 +161,48 @@ export interface GenerationResult {
   };
   warnings: string[];
   durationMs: number;
+}
+
+/** Long side of the render the judge sees: detailed enough, about 1.4k image tokens. */
+const JUDGE_LONG_SIDE = 1024;
+
+/**
+ * Several fix loops in a row (one per judge round) as one record: histories concatenated with
+ * running iteration numbers, totals summed, and the best of the last loop (each loop starts
+ * from the previous best and never returns worse than its start).
+ */
+export function mergeLoops(loops: LoopResult[]): LoopResult {
+  if (loops.length === 1) return loops[0]!;
+  let offset = 0;
+  const history: LoopResult['history'] = [];
+  let bestIteration = 0;
+  loops.forEach((l, i) => {
+    for (const h of l.history) history.push({ ...h, iteration: h.iteration + offset });
+    if (i === loops.length - 1) bestIteration = l.best.iteration + offset;
+    offset += l.history.length;
+  });
+  const last = loops.at(-1)!;
+  const sum = (f: (l: LoopResult) => number) => loops.reduce((s, l) => s + f(l), 0);
+  const failed = loops.find((l) => l.error);
+  return {
+    initial: loops[0]!.initial,
+    best: { ...last.best, iteration: bestIteration },
+    history,
+    stopReason: last.stopReason,
+    ...(failed ? { error: failed.error } : {}),
+    totals: {
+      iterations: sum((l) => l.totals.iterations),
+      calls: sum((l) => l.totals.calls),
+      regenerations: sum((l) => l.totals.regenerations ?? 0),
+      usage: {
+        inputTokens: sum((l) => l.totals.usage.inputTokens),
+        outputTokens: sum((l) => l.totals.usage.outputTokens),
+        cacheReadTokens: sum((l) => l.totals.usage.cacheReadTokens),
+        cacheWriteTokens: sum((l) => l.totals.usage.cacheWriteTokens),
+      },
+      durationMs: sum((l) => l.totals.durationMs),
+    },
+  };
 }
 
 /** Runs `fn` over `items` with at most `limit` in flight, keeping order. */
@@ -205,7 +276,9 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     ...(options.userImages ?? []).flatMap((u) => (u.description ? [u.description] : [])),
   ];
   const copyGrounded = createCopyGroundedRule(sources);
-  const check = (design: Design) => workspace.check(design, [copyGrounded]);
+  const judgeStore = createJudgeStore();
+  const check = (design: Design) =>
+    workspace.check(design, [copyGrounded, ...(options.judge ? [judgeStore.rule] : [])]);
   const baseSeed =
     options.seed ?? seedFrom(`${options.prompt}|${options.canvas.width}x${options.canvas.height}`);
 
@@ -482,8 +555,8 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const maxRegenerations = options.maxRegenerations ?? 2;
   let regenerationCount = 0;
   /** Generation mode: the fix loop may replace generated images with new ones. */
-  const regenerateOptions = (): RegenerateOptions => ({
-    max: maxRegenerations,
+  const regenerateOptions = (max: number): RegenerateOptions => ({
+    max,
     images: (design) =>
       design.elements.flatMap((el) => {
         const info = el.type === 'image' ? generated.get(el.src) : undefined;
@@ -520,24 +593,83 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       };
     },
   });
-  const loop = await runFixLoop(winner.design, {
-    editor,
-    check,
-    target: options.target ?? 95,
-    maxIterations: options.maxIterations ?? 4,
-    renderImages: options.vision === false ? undefined : workspace.renderImages,
-    onIteration: (record) => emit({ type: 'iteration', record }),
-    ...(maxRegenerations > 0 ? { regenerate: regenerateOptions() } : {}),
-    copy: {
-      check: (edit, design) => {
-        const el = design.elements.find((e) => e.id === edit.elementId);
-        return el?.type === 'text'
-          ? checkFactReplacement(el.content, edit.find, edit.replace, sources)
-          : `"${edit.elementId}" is not a text element.`;
+  const runLoop = (start: Design) => {
+    // The regeneration cap holds across every round's loop.
+    const regenLeft = maxRegenerations - regenerationCount;
+    return runFixLoop(start, {
+      editor,
+      check,
+      target: options.target ?? 95,
+      maxIterations: options.maxIterations ?? 4,
+      renderImages: options.vision === false ? undefined : workspace.renderImages,
+      onIteration: (record) => emit({ type: 'iteration', record }),
+      ...(regenLeft > 0 ? { regenerate: regenerateOptions(regenLeft) } : {}),
+      copy: {
+        check: (edit, design) => {
+          const el = design.elements.find((e) => e.id === edit.elementId);
+          return el?.type === 'text'
+            ? checkFactReplacement(el.content, edit.find, edit.replace, sources)
+            : `"${edit.elementId}" is not a text element.`;
+        },
       },
-    },
-  });
+    });
+  };
+
+  // The vision judge sees the clean render, the element table, the rules' open issues and the
+  // prompt; never the fixer's reasoning, the edit history, the plan or a score.
+  const judgments: Judgment[] = [];
+  const judgeDesign = async (design: Design, round: number): Promise<boolean> => {
+    if (!options.judge) return false;
+    try {
+      const rules = await workspace.check(design, [copyGrounded]);
+      const longSide = Math.max(design.canvas.width, design.canvas.height);
+      const png = renderPng(design, {
+        images: workspace.images,
+        scale: Math.min(1, JUDGE_LONG_SIDE / longSide),
+      });
+      const v = await options.judge.judge({
+        prompt: options.prompt,
+        canvas: { width: design.canvas.width, height: design.canvas.height },
+        png: new Uint8Array(png),
+        elements: judgeElements(design),
+        issues: judgeKnownIssues(rules),
+      });
+      judgeStore.record(design, v);
+      const judgment: Judgment = {
+        round,
+        verdict: v.verdict,
+        summary: v.summary,
+        findings: v.findings,
+        rulesScore: rules.score,
+        rulesErrors: rules.summary.errors,
+        ...(v.model ? { model: v.model } : {}),
+        ...(v.costUsd !== undefined ? { costUsd: Number(v.costUsd.toFixed(4)) } : {}),
+      };
+      judgments.push(judgment);
+      emit({ type: 'judge', judgment });
+      return true;
+    } catch (err) {
+      warn(`The vision judge failed, continuing without it: ${(err as Error).message}`);
+      return false;
+    }
+  };
+
+  // Judge the winner, fix, judge again; one more fix round only while the judge still reports
+  // something severe. At most 1 + judgeRounds judge calls.
+  const judgeRounds = Math.max(0, options.judgeRounds ?? 2);
+  let judged = await judgeDesign(winner.design, 0);
+  const loops: LoopResult[] = [await runLoop(winner.design)];
+  for (let round = 1; judged && round <= judgeRounds; round++) {
+    const best = loops.at(-1)!.best.design;
+    judged = await judgeDesign(best, round);
+    const severe = judgeStore.active(best).some((f) => f.severity === 'high');
+    if (!judged || !severe || round === judgeRounds) break;
+    loops.push(await runLoop(best));
+  }
+  const loop = mergeLoops(loops);
   if (loop.error) warn(`Fix loop stopped early: ${loop.error}`);
+  // The final report counts the latest judgment of the final design.
+  const finalReport = judgments.length > 1 ? await check(loop.best.design) : loop.best.report;
 
   // 6. Write the result and the full record.
   writeFileSync(out, `${JSON.stringify(loop.best.design, null, 2)}\n`);
@@ -560,7 +692,9 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     ranking,
     winner: winner.index,
     loop,
-    final: { design: loop.best.design, report: loop.best.report },
+    final: { design: loop.best.design, report: finalReport },
+    judgments,
+    ...(options.judge ? { judge: options.judge.name } : {}),
     out,
     generationFile: join(designDir, `${name}.generation.json`),
     manifestFile: assets.manifestFile,
@@ -640,6 +774,8 @@ export function serializeResult(result: GenerationResult) {
       report: summary(result.final.report),
       ctaShare: ctaShare(result.final.report),
     },
+    judge: result.judge ?? null,
+    judgments: result.judgments,
     spend: result.spend,
     warnings: result.warnings,
     durationMs: result.durationMs,
