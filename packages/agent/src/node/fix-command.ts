@@ -3,6 +3,7 @@ import { basename, dirname, extname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { renderAnnotatedPng } from '@simonlunay/redline/node';
 import { loadConfig } from '@simonlunay/redline/node';
+import type { ImageAnalyzer } from '@simonlunay/redline/node';
 import { DEFAULT_EFFORT, DEFAULT_MODEL, createAnthropicEditor } from '../editors/anthropic.js';
 import type { Effort } from '../editors/anthropic.js';
 import { createSuggestedFixesEditor } from '../editors/suggested.js';
@@ -27,6 +28,8 @@ Options
   --model <id>             Claude model (default ${DEFAULT_MODEL})
   --effort <level>         low | medium | high | xhigh | max (default ${DEFAULT_EFFORT})
   --attention              Also run the attention rules (saliency model; needs onnxruntime-node)
+  --image-checks           Also check images for drawn-in text and damaged cutouts. redline fix
+                           can't change images, so these are reported, not fixed
   --no-vision              Don't send the annotated render (and heatmap) to the model
   --render-steps <dir>     Write an annotated PNG (and a heatmap with --attention) per iteration
   --config <path>          Checker config (same as redline check)
@@ -58,6 +61,8 @@ export interface FixCommandIO {
   dotenvPath?: string | null;
   /** Tests inject a fake saliency model instead of loading MSI-Net. */
   saliency?: SaliencyModel;
+  /** Tests inject an image analyzer (e.g. with a fake text detector) for --image-checks. */
+  imageAnalyzer?: ImageAnalyzer;
 }
 
 const defaultIO: FixCommandIO = {
@@ -79,6 +84,7 @@ export async function runFixCommand(argv: string[], io: FixCommandIO = defaultIO
       effort: { type: 'string' },
       'no-vision': { type: 'boolean' },
       attention: { type: 'boolean' },
+      'image-checks': { type: 'boolean' },
       'render-steps': { type: 'string' },
       config: { type: 'string' },
       format: { type: 'string' },
@@ -127,12 +133,13 @@ export async function runFixCommand(argv: string[], io: FixCommandIO = defaultIO
   const session = await createFixSession(file, {
     config,
     attention: Boolean(values.attention),
+    imageChecks: values['image-checks'] ? (io.imageAnalyzer ?? true) : false,
     saliency: io.saliency,
   });
   const pretty = format === 'pretty';
   if (pretty) {
     const who = usesLlm ? `${model} (${effort})` : editor.name;
-    const extra = session.attention ? ' · attention on' : '';
+    const extra = `${session.attention ? ' · attention on' : ''}${session.imageChecks ? ' · image checks on' : ''}`;
     io.stdout(formatHeader(file, `target ${target} · max ${maxIterations} · ${who}${extra}`));
   }
 

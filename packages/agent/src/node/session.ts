@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { attentionRules, builtinRules, checkAsync } from '@simonlunay/redline';
+import { attentionRules, builtinRules, checkAsync, imageRules } from '@simonlunay/redline';
 import type { Design, RedlineConfig, Report, SaliencyModel } from '@simonlunay/redline';
 import {
   createNodeEnv,
@@ -7,7 +7,7 @@ import {
   renderAnnotatedPng,
   renderHeatmapPng,
 } from '@simonlunay/redline/node';
-import type { LoadedDesign, NodeEnv } from '@simonlunay/redline/node';
+import type { ImageAnalyzer, LoadedDesign, NodeEnv } from '@simonlunay/redline/node';
 import type { DesignImage } from '../types.js';
 
 export interface FixSession {
@@ -15,6 +15,8 @@ export interface FixSession {
   env: NodeEnv;
   /** Whether the attention rules (saliency model) are part of the check. */
   attention: boolean;
+  /** Whether the image rules (text in images, cutout quality) are part of the check. */
+  imageChecks: boolean;
   /** The same precise check the CLI uses: real fonts, image pixels, renderer (+ saliency). */
   check: (design: Design) => Promise<Report>;
   /** Images for vision-capable editors: annotated render, plus the heatmap with attention. */
@@ -29,14 +31,30 @@ const VISION_SCALE = 0.75;
 /** Loads a design file and everything needed to check and render edited versions of it. */
 export async function createFixSession(
   path: string,
-  options: { config?: RedlineConfig; attention?: boolean; saliency?: SaliencyModel } = {},
+  options: {
+    config?: RedlineConfig;
+    attention?: boolean;
+    saliency?: SaliencyModel;
+    /**
+     * Analyze the images once up front (`redline fix` never changes an image's src). Pass an
+     * analyzer to supply your own (tests use a fake text detector).
+     */
+    imageChecks?: boolean | ImageAnalyzer;
+  } = {},
 ): Promise<FixSession> {
   const attention = Boolean(options.attention);
+  const imageChecks = Boolean(options.imageChecks);
   const loaded = await loadDesign(path);
   const env = await createNodeEnv(loaded, {
     attention,
+    imageChecks: options.imageChecks ?? false,
     ...(attention && options.saliency ? { saliency: options.saliency } : {}),
   });
+  const rules = [
+    ...builtinRules,
+    ...(attention ? attentionRules : []),
+    ...(imageChecks ? imageRules : []),
+  ];
   const saliency = env.saliency;
 
   const renderHeatmap = saliency
@@ -51,10 +69,12 @@ export async function createFixSession(
     loaded,
     env,
     attention,
+    imageChecks,
     check: (design) =>
       checkAsync(design, {
         config: options.config,
-        rules: attention ? [...builtinRules, ...attentionRules] : builtinRules,
+        rules,
+        ...(env.imageAnalysis ? { images: env.imageAnalysis } : {}),
         measurer: env.measurer,
         sampler: env.sampler,
         render: env.render,

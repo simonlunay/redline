@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createFakeSaliencyModel, parseDesign } from '@simonlunay/redline';
+import { createImageAnalyzer } from '@simonlunay/redline/node';
 import { describe, expect, it } from 'vitest';
 import { createScriptedEditor } from '../src/editors/scripted.js';
 import { UsageError, runFixCommand } from '../src/node/fix-command.js';
@@ -114,6 +115,38 @@ describe('redline fix', () => {
     await runFixCommand([FIXTURES + 'stretched-image.json', '--out', join(dir, 'o.json')], testIO);
     expect(out.join('\n')).toContain('— natural 3:2');
     expect(editor.requests).toHaveLength(1);
+  });
+
+  it('--image-checks reports text drawn into an image (as a user image: a warning) and never changes it', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'redline-fix-'));
+    const outFile = join(dir, 'o.json');
+    const fake = {
+      id: 'fake-text',
+      license: 'test',
+      detect: async () => [{ x: 0.2, y: 0.4, width: 0.5, height: 0.08, score: 0.99, chars: 12 }],
+      detectRaw: async () => [],
+    };
+    const imageAnalyzer = createImageAnalyzer({ detector: fake });
+    const { out, io: testIO } = io({ imageAnalyzer });
+    await runFixCommand(
+      [
+        FIXTURES + 'low-contrast-on-image.json',
+        '--editor',
+        'suggested',
+        '--image-checks',
+        '--out',
+        outFile,
+      ],
+      testIO,
+    );
+    const text = out.join('\n');
+    expect(text).toContain('image checks on');
+    expect(text).toMatch(/still failing: image-text/);
+    const before = JSON.parse(readFileSync(FIXTURES + 'low-contrast-on-image.json', 'utf8'));
+    const after = JSON.parse(readFileSync(outFile, 'utf8'));
+    const src = (d: { elements: { id: string; src?: string }[] }) =>
+      d.elements.find((e) => e.id === 'photo')?.src;
+    expect(src(after)).toBe(src(before));
   });
 
   it('fails clearly without an API key, and on bad flags', async () => {
