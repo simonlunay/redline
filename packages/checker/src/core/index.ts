@@ -27,12 +27,15 @@ export type { RedlineConfig, RuleSetting } from './config.js';
 export {
   builtinRules,
   attentionRules,
+  imageRules,
   getRule,
   alignment,
   attentionCompetition,
   attentionKeyElements,
+  cutoutQuality,
   hierarchy,
   imageAspectRatio,
+  imageText,
   labelCentered,
   minTextSize,
   offCanvas,
@@ -43,6 +46,16 @@ export {
 } from './rules/index.js';
 export { renderedTextBounds } from './rules/label-centered.js';
 export { backdropAt, imageUV } from './backdrop.js';
+export { imageRectToCanvas } from './image-analysis.js';
+export type {
+  ImageAnalysis,
+  ImageAnalysisSource,
+  ImageOrigin,
+  TextRegion,
+} from './image-analysis.js';
+export { CUTOUT_THRESHOLDS, judgeCutout, measureCutout } from './cutout-quality.js';
+export type { CutoutMetrics, CutoutProblem, CutoutVerdict } from './cutout-quality.js';
+export { visibleTextRegions } from './rules/image-text.js';
 export { defineRule } from './types.js';
 export type {
   AnyRule,

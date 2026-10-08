@@ -1,5 +1,6 @@
 import type { RGBA } from './color.js';
 import type { SaliencyMap } from './attention/saliency.js';
+import type { ImageAnalysisSource } from './image-analysis.js';
 import type { Fix } from './fixes.js';
 import type { Design } from './schema.js';
 import type { TextMeasurer } from './text-measure.js';
@@ -50,7 +51,7 @@ export interface RasterImage {
 }
 
 /** Capabilities a rule can require. Rules whose requirements are missing are skipped. */
-export type RuleRequirement = 'render' | 'saliency';
+export type RuleRequirement = 'render' | 'saliency' | 'images';
 
 export interface RuleContext {
   design: Design;
@@ -66,6 +67,8 @@ export interface RuleContext {
    * available in checkAsync() when both a renderer and a saliency model are provided.
    */
   saliency?: () => Promise<SaliencyMap>;
+  /** Per-image analysis (text in images, cutout quality), computed before the check. */
+  images?: ImageAnalysisSource;
 }
 
 /** Richer rule output: issues plus optional per-element scores (e.g. attention share). */

@@ -17,7 +17,9 @@ import { renderRaster } from './render.js';
 import { createOnnxSaliencyModel } from './saliency/onnx-model.js';
 import type { OnnxSaliencyOptions } from './saliency/onnx-model.js';
 import type { SaliencyModel } from '../core/attention/saliency.js';
-import { attentionRules, builtinRules } from '../core/rules/index.js';
+import { attentionRules, builtinRules, imageRules } from '../core/rules/index.js';
+import { createImageAnalyzer } from './image-analysis/index.js';
+import type { ImageAnalyzer } from './image-analysis/index.js';
 
 export interface LoadedDesign {
   design: Design;
@@ -55,6 +57,11 @@ export interface NodeEnv {
   render: (design: Design) => Promise<RasterImage>;
   /** Saliency model for the attention rules (only when created with { attention: true }). */
   saliency?: SaliencyModel;
+  /**
+   * Per-image analysis for the image rules (only when created with { imageChecks: true }).
+   * Every image of the design was analyzed as a user image.
+   */
+  imageAnalysis?: ImageAnalyzer;
   /** Non-fatal problems such as images that could not be loaded. */
   warnings: string[];
 }
@@ -76,31 +83,59 @@ export function getAttentionModel(options: OnnxSaliencyOptions = {}): Promise<Sa
 /** Loads images and fonts for a design so checks and renders are precise. */
 export async function createNodeEnv(
   loaded: LoadedDesign,
-  options: { attention?: boolean; saliency?: SaliencyModel } = {},
+  options: {
+    attention?: boolean;
+    saliency?: SaliencyModel;
+    /** Analyze every image (text in images, cutout quality) for the image rules. */
+    imageChecks?: boolean | ImageAnalyzer;
+  } = {},
 ): Promise<NodeEnv> {
   const { images, errors } = await loadDesignImages(loaded.design, loaded.baseDir);
   const saliency = options.saliency ?? (options.attention ? await getAttentionModel() : undefined);
+  const imageAnalysis =
+    typeof options.imageChecks === 'object'
+      ? options.imageChecks
+      : options.imageChecks
+        ? createImageAnalyzer()
+        : undefined;
+  await imageAnalysis?.analyzeDesign(loaded.design, images);
   return {
     measurer: createFontMeasurer(),
     sampler: createImageSampler(images),
     images,
     render: async (design) => renderRaster(design, { images }),
     ...(saliency ? { saliency } : {}),
-    warnings: [...errors].map(([src, msg]) => `Could not load image "${src}": ${msg}`),
+    ...(imageAnalysis ? { imageAnalysis } : {}),
+    warnings: [
+      ...[...errors].map(([src, msg]) => `Could not load image "${src}": ${msg}`),
+      ...(imageAnalysis?.warnings ?? []),
+    ],
   };
 }
 
 /** Convenience: load a design file, set up the Node environment and check it. */
 export async function checkFile(
   path: string,
-  options: Omit<CheckOptions, 'measurer' | 'sampler'> & { attention?: boolean } = {},
+  options: Omit<CheckOptions, 'measurer' | 'sampler'> & {
+    attention?: boolean;
+    imageChecks?: boolean;
+  } = {},
 ): Promise<{ report: Report; loaded: LoadedDesign; env: NodeEnv }> {
-  const { attention, ...checkOptions } = options;
+  const { attention, imageChecks, ...checkOptions } = options;
   const loaded = await loadDesign(path);
-  const env = await createNodeEnv(loaded, { attention });
+  const env = await createNodeEnv(loaded, { attention, imageChecks });
   const report = await checkAsync(loaded.design, {
     ...checkOptions,
-    rules: checkOptions.rules ?? (attention ? [...builtinRules, ...attentionRules] : undefined),
+    rules:
+      checkOptions.rules ??
+      (attention || imageChecks
+        ? [
+            ...builtinRules,
+            ...(attention ? attentionRules : []),
+            ...(imageChecks ? imageRules : []),
+          ]
+        : undefined),
+    ...(env.imageAnalysis ? { images: env.imageAnalysis } : {}),
     measurer: env.measurer,
     sampler: env.sampler,
     render: env.render,
@@ -125,4 +160,19 @@ export {
 } from './saliency/model-file.js';
 export type { EnsureOptions, PinnedModelFile } from './saliency/model-file.js';
 export { formatFix, formatPretty } from './report-format.js';
+export { createImageAnalyzer, getTextDetector } from './image-analysis/index.js';
+export type { ImageAnalyzer } from './image-analysis/index.js';
+export {
+  DB_DEFAULTS,
+  PP_OCR_DET,
+  PP_OCR_REC,
+  createOnnxTextDetector,
+  ctcRead,
+  dbBoxes,
+} from './image-analysis/text-detector.js';
+export type {
+  DbOptions,
+  TextDetector,
+  TextDetectorOptions,
+} from './image-analysis/text-detector.js';
 export * from '../core/index.js';

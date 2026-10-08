@@ -6,10 +6,12 @@ import { parseArgs } from 'node:util';
 import pc from 'picocolors';
 import { ZodError } from 'zod';
 import { checkAsync } from './core/check.js';
-import { attentionRules, builtinRules } from './core/rules/index.js';
+import { attentionRules, builtinRules, imageRules } from './core/rules/index.js';
 import { DesignValidationError } from './core/schema.js';
 import { renderHeatmapPng } from './node/heatmap.js';
 import { createNodeEnv, getAttentionModel, loadConfig, loadDesign } from './node/index.js';
+import { getTextDetector } from './node/image-analysis/index.js';
+import { PP_OCR_DET, PP_OCR_REC } from './node/image-analysis/text-detector.js';
 import { MSI_NET } from './node/saliency/onnx-model.js';
 import { cacheDir, ensureModelFile } from './node/saliency/model-file.js';
 import { renderAnnotatedPng, renderPng } from './node/render.js';
@@ -27,6 +29,7 @@ ${pc.bold('Usage')}
   redline check <design.json> [options]
   redline rules                      List built-in rules and their defaults
   redline setup attention            Download the saliency model used by --attention (50 MB)
+  redline setup image-checks         Download the text detector used by --image-checks (13 MB)
   redline fix <design.json> [...]    AI fix loop (needs @simonlunay/redline-agent; see fix --help)
   redline generate "<prompt>" [...]  Prompt to design (needs @simonlunay/redline-generate; see generate --help)
 
@@ -37,6 +40,8 @@ ${pc.bold('Options')}
   --annotate <out.png>     Render the design with issues drawn on top
   --attention              Also run the attention rules (saliency model, needs onnxruntime-node)
   --heatmap <out.png>      Write a predicted-attention overlay (implies --attention)
+  --image-checks           Also check images: text drawn into them, damaged cutouts
+                           (text detector downloaded on first use, 13 MB, needs onnxruntime-node)
   -h, --help               Show this help
   -v, --version            Show the version
 
@@ -57,7 +62,7 @@ async function writePng(path: string, data: Buffer): Promise<void> {
 }
 
 function listRules(): void {
-  for (const rule of [...builtinRules, ...attentionRules]) {
+  for (const rule of [...builtinRules, ...attentionRules, ...imageRules]) {
     console.log(
       `${pc.bold(rule.id)} ${pc.dim(`(${rule.defaultSeverity}, weight ${rule.weight})`)}`,
     );
@@ -74,11 +79,17 @@ async function runCheck(file: string, values: Record<string, string | boolean | 
   }
   const config = values.config ? await loadConfig(values.config as string) : undefined;
   const attention = Boolean(values.attention || values.heatmap);
+  const imageChecks = Boolean(values['image-checks']);
   const loaded = await loadDesign(file);
-  const env = await createNodeEnv(loaded, { attention });
+  const env = await createNodeEnv(loaded, { attention, imageChecks });
   const report = await checkAsync(loaded.design, {
     config,
-    rules: attention ? [...builtinRules, ...attentionRules] : builtinRules,
+    rules: [
+      ...builtinRules,
+      ...(attention ? attentionRules : []),
+      ...(imageChecks ? imageRules : []),
+    ],
+    ...(env.imageAnalysis ? { images: env.imageAnalysis } : {}),
     measurer: env.measurer,
     sampler: env.sampler,
     render: env.render,
@@ -205,6 +216,7 @@ async function main(argv: string[]): Promise<number> {
       render: { type: 'string' },
       annotate: { type: 'string' },
       attention: { type: 'boolean' },
+      'image-checks': { type: 'boolean' },
       heatmap: { type: 'string' },
       help: { type: 'boolean', short: 'h' },
       version: { type: 'boolean', short: 'v' },
@@ -225,7 +237,18 @@ async function main(argv: string[]): Promise<number> {
     return EXIT_OK;
   }
   if (command === 'setup') {
-    if (file !== 'attention') throw new UsageError('Usage: redline setup attention');
+    if (file === 'image-checks') {
+      const onProgress = (m: string) => console.log(pc.dim(m));
+      for (const model of [PP_OCR_DET, PP_OCR_REC]) {
+        const path = await ensureModelFile(model, { onProgress });
+        console.log(pc.green(`✔ ${model.id} ready: ${path}`));
+      }
+      await getTextDetector(); // also proves onnxruntime-node loads both files
+      console.log(pc.dim(`  cache: ${cacheDir()} (override with REDLINE_CACHE_DIR)`));
+      return EXIT_OK;
+    }
+    if (file !== 'attention')
+      throw new UsageError('Usage: redline setup attention | redline setup image-checks');
     const path = await ensureModelFile(MSI_NET, { onProgress: (m) => console.log(pc.dim(m)) });
     await getAttentionModel(); // also proves onnxruntime-node loads the file
     console.log(pc.green(`✔ ${MSI_NET.id} ready: ${path}`));

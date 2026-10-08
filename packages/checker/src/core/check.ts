@@ -1,4 +1,5 @@
 import type { SaliencyMap, SaliencyModel } from './attention/saliency.js';
+import type { ImageAnalysisSource } from './image-analysis.js';
 import { resolveRules } from './config.js';
 import type { RedlineConfig, ResolvedRule } from './config.js';
 import { builtinRules } from './rules/index.js';
@@ -28,6 +29,8 @@ export interface CheckOptions {
   sampler?: ImageSampler;
   /** Replace the rule set, e.g. to add custom rules: [...builtinRules, myRule]. */
   rules?: AnyRule[];
+  /** Per-image analysis for the image rules (imageRules: image-text, cutout-quality). */
+  images?: ImageAnalysisSource;
 }
 
 export interface CheckAsyncOptions extends CheckOptions {
@@ -50,6 +53,7 @@ function prepare(input: unknown, options: CheckOptions) {
     design,
     measurer: options.measurer ?? heuristicMeasurer,
     sampler: options.sampler,
+    ...(options.images ? { images: options.images } : {}),
   };
   return { design, ctx, resolved: resolveRules(options.rules ?? builtinRules, options.config) };
 }
@@ -57,6 +61,9 @@ function prepare(input: unknown, options: CheckOptions) {
 function missingRequirement(rule: AnyRule, ctx: RuleContext): string | null {
   if (rule.requires?.includes('render') && !ctx.render) {
     return 'needs a renderer (run checkAsync with a render function)';
+  }
+  if (rule.requires?.includes('images') && !ctx.images) {
+    return 'needs image analysis (pass `images`, CLI --image-checks)';
   }
   if (rule.requires?.includes('saliency') && !ctx.saliency) {
     return 'needs a saliency model and a renderer (run checkAsync with render and saliency)';
