@@ -234,3 +234,18 @@ per M tokens).
 2. **New checks only in `redline generate`**, not in `redline check` / `redline fix` for user
    designs (user photos and logos legitimately contain text). Easy to expose later as opt-in.
 3. **Separate $8 ledger** for this phase, rather than raising the cap in the old one.
+
+## Approved 2026-10-08, with these answers
+
+1. **Judge model: Opus 5.5**, independent from the Sonnet fixer.
+2. The new image checks run in `redline generate` by default, and an opt-in **`--image-checks`**
+   flag lets `redline check` and `redline fix` run them on user designs (there they apply to every
+   image, since there's no "generated" marker; severity stays `error` for text-in-image only in
+   generation mode, `warning` elsewhere).
+3. **Separate $8 ledger** for this phase.
+
+Change: in **blind A/B mode** the judge sees **only the two renders and the original prompt**. No
+issue lists, rule results, element tables or scores. The issue list is for the in-loop judge only.
+
+Added to the eval: the judge's **agreement with the rules**: how often it flags designs the rules
+passed, and how often it passes designs the rules flagged.
