@@ -1,0 +1,26 @@
+{
+  "description": "Hand labels for the images of the phase 4 generate eval (run 2026-10-07T21-23-33-175Z), made by looking at every cutout on a magenta background and every detector hit at full size (phase 5, 2026-10-08). An image not listed is labeled fine.",
+  "run": "out/eval-generate/2026-10-07T21-23-33-175Z_claude-sonnet-5-5",
+  "damagedCutouts": {
+    "charity-5k/charity-5k.assets/layout2-sub2.png": "white backdrop slab under the runner, stray patch top right",
+    "coffee-latte/coffee-latte.assets/layout1-sub1.png": "torn saucer, stray fragments",
+    "coffee-latte/coffee-latte.assets/layout2-sub2.png": "torn, see-through glass, stray bits",
+    "headphones-launch/headphones-launch.assets/layout1-sub1.png": "white disc of backdrop inside the headband",
+    "headphones-launch/headphones-launch.assets/layout2-sub2.png": "grey disc of backdrop inside the headband, floating shadow",
+    "pet-adoption/pet-adoption.assets/layout1-sub1.png": "white floor slab under the dog and cat",
+    "pizza-delivery/pizza-delivery.assets/layout2-pizza2.png": "grey backdrop slab and stray bits left under the pizza (labeled after cutout-quality flagged it: the first labeling pass only looked at files named sub*)",
+    "skincare-serum/skincare-serum.assets/layout1-sub1.png": "bites out of the bottle, see-through shoulder, stray line",
+    "skincare-serum/skincare-serum.assets/layout2-sub2.png": "notch in the bottle's shoulder",
+    "sneaker-drop/sneaker-drop.assets/layout2-sub2.png": "never cut out: grey photo backdrop around the shoe"
+  },
+  "textInImage": {
+    "yoga-retreat/yoga-retreat.assets/layout1-bg1-v1.jpg": "gibberish pill \"Fore tob'x cort terte\" under the CTA",
+    "sneaker-drop/sneaker-drop.assets/layout2-bg2-v1.jpg": "neon sign letters (\"Ck...\") on the right"
+  },
+  "debatable": {
+    "saas-banner/saas-banner.assets/layout1-sub1.png": "the laptop screen shows a FLUX-drawn kanban UI with small labels; expected for a product mock, so labeled fine (not text in image)"
+  },
+  "otherWinnerProblems": {
+    "coffee-latte": "the latte glass floats above the cup at the wrong scale (composition)"
+  }
+}
