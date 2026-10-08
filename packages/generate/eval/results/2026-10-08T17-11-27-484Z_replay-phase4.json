@@ -1,0 +1,1207 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-08T17:11:27.484Z",
+  "run": "out/eval-generate/2026-10-07T21-23-33-175Z_claude-sonnet-5-5",
+  "judge": "anthropic:claude-opus-5-5",
+  "summary": {
+    "candidates": 48,
+    "imageText": {
+      "truePositive": 1,
+      "falsePositive": 2,
+      "falseNegative": 1,
+      "trueNegative": 44
+    },
+    "cutoutAny": {
+      "truePositive": 20,
+      "falsePositive": 2,
+      "falseNegative": 0,
+      "trueNegative": 26
+    },
+    "cutoutError": {
+      "truePositive": 16,
+      "falsePositive": 0,
+      "falseNegative": 4,
+      "trueNegative": 28
+    },
+    "winners": {
+      "total": 12,
+      "withProblems": 4,
+      "caughtByImageRules": 4,
+      "caughtByJudge": 4,
+      "caughtByEither": 4,
+      "judgeFlaggedFine": 5,
+      "imageRulesFlaggedFine": 0
+    },
+    "judgeCostUsd": 0.1942,
+    "ledgerTotalUsd": 1.6131
+  },
+  "winners": [
+    {
+      "prompt": "bookstore-event",
+      "truth": [],
+      "rules": {
+        "imageText": 0,
+        "cutout": 0,
+        "score": 100
+      },
+      "judge": {
+        "verdict": "fix",
+        "summary": "The banner is attractive, on-brief, and its text is legible, but the green overlay ends in a hard horizontal edge across the lower table and coffee cup, which looks like an unfinished slab.",
+        "findings": [
+          {
+            "category": "composition",
+            "severity": "medium",
+            "elementId": "s3",
+            "box": {
+              "x": 0,
+              "y": 410,
+              "width": 1500,
+              "height": 20
+            },
+            "description": "The tinted overlay stops abruptly at y≈420, leaving a visible hard line across the table, books and coffee cup. The bottom strip is noticeably brighter and looks cut off rather than intentional.",
+            "suggestion": "layout"
+          }
+        ],
+        "costUsd": 0.018896
+      }
+    },
+    {
+      "prompt": "charity-5k",
+      "truth": [],
+      "rules": {
+        "imageText": 0,
+        "cutout": 0,
+        "score": 100
+      },
+      "judge": {
+        "verdict": "ship",
+        "summary": "Clean, on-brief blue-and-orange charity run poster with a strong silhouette sunset image, legible headline, subheading and CTA. No visible artifacts, fake text or layout problems.",
+        "findings": [],
+        "costUsd": 0.0074312
+      }
+    },
+    {
+      "prompt": "coffee-latte",
+      "truth": [
+        "damaged cutout",
+        "the latte glass floats above the cup at the wrong scale (composition)"
+      ],
+      "rules": {
+        "imageText": 0,
+        "cutout": 1,
+        "score": 84
+      },
+      "judge": {
+        "verdict": "reject",
+        "summary": "The pasted latte glass cutout is badly damaged (see-through holes, grey slab at its base, stray fragment) and floats over the background with mismatched scale and perspective, sitting awkwardly behind the existing coffee cup. The product hero needs to be redone.",
+        "findings": [
+          {
+            "category": "cutout",
+            "severity": "high",
+            "elementId": "i4",
+            "box": {
+              "x": 810,
+              "y": 455,
+              "width": 100,
+              "height": 285
+            },
+            "description": "The latte glass has transparent bites through the drink where the background plant shows through, plus a grey flat slab/shadow fragment at the base that wasn't cut away.",
+            "suggestion": "regenerate-image"
+          },
+          {
+            "category": "cutout",
+            "severity": "medium",
+            "elementId": "i4",
+            "box": {
+              "x": 990,
+              "y": 340,
+              "width": 20,
+              "height": 40
+            },
+            "description": "A stray detached sliver from the cutout floats on the window frame to the right.",
+            "suggestion": "recut"
+          },
+          {
+            "category": "composition",
+            "severity": "high",
+            "elementId": "i4",
+            "box": {
+              "x": 740,
+              "y": 455,
+              "width": 170,
+              "height": 290
+            },
+            "description": "The tall glass floats unconvincingly: its base hovers above the table behind the background coffee cup, its scale and lighting don't match the scene, and it competes with the cup already in the photo, so the hero product reads as pasted on.",
+            "suggestion": "regenerate-image"
+          },
+          {
+            "category": "composition",
+            "severity": "medium",
+            "elementId": "s3",
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 680,
+              "height": 1080
+            },
+            "description": "The beige panel cuts hard through the background coffee cup and table, slicing the photo's main subject in half with a visible seam.",
+            "suggestion": "layout"
+          }
+        ],
+        "costUsd": 0.018539200000000002
+      }
+    },
+    {
+      "prompt": "farmers-market",
+      "truth": [],
+      "rules": {
+        "imageText": 0,
+        "cutout": 0,
+        "score": 100
+      },
+      "judge": {
+        "verdict": "ship",
+        "summary": "Clean, on-brief farmers market story with a natural, well-rendered produce photo, a legible headline panel and a clear CTA. Only minor polish points.",
+        "findings": [
+          {
+            "category": "composition",
+            "severity": "low",
+            "elementId": "s_panel",
+            "box": {
+              "x": 0,
+              "y": 200,
+              "width": 1080,
+              "height": 680
+            },
+            "description": "The translucent panel ends with a hard horizontal edge across the produce crates, which reads slightly as a slab cutting through the photo.",
+            "suggestion": "layout"
+          },
+          {
+            "category": "composition",
+            "severity": "low",
+            "elementId": "s_cta",
+            "box": {
+              "x": 80,
+              "y": 1630,
+              "width": 520,
+              "height": 110
+            },
+            "description": "The CTA button sits over the white onion and busy greens, so it competes a little with the photo detail.",
+            "suggestion": "layout"
+          }
+        ],
+        "costUsd": 0.0101592
+      }
+    },
+    {
+      "prompt": "headphones-launch",
+      "truth": [
+        "damaged cutout"
+      ],
+      "rules": {
+        "imageText": 0,
+        "cutout": 1,
+        "score": 94
+      },
+      "judge": {
+        "verdict": "fix",
+        "summary": "The layout and copy are clean and on-brief, but the headphone image has a visible pale backdrop slab inside the headband, already flagged by the checker. A detached grey shadow ellipse also floats well below the product.",
+        "findings": [
+          {
+            "category": "composition",
+            "severity": "medium",
+            "elementId": "j2",
+            "box": {
+              "x": 355,
+              "y": 425,
+              "width": 125,
+              "height": 30
+            },
+            "description": "A flat grey shadow ellipse sits far below the headphones with a large empty gap between them. It reads as a stray disc rather than a grounding shadow and makes the product look like it is floating oddly.",
+            "suggestion": "regenerate-image"
+          }
+        ],
+        "costUsd": 0.012691200000000001
+      }
+    },
+    {
+      "prompt": "pet-adoption",
+      "truth": [],
+      "rules": {
+        "imageText": 0,
+        "cutout": 0,
+        "score": 100
+      },
+      "judge": {
+        "verdict": "fix",
+        "summary": "The layout and copy are clean and on-brief, but the dog-and-kitten cutout has a visible white sticker-like fringe and floats unanchored over the field, so it looks pasted on.",
+        "findings": [
+          {
+            "category": "cutout",
+            "severity": "medium",
+            "elementId": "i2_pets",
+            "box": {
+              "x": 240,
+              "y": 227,
+              "width": 600,
+              "height": 407
+            },
+            "description": "A bright white halo or fringe outlines the dog and kitten, most visible along the bottom edge, the kitten's tail and paws, and the dog's ears. It reads as a cheap sticker cutout against the warm golden background.",
+            "suggestion": "recut"
+          },
+          {
+            "category": "composition",
+            "severity": "medium",
+            "elementId": "i2_pets",
+            "box": {
+              "x": 240,
+              "y": 227,
+              "width": 600,
+              "height": 407
+            },
+            "description": "The pets hover mid-air above the meadow with no ground contact, shadow or matching depth-of-field. They are lit more crisply than the hazy scene and look disconnected from it.",
+            "suggestion": "layout"
+          }
+        ],
+        "costUsd": 0.016863200000000002
+      }
+    },
+    {
+      "prompt": "pizza-delivery",
+      "truth": [],
+      "rules": {
+        "imageText": 0,
+        "cutout": 0,
+        "score": 100
+      },
+      "judge": {
+        "verdict": "fix",
+        "summary": "The layout is clean and on-brief with a strong headline and CTA. The pizza cutout has a visible pale grey halo along its left and bottom edges that makes it look pasted on.",
+        "findings": [
+          {
+            "category": "cutout",
+            "severity": "medium",
+            "elementId": "i_pizza",
+            "box": {
+              "x": 700,
+              "y": 180,
+              "width": 420,
+              "height": 340
+            },
+            "description": "A light grey/white fringe from the original background runs around the pizza's left and bottom crust edges. Against the red background it reads as a sloppy pasted cutout.",
+            "suggestion": "recut"
+          },
+          {
+            "category": "composition",
+            "severity": "low",
+            "elementId": "i_pizza",
+            "box": {
+              "x": 700,
+              "y": 115,
+              "width": 420,
+              "height": 399
+            },
+            "description": "The pizza sits flat over the background basil and tomato with no shadow or grounding, so it looks like it is floating rather than resting on the table.",
+            "suggestion": "layout"
+          }
+        ],
+        "costUsd": 0.0158352
+      }
+    },
+    {
+      "prompt": "saas-banner",
+      "truth": [],
+      "rules": {
+        "imageText": 0,
+        "cutout": 0,
+        "score": 100
+      },
+      "judge": {
+        "verdict": "fix",
+        "summary": "Clean, on-brief layout, but the background image contains a repeated row of faint gibberish lettering (\"nlá\", \"nlé\") along the bottom that reads as fake text. The white panel's hard edge against the gradient also looks slightly unfinished.",
+        "findings": [
+          {
+            "category": "fake-text",
+            "severity": "medium",
+            "elementId": "i3",
+            "box": {
+              "x": 40,
+              "y": 570,
+              "width": 990,
+              "height": 50
+            },
+            "description": "A row of faint pseudo-words (\"nlá\", \"nlé\") is repeated across the bottom of the background image. It looks like a garbled watermark or fake text.",
+            "suggestion": "regenerate-image"
+          },
+          {
+            "category": "composition",
+            "severity": "low",
+            "elementId": "s3",
+            "box": {
+              "x": 150,
+              "y": 70,
+              "width": 900,
+              "height": 400
+            },
+            "description": "The white panel's bottom and right edges sit as a hard rectangle against the soft gradient. It reads like an uncut slab rather than an intentional card.",
+            "suggestion": "layout"
+          }
+        ],
+        "costUsd": 0.011171200000000001
+      }
+    },
+    {
+      "prompt": "skincare-serum",
+      "truth": [
+        "damaged cutout"
+      ],
+      "rules": {
+        "imageText": 0,
+        "cutout": 1,
+        "score": 84
+      },
+      "judge": {
+        "verdict": "reject",
+        "summary": "The product hero is badly broken: the bottle's upper glass is eaten away into a ragged, see-through shape, and a second dropper lies beside a bottle that already has one. The typography and CTA are clean, but the product image needs to be regenerated.",
+        "findings": [
+          {
+            "category": "cutout",
+            "severity": "high",
+            "elementId": "i4",
+            "box": {
+              "x": 615,
+              "y": 410,
+              "width": 175,
+              "height": 330
+            },
+            "description": "The upper half of the frosted glass bottle is torn away by the cutout. Its edges are ragged and bitten, and the body fades to transparent, so the bottle reads as melted or broken. This goes beyond the stray fragments the checker flagged.",
+            "suggestion": "regenerate-image"
+          },
+          {
+            "category": "artifact",
+            "severity": "medium",
+            "elementId": "i4",
+            "box": {
+              "x": 295,
+              "y": 745,
+              "width": 330,
+              "height": 135
+            },
+            "description": "A second gold dropper lies beside the bottle even though the bottle is already capped with a dropper. This duplicated part is physically illogical. Its gray shadow also looks like a flat slab.",
+            "suggestion": "regenerate-image"
+          },
+          {
+            "category": "artifact",
+            "severity": "low",
+            "elementId": "i4",
+            "box": {
+              "x": 685,
+              "y": 225,
+              "width": 50,
+              "height": 120
+            },
+            "description": "The white dropper bulb is malformed and looks like squeezed toothpaste rather than a rubber bulb.",
+            "suggestion": "regenerate-image"
+          },
+          {
+            "category": "composition",
+            "severity": "low",
+            "elementId": null,
+            "box": {
+              "x": 0,
+              "y": 1620,
+              "width": 1080,
+              "height": 300
+            },
+            "description": "The bottom of the lower panel is a large empty area, which leaves the layout feeling top-heavy below the CTA.",
+            "suggestion": "layout"
+          }
+        ],
+        "costUsd": 0.0237992
+      }
+    },
+    {
+      "prompt": "sneaker-drop",
+      "truth": [],
+      "rules": {
+        "imageText": 0,
+        "cutout": 0,
+        "score": 100
+      },
+      "judge": {
+        "verdict": "fix",
+        "summary": "The bold neon-on-black layout works well for the brief, but the sneaker cutout has a light fringe along the bottom of the sole. There is also a small invented logo mark on the tongue.",
+        "findings": [
+          {
+            "category": "cutout",
+            "severity": "medium",
+            "elementId": "i_sub",
+            "box": {
+              "x": 100,
+              "y": 1270,
+              "width": 880,
+              "height": 65
+            },
+            "description": "A pale whitish fringe or halo runs along the underside of the sole, left over from the original light background. It reads as a sticker edge against the dark floor.",
+            "suggestion": "recut"
+          },
+          {
+            "category": "fake-text",
+            "severity": "low",
+            "elementId": "i_sub",
+            "box": {
+              "x": 480,
+              "y": 780,
+              "width": 50,
+              "height": 60
+            },
+            "description": "The shoe tongue carries a small generated logo-like mark that resembles a brand emblem but isn't real branding.",
+            "suggestion": "regenerate-image"
+          }
+        ],
+        "costUsd": 0.016239200000000002
+      }
+    },
+    {
+      "prompt": "summer-sale",
+      "truth": [],
+      "rules": {
+        "imageText": 0,
+        "cutout": 0,
+        "score": 100
+      },
+      "judge": {
+        "verdict": "ship",
+        "summary": "A clean, on-brief turquoise and coral sale post with clear hierarchy and a readable CTA. Only minor polish issues remain: the product floats ungrounded in the sky and has a slight light fringe on its lower edge.",
+        "findings": [
+          {
+            "category": "composition",
+            "severity": "low",
+            "elementId": "i4",
+            "box": {
+              "x": 290,
+              "y": 168,
+              "width": 500,
+              "height": 325
+            },
+            "description": "The towel and flip-flops float in the open sky with no shadow or grounding, so they read as pasted on rather than part of the beach scene.",
+            "suggestion": "layout"
+          },
+          {
+            "category": "cutout",
+            "severity": "low",
+            "elementId": "i4",
+            "box": {
+              "x": 400,
+              "y": 455,
+              "width": 200,
+              "height": 40
+            },
+            "description": "There is a faint light fringe along the bottom edge of the unrolled towel.",
+            "suggestion": "recut"
+          },
+          {
+            "category": "composition",
+            "severity": "low",
+            "elementId": "s3",
+            "box": {
+              "x": 0,
+              "y": 900,
+              "width": 1080,
+              "height": 180
+            },
+            "description": "The lower part of the teal panel is empty, which makes the bottom feel heavy and unused.",
+            "suggestion": "layout"
+          }
+        ],
+        "costUsd": 0.0233272
+      }
+    },
+    {
+      "prompt": "yoga-retreat",
+      "truth": [
+        "text in image"
+      ],
+      "rules": {
+        "imageText": 1,
+        "cutout": 0,
+        "score": 76
+      },
+      "judge": {
+        "verdict": "fix",
+        "summary": "A calm, airy pastel layout that fits the brief, but the background image contains a baked-in fake pill button that sits right under the real CTA and reads as a second, broken button. Regenerating the background without UI elements would clear this.",
+        "findings": [
+          {
+            "category": "composition",
+            "severity": "high",
+            "elementId": "i_bg",
+            "box": {
+              "x": 351,
+              "y": 1183,
+              "width": 381,
+              "height": 87
+            },
+            "description": "Beyond the lettering the checker flagged, the image contains a full fake button: a translucent dark pill shape partly tucked under the real 'Reserve your spot' CTA. It reads as a second, competing button and clutters the call-to-action area.",
+            "suggestion": "regenerate-image"
+          }
+        ],
+        "costUsd": 0.0192512
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "prompt": "bookstore-event",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "bookstore-event",
+      "index": 1,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "bookstore-event",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "bookstore-event",
+      "index": 3,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "charity-5k",
+      "index": 0,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "charity-5k",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i2\" is a damaged cutout: flat backdrop-colored areas left in (63% of its area); stray detached fragments (0.33% of its area); a jagged outline (1.37x the length of a smooth one). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "charity-5k",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "charity-5k",
+      "index": 3,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i2\" is a damaged cutout: flat backdrop-colored areas left in (63% of its area); stray detached fragments (0.33% of its area); a jagged outline (1.37x the length of a smooth one). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "coffee-latte",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i2\" is a damaged cutout: flat backdrop-colored areas left in (39% of its area); stray detached fragments (2.46% of its area); notches or tears bitten out of the outline (4.4% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "coffee-latte",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i4\" is a damaged cutout: stray detached fragments (0.93% of its area); notches or tears bitten out of the outline (5.9% of its area); a jagged outline (1.40x the length of a smooth one). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "coffee-latte",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i2\" is a damaged cutout: flat backdrop-colored areas left in (39% of its area); stray detached fragments (2.46% of its area); notches or tears bitten out of the outline (4.4% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "coffee-latte",
+      "index": 3,
+      "winner": true,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i4\" is a damaged cutout: stray detached fragments (0.93% of its area); notches or tears bitten out of the outline (5.9% of its area); a jagged outline (1.40x the length of a smooth one). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "farmers-market",
+      "index": 0,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "farmers-market",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "farmers-market",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "farmers-market",
+      "index": 3,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "headphones-launch",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "warning",
+          "message": "product \"i2\" is a damaged cutout: flat backdrop-colored areas left in (39% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "headphones-launch",
+      "index": 1,
+      "winner": true,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "warning",
+          "message": "product \"j2\" is a damaged cutout: flat backdrop-colored areas left in (40% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "headphones-launch",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "warning",
+          "message": "product \"i2\" is a damaged cutout: flat backdrop-colored areas left in (39% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "headphones-launch",
+      "index": 3,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "warning",
+          "message": "product \"j2\" is a damaged cutout: flat backdrop-colored areas left in (40% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "pet-adoption",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i_pets\" is a damaged cutout: flat backdrop-colored areas left in (41% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "pet-adoption",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "pet-adoption",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i_pets\" is a damaged cutout: flat backdrop-colored areas left in (41% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "pet-adoption",
+      "index": 3,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "pizza-delivery",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "pizza-delivery",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i_pizza2\" is a damaged cutout: flat backdrop-colored areas left in (25% of its area); stray detached fragments (0.27% of its area); a jagged outline (1.31x the length of a smooth one). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "pizza-delivery",
+      "index": 2,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "pizza-delivery",
+      "index": 3,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i_pizza2\" is a damaged cutout: flat backdrop-colored areas left in (25% of its area); stray detached fragments (0.27% of its area); a jagged outline (1.31x the length of a smooth one). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "saas-banner",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [
+        {
+          "severity": "error",
+          "message": "product \"i2\" has text-like marks drawn into the image: 1 region, the largest at (764, 205) 33x12 px. Text belongs in text elements: regenerate this image with a brief that says \"no text, no lettering, no signs, no labels, no buttons\", or cover the area."
+        }
+      ],
+      "cutout": [
+        {
+          "severity": "warning",
+          "message": "product \"i2\" is a damaged cutout: flat backdrop-colored areas left in (62% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "saas-banner",
+      "index": 1,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "saas-banner",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [
+        {
+          "severity": "error",
+          "message": "product \"i2\" has text-like marks drawn into the image: 1 region, the largest at (764, 205) 33x12 px. Text belongs in text elements: regenerate this image with a brief that says \"no text, no lettering, no signs, no labels, no buttons\", or cover the area."
+        }
+      ],
+      "cutout": [
+        {
+          "severity": "warning",
+          "message": "product \"i2\" is a damaged cutout: flat backdrop-colored areas left in (62% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "saas-banner",
+      "index": 3,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "skincare-serum",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i2\" is a damaged cutout: stray detached fragments (0.27% of its area); notches or tears bitten out of the outline (6.1% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "skincare-serum",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i4\" is a damaged cutout: stray detached fragments (0.59% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "skincare-serum",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i2\" is a damaged cutout: stray detached fragments (0.27% of its area); notches or tears bitten out of the outline (6.1% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "skincare-serum",
+      "index": 3,
+      "winner": true,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i4\" is a damaged cutout: stray detached fragments (0.59% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "sneaker-drop",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "sneaker-drop",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": true
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i2_sub\" is a damaged cutout: not cut out: it runs along 3 sides of the image; flat backdrop-colored areas left in (69% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "sneaker-drop",
+      "index": 2,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "sneaker-drop",
+      "index": 3,
+      "winner": false,
+      "truth": {
+        "damagedCutout": true,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": [
+        {
+          "severity": "error",
+          "message": "product \"i2_sub\" is a damaged cutout: not cut out: it runs along 3 sides of the image; flat backdrop-colored areas left in (69% of its area). Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it."
+        }
+      ]
+    },
+    {
+      "prompt": "summer-sale",
+      "index": 0,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "summer-sale",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "summer-sale",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "summer-sale",
+      "index": 3,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "yoga-retreat",
+      "index": 0,
+      "winner": true,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": true
+      },
+      "imageText": [
+        {
+          "severity": "error",
+          "message": "background \"i_bg\" has text-like marks drawn into the image: 1 region, the largest at (386, 1202) 310x44 px. Text belongs in text elements: regenerate this image with a brief that says \"no text, no lettering, no signs, no labels, no buttons\", or cover the area."
+        }
+      ],
+      "cutout": []
+    },
+    {
+      "prompt": "yoga-retreat",
+      "index": 1,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "yoga-retreat",
+      "index": 2,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    },
+    {
+      "prompt": "yoga-retreat",
+      "index": 3,
+      "winner": false,
+      "truth": {
+        "damagedCutout": false,
+        "textInImage": false
+      },
+      "imageText": [],
+      "cutout": []
+    }
+  ]
+}

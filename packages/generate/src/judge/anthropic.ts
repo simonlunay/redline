@@ -46,6 +46,8 @@ export function buildJudgeSystemPrompt(): string {
 - other: anything else a client would send back.
 
 # How to report
+- Bracketed placeholders in the copy, like [Date] or [Venue], are intentional: the user fills them in before publishing. Never report them.
+- Pick the category by what the defect is, not where it shows: anything involving lettering or text-like marks inside an image is fake-text.
 - Report only what clearly looks wrong to a professional at normal viewing size. Don't nitpick taste, and don't invent problems: a clean design should get no findings and the verdict "ship".
 - An automated checker has already measured layout rules (contrast, margins, overlap, sizes, alignment, attention). Its open issues are listed. Don't repeat them; report what it missed.
 - elementId: the id from the element table of the element the problem is in (for a problem inside a photo, the image element), or null if it's about the design as a whole. box: where it is in canvas pixels, if you can tell, otherwise null.

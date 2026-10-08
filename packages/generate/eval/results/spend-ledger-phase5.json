@@ -1,0 +1,1062 @@
+{
+  "capUsd": 8,
+  "spentUsd": 1.6131,
+  "entries": [
+    {
+      "at": "2026-10-08T16:57:20.606Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.016114,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:57:24.138Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0134884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:57:26.630Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0134884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:57:29.828Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0134484,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:57:32.291Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0138884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:57:34.703Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0136884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:00.307Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0134524,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:03.264Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0138724,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:06.251Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0132524,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:09.680Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013472399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:12.364Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013772399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:14.775Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013512399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:19.636Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.008924399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:22.431Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0086644,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:27.456Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.008924399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:29.932Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0087444,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:32.853Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0084244,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:35.837Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.008584399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:37.889Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0107884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:39.941Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0109084,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:42.039Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0109484,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:43.980Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0109484,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:46.067Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.010988399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:47.980Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0109084,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:50.113Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0117004,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:52.320Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.011420399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:54.545Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0114004,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:58:56.873Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0115804,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:03.423Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.015976399999999998,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:11.022Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0134164,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:14.139Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0085164,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:16.617Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0087964,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:19.016Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0137484,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:21.582Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0136884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:24.830Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0136884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:28.039Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0136884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:30.761Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0136644,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:33.158Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0137844,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:35.509Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0132844,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:39.679Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0130644,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T16:59:49.850Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0175404,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:01.765Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0173604,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:03.926Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0112804,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:06.532Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0115604,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:09.181Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0030084,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:11.471Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0032284,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:16.123Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0032684000000000003,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:23.757Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0031084,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:26.203Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0058963999999999996,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:29.895Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0056564,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:32.936Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0056764,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:35.223Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0055764,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:37.446Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0085804,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:44.200Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.008480399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:46.986Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0089604,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:50.077Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0085604,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:52.360Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0083004,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:54.390Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0082404,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:00:56.627Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013380399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:00.895Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0131004,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:03.845Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0132804,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:07.794Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0135804,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:11.404Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0132804,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:18.476Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013080399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:24.798Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0136724,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:27.709Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0130524,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:30.799Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0130724,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:34.629Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0134524,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:41.216Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0123924,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:43.844Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0109124,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:46.768Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0126724,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:49.904Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0111924,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:52.723Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.011288399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:55.473Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0111484,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:01:57.821Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0110084,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:00.752Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0113484,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:03.757Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0118844,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:07.005Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0118444,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:10.188Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0116844,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:13.958Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0118044,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:18.269Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0117844,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:21.051Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0120844,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:23.635Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0110444,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:25.650Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0110644,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:28.257Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0089684,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:30.451Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0087084,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:32.639Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0083684,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:37.344Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0091884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:40.711Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0091884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:46.888Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0088884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:49.950Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0121484,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:02:52.951Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.011968399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:05.540Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0125484,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:07.746Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.011288399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:10.371Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.010872399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:12.726Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0111124,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:15.232Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0108524,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:17.438Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0109124,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:19.817Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0108644,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:22.388Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0110644,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:25.025Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.011184399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:30.164Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0110244,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:32.829Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0139284,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:38.507Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013028399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:42.476Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0132684,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:44.564Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0135684,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:46.887Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013628399999999999,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:03:49.592Z",
+      "kind": "llm",
+      "what": "judge-pair",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0138884,
+      "tag": "pairwise"
+    },
+    {
+      "at": "2026-10-08T17:04:27.648Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.021561,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:04:36.852Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.014933,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:04:53.680Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.026281,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:05:04.511Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.014101,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:05:22.425Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.009993,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:05:40.242Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.019305,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:05:54.345Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.013217,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:06:13.112Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.010633,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:06:30.623Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.024061,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:06:46.189Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.015121,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:07:01.034Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.015729,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:07:11.845Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.016453,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:08:51.548Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.018896,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:09:00.226Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0074312,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:09:16.201Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.018539200000000002,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:09:27.464Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0101592,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:09:41.193Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.012691200000000001,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:09:58.707Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.016863200000000002,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:10:14.058Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0158352,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:10:22.328Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.011171200000000001,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:10:39.983Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0237992,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:10:56.106Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.016239200000000002,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:11:14.888Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0233272,
+      "tag": "replay"
+    },
+    {
+      "at": "2026-10-08T17:11:27.478Z",
+      "kind": "llm",
+      "what": "judge",
+      "model": "claude-opus-5-5",
+      "costUsd": 0.0192512,
+      "tag": "replay"
+    }
+  ]
+}

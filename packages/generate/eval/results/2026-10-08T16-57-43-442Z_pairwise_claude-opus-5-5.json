@@ -1,0 +1,1429 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-08T17:03:49.595Z",
+  "source": "2026-10-07T01-25-38-380Z_strict_claude-sonnet-5-5+claude-opus-5-5.json",
+  "run": 0,
+  "judge": {
+    "model": "claude-opus-5-5",
+    "effort": "medium"
+  },
+  "seed": 5,
+  "renders": "out\\eval-pairwise\\2026-10-08T16-57-43-442Z",
+  "summary": {
+    "pairs": 51,
+    "failed": 0,
+    "fix": {
+      "pairs": 42,
+      "afterWins": 40,
+      "beforeWins": 0,
+      "ties": 2,
+      "afterWinRate": 0.952,
+      "afterWinRateOfDecided": 1,
+      "byModel": {
+        "claude-sonnet-5-5": {
+          "pairs": 21,
+          "afterWins": 20,
+          "beforeWins": 0,
+          "ties": 1
+        },
+        "claude-opus-5-5": {
+          "pairs": 21,
+          "afterWins": 20,
+          "beforeWins": 0,
+          "ties": 1
+        }
+      }
+    },
+    "identity": {
+      "pairs": 3,
+      "ties": 3
+    },
+    "rulesOnce": {
+      "pairs": 6,
+      "llmWins": 6,
+      "rulesOnceWins": 0,
+      "ties": 0
+    },
+    "ordersDisagreed": 0,
+    "firstShownPickRate": 0.5,
+    "costUsd": 1.1334,
+    "ledgerTotalUsd": 1.2175,
+    "stopped": null
+  },
+  "pairs": [
+    {
+      "kind": "fix",
+      "fixture": "ad-sneaker-sale",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has multiple visible defects: the product card covers the subhead, the -40% badge is cropped off the right edge, the CTA text overflows its button, and the disclaimer is illegible. Image 1 keeps every element legible and intact, with clear hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has broken layout: the subheadline is hidden behind the product card, the -40% badge is cropped off the edge, the CTA text overflows its button, and the disclaimer is illegible. Image 2 fixes all of these, with a legible headline panel, a fully visible badge, a clean CTA and a readable disclaimer."
+          }
+        ],
+        "costUsd": 0.0273248,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "rules-once",
+      "fixture": "ad-sneaker-sale",
+      "model": "claude-sonnet-5-5",
+      "a": "rules-once",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has clear defects: the CTA text overflows its button, the -40% badge is clipped off the right edge, and the headline and fine print have poor contrast against the background. Image 1 keeps everything contained, legible, and well-structured."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has clear defects: the CTA text overflows its button, the -40% badge is cropped off the edge, and the gray headline has weak contrast. Image 2 fixes these with a contained CTA, a fully visible badge, and a legible white headline on a dark panel."
+          }
+        ],
+        "costUsd": 0.0267248,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "ad-sneaker-sale",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has clear defects: the subheadline is covered by the product panel, the -40% badge is cropped off the edge, the CTA text overflows its button, and the disclaimer is illegible. Image 2 fixes all of these with legible text on a backing panel, a fully visible badge, and a CTA that fits its button."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has clear defects: the subheadline is covered by the product panel, the -40% badge is cropped off the right edge, the CTA text overflows its button, and the disclaimer is barely legible. Image 1 keeps every element legible and contained, with a clear hierarchy."
+          }
+        ],
+        "costUsd": 0.027284799999999998,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "banner-saas",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has a glaring defect: the small 'No credit card required' line overlaps the '5 minutes' text, making both illegible. It also has an inverted hierarchy (the grey headline is weaker than the subhead) and a misaligned logo. Image 1 is clean, well aligned and has a clear headline-to-CTA hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has the small disclaimer text colliding with and overlapping the '5 minutes' line, and an inverted hierarchy where the headline is grayed out while the subhead dominates. Image 2 has clean, legible text and a clear headline → subhead → CTA hierarchy, with consistent margins."
+          }
+        ],
+        "costUsd": 0.017588799999999998,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "rules-once",
+      "fixture": "banner-saas",
+      "model": "claude-sonnet-5-5",
+      "a": "rules-once",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 gives the headline a strong dark color, so the hierarchy reads correctly, and its left elements share a consistent alignment. Image 1's washed-out gray headline is upstaged by the darker subhead, and its logo, subhead and body text are misaligned. Image 2's bleeding dashboard crop is a minor issue by comparison."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has a clear hierarchy: a dark, bold headline dominates, with a supporting subhead in accent color. Image 2 renders the headline in washed-out gray so the subhead overpowers it, and its left alignment is inconsistent (logo, subhead, and other elements are misaligned), making it less polished."
+          }
+        ],
+        "costUsd": 0.0176688,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "banner-saas",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has overlapping text: the subline sits on top of '5 minutes', and the headline is grayed out, which confuses the hierarchy. Image 1 is clean and legible, with a clear headline, subhead, and CTA, though its headline crowds the split edge."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has the small supporting text colliding with the '5 minutes' line, plus an inverted hierarchy where the grey headline is weaker than the subhead and the logo is jammed in the corner. Image 2 has clean, legible hierarchy with no overlaps and a balanced split layout."
+          }
+        ],
+        "costUsd": 0.017008799999999998,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "clean-poster",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "tie",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images appear identical in layout, typography, imagery and CTA, with no visible differences. Both share the same mismatch with an event-poster brief: there are no event details such as date or venue."
+          },
+          {
+            "shownFirst": "a",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images appear identical in layout, typography, imagery and CTA, so there is no meaningful difference to choose between. Both share the same weak fit to an event poster brief, since neither shows a date or venue."
+          }
+        ],
+        "costUsd": 0.021696800000000002,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "clean-poster",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "tie",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images appear identical in layout, typography, imagery and CTA, so there is no meaningful difference to choose between. Both share the same weak fit to an event poster brief, since neither shows a date, time or venue."
+          },
+          {
+            "shownFirst": "b",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images appear identical in layout, typography, imagery and CTA, so no meaningful difference separates them. Both share the same mismatch with an event-poster brief, since they read as a product promo with no date or venue."
+          }
+        ],
+        "costUsd": 0.0218968,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "identity",
+      "fixture": "clean-poster",
+      "a": "same",
+      "b": "same",
+      "outcome": {
+        "winner": "tie",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images are visually identical in layout, typography, imagery and CTA, so there is no meaningful difference to choose between. Both share the same weakness: they read as a product promo rather than an event poster, with no date or venue."
+          },
+          {
+            "shownFirst": "a",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images look identical in layout, typography, imagery and CTA, so there is no meaningful difference between them. Both share the same weakness against an event-poster brief: they read as a product promo with no event details."
+          }
+        ],
+        "costUsd": 0.0218968,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "competing-headline",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 gives the poster one clear headline: \"Morning Roast\" is large and bold, with a lighter subtitle beneath it. In Image 1 the subtitle \"Single-origin beans\" is bigger and heavier than the headline, which inverts the hierarchy and leaves two lines competing for attention."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has a clear hierarchy: a bold, dominant \"Morning Roast\" headline over a lighter subtitle. Image 2 inverts this, making the subtitle larger and heavier than the headline, which muddles the single clear headline the brief asks for."
+          }
+        ],
+        "costUsd": 0.023120799999999997,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "competing-headline",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has a clear hierarchy with 'Morning Roast' as the dominant headline and a smaller subhead, matching the brief's one clear headline. Image 2 inverts this, with the subhead larger and heavier than the headline, which muddles the hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has a clear hierarchy: the headline \"Morning Roast\" dominates and the subtitle is clearly secondary. In Image 1 the subtitle is larger and heavier than the headline, so the hierarchy is inverted and the brief's call for one clear headline isn't met."
+          }
+        ],
+        "costUsd": 0.0229808,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-attention-badge",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "low",
+            "reasons": "Image 1 makes the call to action unmistakable with a bright blue 'Apply now' button, which suits a CTA-driven brief, though its 'SPOTS LEFT' badge is muddy and hard to read. Image 2 keeps every element legible, but its loud yellow badge overpowers the dim headline and the grey, recessive CTA, weakening the hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 2's bright blue button makes the call to action the clear focal point. In Image 1 the oversized yellow badge overpowers both the headline and the muted, low-contrast CTA. Image 2's dimmed badge text is hard to read, but that hurts less than burying the CTA."
+          }
+        ],
+        "costUsd": 0.029392799999999997,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-attention-badge",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 gives the headline full white contrast and makes the yellow 'Apply now' button the clear focal point. Image 2 dims the headline to gray, mutes the CTA into a dark button, and lets the 'Spots left' badge steal attention, which inverts the hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 gives the headline full white contrast and makes the yellow 'Apply now' button the dominant accent, so the hierarchy leads to the call to action. Image 1 has a muted gray headline and buries the CTA in a low-contrast button, while the decorative 'SPOTS LEFT' badge takes all the attention."
+          }
+        ],
+        "costUsd": 0.0173128,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-attention-burst",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "The two designs are identical except for the right circle. Image 2's muted pink/peach circle harmonizes with the warm beige product tile and the low-contrast Browse button. Image 1's saturated red/yellow circle dominates the composition, pulls attention from the headline and CTA, and reads like a warning sign."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "The layouts are identical, and the only difference is the right-hand circle. Image 1's soft pink and peach harmonizes with the beige product tile and the spring mood. Image 2's saturated red and yellow overpowers the composition, pulls attention from the headline and CTA, and clashes with the muted palette."
+          }
+        ],
+        "costUsd": 0.027436799999999997,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-attention-burst",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's bold red Browse button is a clear, findable call to action, while Image 1's pale gray button nearly disappears. Image 2's softer pink and peach circle also harmonizes with the product tile instead of the loud red-yellow disc in Image 1 that pulls focus from the headline and CTA."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 1 has a strong red Browse button that clearly reads as the call to action, and its softer pink/peach circle harmonizes with the product panel. Image 2's pale grey button is weak and easily missed, while the saturated red/yellow circle steals attention from the CTA and clashes with the muted palette."
+          }
+        ],
+        "costUsd": 0.0273768,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-busy-photo-tiny-cta",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's headline panel is more opaque, so the title and subhead read cleanly over the busy pattern, and its large Visit button on a backing panel is an obvious call to action. Image 1's tiny CTA gets lost among the colorful shapes, and its translucent panel lets the shapes show through the text."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has a large, prominent 'Visit' CTA on a dark backing panel and a more opaque headline panel, giving clear hierarchy. In Image 2 the CTA is tiny and gets lost in the busy pattern, and the semi-transparent headline panel lets the shapes show through, hurting legibility."
+          }
+        ],
+        "costUsd": 0.027448800000000002,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-busy-photo-tiny-cta",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 1 dims the busy background so the headline panel and the large orange Visit button stand out clearly. Image 2's saturated background competes with the text, and its tiny Visit button gets lost among the colorful shapes, which weakens the call to action."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 dims the busy pattern so the headline and a large, clearly visible orange Visit button stand out. In Image 1 the CTA is tiny and gets lost against the equally saturated colorful shapes."
+          }
+        ],
+        "costUsd": 0.0263488,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-cluttered-flyer",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "low",
+            "reasons": "Image 2 keeps the headline on one clean line and its muted badges let the headline and CTA dominate. Image 1's wrapped \"Sale\" crowds into the loud, saturated badges, cluttering the top. Image 2's white-on-pastel badge text is weak, but it is still readable."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 1's headline sits cleanly on one line. In Image 2 the headline wraps, and 'Sale' crowds against the 2 FOR 1 and TODAY badges, nearly colliding. Image 2's saturated badges are more legible than Image 1's washed-out pastels, but they compete loudly with the headline, while the headline collision is the more visible flaw."
+          }
+        ],
+        "costUsd": 0.0349008,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-cluttered-flyer",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's badges crowd and nearly collide with the headline \"Sale\" and are scattered at uneven heights, which looks messy. Image 1 keeps the badges in orderly columns flanking the product, leaving the headline clear and the layout balanced."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has the badges crowding and nearly colliding with the headline 'Sale' (the TODAY badge touches it) and they're scattered unevenly. Image 2 arranges the badges in tidy symmetric columns beside the product, giving the headline clear space and a cleaner hierarchy."
+          }
+        ],
+        "costUsd": 0.0228408,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-leaderboard",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has a bright white headline and a vivid purple CTA button that pop against the dark background, giving clear hierarchy. Image 2's gray headline and muted gray CTA have low contrast and feel washed out."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's headline is bright and legible against the dark background, and its vivid purple CTA button stands out clearly. Image 1's headline is a muted gray-blue with low contrast, and its dull gray button blends into the background, weakening the hierarchy."
+          }
+        ],
+        "costUsd": 0.006236800000000001,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-leaderboard",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 2's vivid purple CTA button stands out clearly against the dark background, making the call to action easy to find, while Image 1's muted gray button blends in. Image 2's dashboard illustration is also slightly smaller, leaving better spacing around the button."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 1's vivid purple CTA button stands out clearly against the dark background, making the call to action easy to find, while Image 2's muted gray button blends in and weakens hierarchy. The layouts are otherwise nearly identical."
+          }
+        ],
+        "costUsd": 0.0063768,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-skyscraper",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's dark brown CTA button with large white text stands out strongly, whereas Image 1's pale yellow button with small text is weak. Image 1's saturated yellow empty block also dominates and steals attention from the product and CTA, while Image 2's soft yellow block is less distracting."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1's dark brown CTA button has strong contrast and stands out clearly. Image 2's pale yellow button with small text is weak and gets overshadowed by the loud saturated yellow empty block. Image 1's softer empty block is less distracting."
+          }
+        ],
+        "costUsd": 0.011552799999999998,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-skyscraper",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "The layouts are identical apart from the CTA. Image 1's dark brown button with white text stands out strongly and is easy to find. Image 2's pale yellow button blends into the cream background and has weak contrast, which hurts the call-to-action hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "The layouts are identical except for the CTA. Image 2's dark brown button with large white text stands out clearly and anchors the bottom. Image 1's pale yellow button has weak contrast against the cream background, so the call to action is easy to miss."
+          }
+        ],
+        "costUsd": 0.0112528,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-story-hero",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "The designs are identical apart from the CTA. Image 2's larger orange 'Remind me' button stands out clearly against the dark background, while Image 1's small, low-contrast gray button nearly disappears, which weakens the call to action the brief asks for."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "The two designs are identical except for the CTA. Image 1's bright orange, larger \"Remind me\" button stands out clearly as the call to action. Image 2's small, low-contrast gray button nearly disappears into the dark background."
+          }
+        ],
+        "costUsd": 0.0170608,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "hard-story-hero",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "The illustration and headline are identical. Image 2's large orange 'Remind me' button stands out clearly as the call to action, while Image 1's small, low-contrast gray pill nearly disappears. Image 2's button sits a bit close to the bottom edge and the subline, but it serves the CTA brief far better."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "The designs are otherwise identical, but Image 1's large bright orange 'Remind me' button makes the call to action easy to find. Image 2's small, low-contrast gray button nearly disappears, which undermines the brief's need for a clear call to action."
+          }
+        ],
+        "costUsd": 0.0175208,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "identity",
+      "fixture": "hard-story-hero",
+      "a": "same",
+      "b": "same",
+      "outcome": {
+        "winner": "tie",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images appear identical in illustration, typography, layout and CTA. Both share the same weak, low-contrast 'Remind me' button and the same abruptly cropped torso, so neither is preferable."
+          },
+          {
+            "shownFirst": "b",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images appear identical in illustration, typography, layout, and CTA treatment. Neither offers a meaningful difference, and both share the same weak, low-contrast 'Remind me' button."
+          }
+        ],
+        "costUsd": 0.0165408,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "low-contrast-on-image",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 uses white headline and subhead on a pale gradient, so the subhead is nearly invisible and the headline washes out. Image 2's navy headline and dark subhead are clearly legible, giving a strong hierarchy that leads to the matching CTA."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's white headline and subtitle nearly vanish against the pale gradient background, making the text practically illegible. Image 1's dark navy text reads clearly and keeps a strong hierarchy down to the CTA."
+          }
+        ],
+        "costUsd": 0.0264808,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "rules-once",
+      "fixture": "low-contrast-on-image",
+      "model": "claude-sonnet-5-5",
+      "a": "rules-once",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1's deep navy headline and dark subhead have strong contrast and tie in with the CTA button. Image 2's gray headline looks washed out and low-contrast, and its light blue subhead is weaker and harder to read against the pale gradient."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's navy headline and dark subhead have strong contrast and tie in with the navy CTA, giving clear hierarchy. Image 1's gray headline looks washed out against the pale gradient, and its light-blue subhead is weaker. Its headline also clips into the sun less legibly."
+          }
+        ],
+        "costUsd": 0.026860799999999997,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "low-contrast-on-image",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1's white headline and subhead nearly vanish against the pale gradient, making the copy almost illegible. Image 2 uses dark navy and slate text with strong contrast, giving a clear hierarchy from headline to subhead to CTA."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 sets the headline and subhead in white over a pale gradient, so they're nearly invisible. Image 1's dark navy text is clearly legible and gives a strong hierarchy down to the CTA."
+          }
+        ],
+        "costUsd": 0.026360799999999997,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "misaligned",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "In Image 2 the subheadline aligns flush with the brand name, headline and CTA on the left margin, and the product tile sits centered in the ellipse. In Image 1 the subheadline is slightly indented and the tile is nudged off-center, which reads as sloppy alignment."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 2 has small alignment slips: the subtitle is indented off the shared left margin, and the product square sits slightly off-center within the ellipse. Image 1 keeps a clean left edge and a centered product."
+          }
+        ],
+        "costUsd": 0.0267248,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "misaligned",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 2's subtitle is indented a few pixels off the shared left margin, and its product square sits slightly off-center within the ellipse. Image 1 keeps a clean left alignment and a centered product."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 2 keeps the subtitle flush with the shared left margin and centers the product square within its ellipse. Image 1 has a slightly indented subtitle and a product tile shifted off-center, which reads as sloppy alignment."
+          }
+        ],
+        "costUsd": 0.0265248,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "off-canvas",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 1 has the brand name cut off at the right edge (\"NORTHWI\"), a clear defect. Image 2 shows the full logo; its stray red circle is a bit arbitrary but far less harmful."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has the NORTHWIND brand name clipped off the right edge, an obvious defect. Image 1 shows the full logo, though its red circle is a slightly arbitrary decoration."
+          }
+        ],
+        "costUsd": 0.0233048,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "off-canvas",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 crops the brand name to \"NORTHWI\" at the right edge, a clear and shippable-blocking defect. Image 2 shows the full brand name, centered. Its stray red circle is a minor stylistic oddity by comparison."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has the brand name \"NORTHWIND\" cropped off the right edge, a glaring defect. Image 1 keeps the logo centered and intact. Its red circle accent is a bit random, but it is harmless by comparison."
+          }
+        ],
+        "costUsd": 0.0238648,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "overlap-headline-product",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's white headline overlaps the light cream product tile, so 'Morning Roast' becomes partly illegible (white on cream). Image 1 keeps the headline fully on the dark background, where it reads clearly, with only a minor touch against the ellipse."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "In Image 1 the white headline overlaps the light cream product tile, so parts of \"Morning Roast\" become nearly illegible. Image 2 places the larger headline cleanly above the image, giving clear hierarchy and full legibility."
+          }
+        ],
+        "costUsd": 0.0224368,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "overlap-headline-product",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1's headline overlaps the light product tile, so the white text collides with the cream background and becomes partly illegible. Image 2 places the headline cleanly at the top, giving a clear hierarchy and polished layout."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's white headline overlaps the light cream product panel, making parts of \"Morning Roast\" nearly illegible and leaving an awkward empty gap above. Image 1 keeps a clear headline–subhead–product–CTA hierarchy with no collisions."
+          }
+        ],
+        "costUsd": 0.0223568,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "promo-food",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has clear defects: the CTA text overflows its button, \"Chef's pick\" collides with the plate edge, the plate is stretched into an oval, the price is jammed against the image edge, and the footer text is too faint. Image 2 keeps everything clean and legible, with a well-contained CTA, readable labels, and balanced spacing."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has clear defects: CTA text overflows the button (\"app\" spills out), the headline crowds the subtitle, \"Chef's pick\" overlaps the plate edge, the plate is distorted into an oval, and the footer is nearly illegible. Image 1 is clean, well-spaced, and has a clear hierarchy."
+          }
+        ],
+        "costUsd": 0.0237288,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "rules-once",
+      "fixture": "promo-food",
+      "model": "claude-sonnet-5-5",
+      "a": "rules-once",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 overlays 'Only $12' and 'Chef's pick' on the busy striped background with poor contrast and awkward placement, and the CTA button straddles the image edge. Image 2 places the price and label cleanly below the illustration, giving clear hierarchy, legible text, and a balanced, polished layout."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 keeps the price, label and CTA on clean background with clear hierarchy, while Image 2 overlays \"Chef's pick\" across the plate rim and the price onto the striped mat with poor contrast. Image 2 also crowds the CTA into the image's bottom edge and shrinks the footer text to near-illegibility."
+          }
+        ],
+        "costUsd": 0.023488799999999997,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "promo-food",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has clear defects: the CTA text overflows the button ('app' spills out), 'Chef's pick' collides with the plate edge, the headline crowds the subtitle, the plate is distorted into an oval, and the footer is nearly illegible. Image 1 is clean, well-spaced, and has a clear hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has clear defects: the CTA text overflows its button (\"app\" spills out), \"Chef's pick\" collides with the plate edge, the plate looks stretched into an oval, and the footer text is barely legible. Image 2 has a clean CTA, a legible price and tag placed beside the image, and readable footer copy, though it leaves some empty space at the bottom."
+          }
+        ],
+        "costUsd": 0.023868800000000003,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "identity",
+      "fixture": "promo-food",
+      "a": "same",
+      "b": "same",
+      "outcome": {
+        "winner": "tie",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images appear identical. Both share the same flaws: the CTA text overflows its button ('app' spills out), the 'Chef's pick' label straddles the plate edge, and the price sits awkwardly against the stripes."
+          },
+          {
+            "shownFirst": "a",
+            "better": "tie",
+            "confidence": "high",
+            "reasons": "The two images appear identical and share the same defects. The CTA text 'Order on the app' overflows its button, and the 'Chef's pick' label overlaps the plate rim with poor contrast, so neither version is preferable."
+          }
+        ],
+        "costUsd": 0.022108799999999998,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "story-concert",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has severe layout defects: the guest-list body text overlaps the headline, \"WAREHOUSE 9\" is clipped at the right edge, and the date line is cut off at the bottom. Image 1 is clean and legible, with a clear hierarchy from title to act, details, CTA, and date."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has severe defects: the subtitle overlaps the headline, \"WAREHOUSE 9\" is clipped off the right edge, and the date line is cut off at the bottom. Image 2 has a clean hierarchy with all text legible and fully in frame."
+          }
+        ],
+        "costUsd": 0.0176768,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "rules-once",
+      "fixture": "story-concert",
+      "model": "claude-sonnet-5-5",
+      "a": "rules-once",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has the black headline overlapping the body copy and fading into the dark background, so the headline is illegible and broken. Image 1 has a clean, legible hierarchy: headline, act name, details, CTA and date."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has a broken layout: the black headline sits on the fog, where it nearly disappears, and the body copy overlaps it, so the performer name is illegible. Image 2 sets the headline and copy cleanly on a dark band, giving clear hierarchy and legible text, though its small 'Warehouse 9' label is slightly redundant."
+          }
+        ],
+        "costUsd": 0.017556799999999997,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "story-concert",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has severe defects: the subhead overlaps the body copy and makes it illegible, 'WAREHOUSE 9' is clipped at the right edge, and the date line is cut off at the bottom. Image 1 has a clean hierarchy with legible panels, a clear CTA, and no overlaps, despite the redundant venue label."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has the subheadline overlapping the body text, which makes both illegible. It also cuts off \"WAREHOUSE 9\" at the right edge and the date line at the bottom. Image 2 keeps every element legible and contained, with a strong headline hierarchy and a clear CTA."
+          }
+        ],
+        "costUsd": 0.018076799999999997,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "stretched-image",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "In Image 2 the illustration is vertically squashed, so the suns render as ellipses, a visible distortion defect. Image 1 keeps correct proportions and fills the backing shape better. All other elements are identical."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1's illustration is vertically squashed, distorting the circles into ellipses, a visible aspect-ratio defect. Image 2 keeps the image's proportions correct; otherwise the two layouts are identical."
+          }
+        ],
+        "costUsd": 0.0241168,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "stretched-image",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 stretches the product image horizontally, so the circles distort into ovals and the image covers the backdrop ellipse awkwardly. Image 2 keeps the correct aspect ratio and sits cleanly within its backdrop; everything else is identical."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "Image 2 stretches the illustration horizontally, distorting the circles into ovals, and its image runs to the edges of the backdrop ellipse so the two shapes clash. Image 1 keeps correct proportions and sits cleanly inside the ellipse."
+          }
+        ],
+        "costUsd": 0.0238368,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "text-overflow",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's CTA button overlaps the body text, and its label wraps and is clipped (\"save\" spills out of the button). Image 1 has a clean, properly sized button with clear spacing."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has a broken CTA: the button text wraps and overflows its pill (\"save\" is clipped), and the button collides with the body copy. Image 2 shows the full CTA on one line, with proper spacing below the body text."
+          }
+        ],
+        "costUsd": 0.0219848,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "text-overflow",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2's button is too narrow, so 'save' wraps and gets clipped, and the button collides with the body text's last line. Image 1 has a clean single-line CTA with proper spacing."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1's CTA button text wraps and is clipped (\"save\" cut off), and the body copy collides with the button. Image 2 has the button label on a single line with proper spacing below the body text."
+          }
+        ],
+        "costUsd": 0.0217648,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "tiny-text",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "The two layouts are identical except for the small text. In Image 2, the delivery line and the legal footer are larger and easier to read, while Image 1's footer is too tiny to read at poster viewing size."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "The two are identical except for the small text. In Image 2, the delivery line and the terms line are shrunk, and the terms are barely legible at normal viewing size. Image 1 keeps these lines readable while preserving the hierarchy."
+          }
+        ],
+        "costUsd": 0.0219288,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "tiny-text",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "medium",
+            "reasons": "The designs are identical except for the text size of the delivery line and the terms. In Image 2 the fine print is so small it is barely legible and the delivery line shrinks, whereas Image 1 keeps both readable without hurting the hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "The two are nearly identical, but Image 2 sets the delivery line and the terms footer at legible sizes. In Image 1 the fine print is tiny and almost unreadable, and the delivery line is undersized for a poster."
+          }
+        ],
+        "costUsd": 0.0222088,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "worst",
+      "model": "claude-sonnet-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has serious defects: the headline overlaps the subhead, which is low-contrast yellow on a pale sky, and the logo is cropped off the edge. Its body text is washed out, the fine print is tiny, and the image is distorted. Image 1 is clean, legible and well organized, with a clear headline and CTA hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has overlapping headline and subhead text, a clipped brand name, low-contrast body copy, and a distorted image, while Image 2 has a clean, legible hierarchy with everything properly placed."
+          }
+        ],
+        "costUsd": 0.0269568,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "rules-once",
+      "fixture": "worst",
+      "model": "claude-sonnet-5-5",
+      "a": "rules-once",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has the headline and subhead overlapping, which makes 'everything' illegible, and the image overlaps the text. Image 2 has a clean hierarchy with a clear headline, a readable subhead, and a legible CTA and fine print."
+          },
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has overlapping text: 'everything' collides with 'Big Summer Sale', and the headline also overlaps the image, which is a glaring defect. It also has a tiny, illegible disclaimer. Image 1 has a clean hierarchy, legible type and a clear CTA."
+          }
+        ],
+        "costUsd": 0.0268368,
+        "calls": 2
+      }
+    },
+    {
+      "kind": "fix",
+      "fixture": "worst",
+      "model": "claude-opus-5-5",
+      "a": "before",
+      "b": "after",
+      "outcome": {
+        "winner": "b",
+        "agreed": true,
+        "orders": [
+          {
+            "shownFirst": "b",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 2 has severe defects: overlapping headline and subhead text, low-contrast pale yellow and white type, a cropped 'NORTHWI' logo, a distorted image with squashed suns, and illegible body and legal text. Image 1 is clean, legible, and has a clear hierarchy."
+          },
+          {
+            "shownFirst": "a",
+            "better": "b",
+            "confidence": "high",
+            "reasons": "Image 1 has overlapping headline and subhead text, a cropped logo ('NORTHWI'), low-contrast white/yellow and gray text on light backgrounds, a stretched image with oval suns, and body copy colliding with the hill. Image 2 has a clean hierarchy, legible text, an intact logo, and proper spacing."
+          }
+        ],
+        "costUsd": 0.0275168,
+        "calls": 2
+      }
+    }
+  ]
+}

@@ -17,6 +17,17 @@
     "yoga-retreat/yoga-retreat.assets/layout1-bg1-v1.jpg": "gibberish pill \"Fore tob'x cort terte\" under the CTA",
     "sneaker-drop/sneaker-drop.assets/layout2-bg2-v1.jpg": "neon sign letters (\"Ck...\") on the right"
   },
+  "secondPass": {
+    "description": "Defects in the winners that the first labeling pass missed and the vision judge pointed out; each was confirmed by eye on the final render before being listed here. Scored separately from the first-pass labels, since the judge found them.",
+    "winners": {
+      "bookstore-event": "the dark overlay ends in a hard horizontal seam through the table and cup",
+      "pet-adoption": "white halo around the cut-out pets, which float without grounding",
+      "pizza-delivery": "pale rim of leftover plate/backdrop around the pizza",
+      "saas-banner": "faint gibberish lettering ('Nlá', 'nlé') along the bottom of the background",
+      "sneaker-drop": "light fringe and backdrop shadow slab under the sole",
+      "summer-sale": "towel and flip-flops float in the sky; fringed towel edge"
+    }
+  },
   "debatable": {
     "saas-banner/saas-banner.assets/layout1-sub1.png": "the laptop screen shows a FLUX-drawn kanban UI with small labels; expected for a product mock, so labeled fine (not text in image)"
   },
