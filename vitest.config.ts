@@ -6,6 +6,9 @@ const src = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 export default defineConfig({
   test: {
     include: ['packages/*/test/**/*.test.ts'],
+    // Many tests render designs, spawn the CLI or run ONNX models; in a full parallel run on a
+    // busy laptop some take 5-10 s, so the 5 s default made them flaky.
+    testTimeout: 20_000,
   },
   resolve: {
     // Test the agent against the checker's source, not a possibly stale build.
