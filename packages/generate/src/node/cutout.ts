@@ -3,6 +3,8 @@ import { createCanvas, ImageData, loadImage } from '@napi-rs/canvas';
 import { ensureModelFile } from '@simonlunay/redline/node';
 import type { PinnedModelFile } from '@simonlunay/redline/node';
 import type * as OrtModule from 'onnxruntime-node';
+import { judgeCutout, measureCutout } from '@simonlunay/redline';
+import type { CutoutVerdict } from '@simonlunay/redline';
 import type { BackgroundRemover, Cutout } from '../cutout.js';
 
 /**
@@ -194,6 +196,110 @@ export function createBiRefNetRemover(
   }
 }
 
+/** Per-channel median of an image's border pixels: the backdrop color of a studio shot. */
+export function borderMedian(rgba: {
+  width: number;
+  height: number;
+  data: Uint8ClampedArray;
+}): [number, number, number] {
+  const { width, height, data } = rgba;
+  const border: number[][] = [[], [], []];
+  const push = (x: number, y: number) => {
+    const i = (y * width + x) * 4;
+    for (let c = 0; c < 3; c++) border[c]!.push(data[i + c]!);
+  };
+  for (let x = 0; x < width; x++) {
+    push(x, 0);
+    push(x, height - 1);
+  }
+  for (let y = 0; y < height; y++) {
+    push(0, y);
+    push(width - 1, y);
+  }
+  return border.map((values) => values.sort((a, b) => a - b)[values.length >> 1]!) as [
+    number,
+    number,
+    number,
+  ];
+}
+
+/** The backdrop color of an encoded studio shot (border median). */
+export async function estimateBackdrop(bytes: Uint8Array): Promise<[number, number, number]> {
+  return borderMedian(await decode(bytes));
+}
+
+/** Measures an encoded cutout PNG against the backdrop it was cut from. */
+export async function assessCutout(
+  png: Uint8Array,
+  backdrop?: [number, number, number],
+): Promise<CutoutVerdict> {
+  return judgeCutout(measureCutout(await decode(png), backdrop));
+}
+
+const SEVERITY_RANK = { ok: 0, warning: 1, error: 2 } as const;
+
+/** Lower is better: severity first, then how far past their limits the problems are. */
+export function cutoutBadness(v: CutoutVerdict): number {
+  return (
+    SEVERITY_RANK[v.severity] * 1000 +
+    v.problems.reduce((s, p) => s + (p.severity === 'error' ? 10 : 1) * (p.measured / p.limit), 0)
+  );
+}
+
+export interface QualityCutout {
+  cut: Cutout;
+  verdict: CutoutVerdict;
+  /** Re-cuts tried after the first cut failed, with their verdicts (empty when it passed). */
+  recuts: { remover: string; severity: CutoutVerdict['severity'] }[];
+  /** Which re-cut was kept, when one beat the first cut. */
+  kept?: string;
+}
+
+/**
+ * Cuts out a subject and checks the cut (cutout-quality). If it's damaged, re-cuts it with the
+ * alternatives (no API cost, a second or two each) and keeps whichever measures best. With the
+ * keyer that means a tighter and a looser tolerance: tighter bites less out of light subjects,
+ * looser removes more leftover backdrop.
+ */
+export async function cutOutWithQualityCheck(
+  remover: BackgroundRemover,
+  bytes: Uint8Array,
+  alternatives: BackgroundRemover[] = [
+    createBackdropKeyRemover({ tolerance: 18 }),
+    createBackdropKeyRemover({ tolerance: 45 }),
+  ],
+): Promise<QualityCutout> {
+  const backdrop = await estimateBackdrop(bytes);
+  const cut = await remover.remove(bytes);
+  const verdict = await assessCutout(cut.png, backdrop);
+  if (verdict.severity !== 'error') return { cut, verdict, recuts: [] };
+  let best = { cut, verdict, name: '' };
+  const recuts: QualityCutout['recuts'] = [];
+  for (const alt of alternatives) {
+    try {
+      const c = await alt.remove(bytes);
+      const v = await assessCutout(c.png, backdrop);
+      const name = `${alt.id}:${alt.model}`;
+      recuts.push({ remover: name, severity: v.severity });
+      if (cutoutBadness(v) < cutoutBadness(best.verdict)) {
+        best = {
+          cut: { ...c, remover: { id: alt.id, model: alt.model, license: alt.license } },
+          verdict: v,
+          name,
+        };
+      }
+    } catch {
+      // An alternative that can't cut this image is simply not a candidate.
+    }
+  }
+  return {
+    cut: best.cut,
+    verdict: best.verdict,
+    recuts,
+    ...(best.name ? { kept: best.name } : {}),
+  };
+}
+
 /**
  * Fallback remover for subjects shot on a plain backdrop (which is what the subject prompt asks
  * for): estimates the backdrop color from the border and flood-fills it away from the edges,
@@ -204,26 +310,13 @@ export function createBackdropKeyRemover(options: { tolerance?: number } = {}): 
   const tolerance = options.tolerance ?? 30;
   return {
     id: 'backdrop-key',
-    model: 'backdrop-flood-key-v1',
+    model:
+      tolerance === 30 ? 'backdrop-flood-key-v1' : `backdrop-flood-key-v1 (tolerance ${tolerance})`,
     license: 'Part of Redline (MIT)',
     async remove(bytes) {
       const rgba = await decode(bytes);
       const { width, height, data } = rgba;
-      // Backdrop color = per-channel median of the border pixels.
-      const border: number[][] = [[], [], []];
-      const push = (x: number, y: number) => {
-        const i = (y * width + x) * 4;
-        for (let c = 0; c < 3; c++) border[c]!.push(data[i + c]!);
-      };
-      for (let x = 0; x < width; x++) {
-        push(x, 0);
-        push(x, height - 1);
-      }
-      for (let y = 0; y < height; y++) {
-        push(0, y);
-        push(width - 1, y);
-      }
-      const backdrop = border.map((values) => values.sort((a, b) => a - b)[values.length >> 1]!);
+      const backdrop = borderMedian(rgba);
       const distance = (i: number) =>
         Math.hypot(
           data[i * 4]! - backdrop[0]!,

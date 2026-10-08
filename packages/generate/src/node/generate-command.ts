@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { registerFont } from '@simonlunay/redline/node';
 import type { SaliencyModel } from '@simonlunay/redline';
+import type { ImageAnalyzer } from '@simonlunay/redline/node';
 import {
   DEFAULT_EFFORT,
   DEFAULT_MODEL,
@@ -71,6 +72,7 @@ Options
   --ledger <path>          Persistent spend ledger (JSON); its cap and history carry over
   --seed <n>               Base seed (default: derived from the prompt)
   --no-attention           Skip the attention rules (no saliency model)
+  --no-image-checks        Skip the image rules (text drawn into images, damaged cutouts)
   --no-vision              Don't send renders to the fix-loop model
   --format <pretty|json>   Output format (default pretty)
 
@@ -95,6 +97,8 @@ export interface GenerateCommandIO {
   editor?: DesignEditor;
   remover?: BackgroundRemover;
   saliency?: SaliencyModel;
+  /** Image analyzer for the image rules (tests pass one with a fake or no text detector). */
+  imageAnalyzer?: ImageAnalyzer;
 }
 
 const defaultIO: GenerateCommandIO = {
@@ -164,6 +168,7 @@ export async function runGenerateCommand(
       ledger: { type: 'string' },
       seed: { type: 'string' },
       'no-attention': { type: 'boolean' },
+      'no-image-checks': { type: 'boolean' },
       'no-vision': { type: 'boolean' },
       format: { type: 'string' },
       help: { type: 'boolean', short: 'h' },
@@ -293,8 +298,10 @@ export async function runGenerateCommand(
 
   const out = resolve(values.out ?? join('generated', `${slugify(prompt)}.json`));
   const attention = !values['no-attention'];
+  const imageChecks = !values['no-image-checks'];
   const workspace = await createWorkspace(resolve(out, '..'), {
     attention,
+    imageChecks: imageChecks && (io.imageAnalyzer ?? true),
     ...(io.saliency ? { saliency: io.saliency } : {}),
   });
 

@@ -23,7 +23,18 @@ export interface ManifestEntry {
   sourceUrl?: string;
   attribution?: string;
   /** For subjects: how the background was removed. */
-  cutout?: { remover: string; model: string; license: string; coverage: number } | null;
+  cutout?: {
+    remover: string;
+    model: string;
+    license: string;
+    coverage: number;
+    /** cutout-quality verdict of the kept cut (with image checks on). */
+    quality?: 'ok' | 'warning' | 'error';
+    problems?: string[];
+    /** Re-cuts tried because the first cut was damaged, and which one was kept. */
+    recuts?: { remover: string; severity: string }[];
+    keptRecut?: string;
+  } | null;
   /** Set on images made by a fix-loop regeneration. */
   regeneration?: { reason: string; replaces: string };
   createdAt: string;

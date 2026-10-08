@@ -13,6 +13,7 @@ import {
 } from '../src/node/generate-command.js';
 import type { GenerateCommandIO } from '../src/node/generate-command.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
+import { createImageAnalyzer } from '@simonlunay/redline/node';
 import { brightnessSaliency, tempDir } from './helpers.js';
 
 /** Never reads the real environment or .env, and injects offline parts, so nothing can spend money. */
@@ -26,6 +27,8 @@ function io(extra: Partial<GenerateCommandIO> = {}) {
       env: {},
       dotenvPath: null,
       saliency: brightnessSaliency(),
+      // The image rules run, but without the text detector (no model download in tests).
+      imageAnalyzer: createImageAnalyzer({ detector: null }),
       ...extra,
     } satisfies GenerateCommandIO,
   };

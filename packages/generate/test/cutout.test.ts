@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { BackgroundRemover, Cutout } from '../src/cutout.js';
-import { BIREFNET_SESSION_OPTIONS, createAutoRemover } from '../src/node/cutout.js';
+import { createCanvas } from '@napi-rs/canvas';
+import {
+  BIREFNET_SESSION_OPTIONS,
+  assessCutout,
+  createAutoRemover,
+  createBackdropKeyRemover,
+  cutOutWithQualityCheck,
+  estimateBackdrop,
+} from '../src/node/cutout.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
 
 const GB = 1024 ** 3;
@@ -89,5 +97,47 @@ describe('auto remover memory guard', () => {
       enableCpuMemArena: false,
       enableMemPattern: false,
     });
+  });
+});
+
+describe('quality-checked cutouts', () => {
+  /** A studio shot: an orange disc on a plain light-grey backdrop. */
+  async function studioShot() {
+    const c = createCanvas(240, 240);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#d3d3d3';
+    ctx.fillRect(0, 0, 240, 240);
+    ctx.fillStyle = '#e8701a';
+    ctx.beginPath();
+    ctx.arc(120, 120, 80, 0, Math.PI * 2);
+    ctx.fill();
+    return new Uint8Array(await c.encode('png'));
+  }
+
+  it('keeps a good first cut and tries nothing else', async () => {
+    const result = await cutOutWithQualityCheck(createBackdropKeyRemover(), await studioShot());
+    expect(result.verdict.severity).toBe('ok');
+    expect(result.recuts).toEqual([]);
+  });
+
+  it('re-cuts a damaged cut (here: nothing removed) and keeps the better one', async () => {
+    const shot = await studioShot();
+    // A "remover" that removes nothing: the whole photo stays opaque, an uncut subject.
+    const lazy: BackgroundRemover = {
+      id: 'lazy',
+      model: 'lazy@1',
+      license: 'test',
+      remove: async (bytes) => ({ png: bytes, width: 240, height: 240, coverage: 1 }),
+    };
+    const result = await cutOutWithQualityCheck(lazy, shot);
+    expect(result.recuts.length).toBe(2);
+    expect(result.kept).toMatch(/^backdrop-key:/);
+    expect(result.verdict.severity).toBe('ok');
+    expect(result.cut.remover?.id).toBe('backdrop-key');
+    expect((await assessCutout(result.cut.png, await estimateBackdrop(shot))).severity).toBe('ok');
+  });
+
+  it('estimates the backdrop from the border', async () => {
+    expect(await estimateBackdrop(await studioShot())).toEqual([211, 211, 211]);
   });
 });

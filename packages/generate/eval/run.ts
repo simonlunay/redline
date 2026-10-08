@@ -159,7 +159,7 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
   const dir = join(outRoot, p.id);
   const canvas = parseSize(p.size);
   try {
-    const workspace = await createWorkspace(dir, { attention: true });
+    const workspace = await createWorkspace(dir, { attention: true, imageChecks: !offline });
     const result: GenerationResult = await generateDesign({
       prompt: p.prompt,
       canvas,

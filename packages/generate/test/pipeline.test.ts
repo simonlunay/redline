@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createScriptedEditor, createSuggestedFixesEditor } from '@simonlunay/redline-agent';
-import { loadDesign } from '@simonlunay/redline/node';
+import { createImageAnalyzer, loadDesign } from '@simonlunay/redline/node';
 import { describe, expect, it } from 'vitest';
 import { createTemplateArtDirector, templatePlan } from '../src/director/template.js';
 import { createBackdropKeyRemover } from '../src/node/cutout.js';
@@ -225,6 +225,63 @@ describe(
       expect(
         record.loop.history.flatMap((h: { regenerations?: unknown[] }) => h.regenerations ?? []),
       ).toHaveLength(3);
+    });
+
+    it('flags text drawn into a generated background as an error, and a regeneration clears it', async () => {
+      const dir = tempDir();
+      // Fake detector: "finds text" in the first opaque image it sees (the background) and in
+      // nothing else, so the regenerated background comes back clean.
+      const dirty = new Set<string>();
+      const key = (img: { data: Uint8ClampedArray }) => Array.from(img.data.slice(0, 64)).join();
+      const detector = {
+        id: 'fake-text',
+        license: 'test',
+        async detect(img: { width: number; height: number; data: Uint8ClampedArray }) {
+          const opaque = img.data.every((v, i) => i % 4 !== 3 || v === 255);
+          if (opaque && dirty.size === 0) dirty.add(key(img));
+          return dirty.has(key(img))
+            ? // Left edge, clear of the CTA button (text hidden under an opaque shape is ignored).
+              [{ x: 0.02, y: 0.7, width: 0.2, height: 0.04, score: 0.99, chars: 18 }]
+            : [];
+        },
+        detectRaw: async () => [],
+      };
+      const editor = createScriptedEditor([
+        {
+          summary: 'Remake the background without the lettering.',
+          edits: [
+            {
+              op: 'regenerateImage',
+              elementId: 'background',
+              brief: 'same scene, absolutely no text, lettering, signs, labels or buttons',
+              reason: 'image-text: gibberish lettering in the background',
+            },
+          ],
+        },
+      ]);
+      const { result } = await run(dir, {
+        candidates: 1,
+        layouts: 1,
+        editor,
+        maxIterations: 2,
+        workspace: await createWorkspace(dir, {
+          attention: true,
+          saliency: brightnessSaliency(),
+          imageChecks: createImageAnalyzer({ detector }),
+        }),
+      });
+      const before = result.loop.history[0]!.report.issues.filter((i) => i.ruleId === 'image-text');
+      expect(before).toEqual([
+        expect.objectContaining({ severity: 'error', elementIds: ['background'] }),
+      ]);
+      // The editor saw the issue, regenerated, and the new image is clean.
+      expect(JSON.stringify(editor.requests[0]!.report.issues)).toContain('image-text');
+      expect(result.loop.history.flatMap((h) => h.regenerations ?? [])[0]?.status).toBe('applied');
+      expect(result.final.report.issues.some((i) => i.ruleId === 'image-text')).toBe(false);
+      // The cutout was measured and recorded in the manifest.
+      const manifest = JSON.parse(readFileSync(result.manifestFile, 'utf8'));
+      const subject = manifest.images.find((e: { kind: string }) => e.kind === 'subject');
+      expect(subject.cutout.quality).toMatch(/^(ok|warning|error)$/);
     });
 
     it('never regenerates when maxRegenerations is 0', async () => {

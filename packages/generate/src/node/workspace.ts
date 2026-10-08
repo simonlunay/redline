@@ -1,13 +1,22 @@
-import { attentionRules, builtinRules, checkAsync } from '@simonlunay/redline';
-import type { AnyRule, Design, RedlineConfig, Report, SaliencyModel } from '@simonlunay/redline';
+import { attentionRules, builtinRules, checkAsync, imageRules } from '@simonlunay/redline';
+import type {
+  AnyRule,
+  Design,
+  ImageOrigin,
+  RedlineConfig,
+  Report,
+  SaliencyModel,
+} from '@simonlunay/redline';
 import {
   createFontMeasurer,
+  createImageAnalyzer,
   createImageSampler,
   getAttentionModel,
   renderAnnotatedPng,
   renderHeatmapPng,
   renderRaster,
 } from '@simonlunay/redline/node';
+import type { ImageAnalyzer } from '@simonlunay/redline/node';
 import type { ImageSampler } from '@simonlunay/redline';
 import type { DesignImage } from '@simonlunay/redline-agent';
 import { loadImage } from '@napi-rs/canvas';
@@ -25,7 +34,14 @@ export interface Workspace {
   images: Map<string, Image>;
   attention: boolean;
   saliency?: SaliencyModel;
-  /** Loads any image of the design that isn't loaded yet. */
+  /**
+   * Image analysis for the image rules (text in images, cutout quality), when on. Only images
+   * marked with markImage are analyzed: generated and stock images, never the user's own.
+   */
+  imageAnalysis?: ImageAnalyzer;
+  /** Records where an image came from (and a cutout's backdrop color) so it gets analyzed. */
+  markImage(src: string, origin: ImageOrigin, backdrop?: [number, number, number]): void;
+  /** Loads (and analyzes) any image of the design that isn't loaded yet. */
   ensure(design: Design): Promise<void>;
   /** Checks with the built-in (and attention) rules plus any extra ones, e.g. copy-grounded. */
   check(design: Design, extraRules?: AnyRule[]): Promise<Report>;
@@ -38,7 +54,13 @@ const VISION_SCALE = 0.75;
 
 export async function createWorkspace(
   baseDir: string,
-  options: { attention?: boolean; saliency?: SaliencyModel; config?: RedlineConfig } = {},
+  options: {
+    attention?: boolean;
+    saliency?: SaliencyModel;
+    config?: RedlineConfig;
+    /** Turn the image rules on (true: PP-OCRv5 text detector, loaded on first use). */
+    imageChecks?: boolean | ImageAnalyzer;
+  } = {},
 ): Promise<Workspace> {
   const attention = Boolean(options.attention);
   const saliency = attention ? (options.saliency ?? (await getAttentionModel())) : undefined;
@@ -50,13 +72,26 @@ export async function createWorkspace(
     sample: (src, u, v) => samplers.get(src)?.sample(src, u, v) ?? null,
   };
 
+  const imageAnalysis =
+    typeof options.imageChecks === 'object'
+      ? options.imageChecks
+      : options.imageChecks
+        ? createImageAnalyzer()
+        : undefined;
+  const marks = new Map<string, { origin: ImageOrigin; backdrop?: [number, number, number] }>();
+
   async function ensure(design: Design) {
     for (const el of design.elements) {
-      if (el.type !== 'image' || images.has(el.src)) continue;
-      const path = isAbsolute(el.src) ? el.src : resolve(baseDir, el.src);
-      const image = await loadImage(path);
-      images.set(el.src, image);
-      samplers.set(el.src, createImageSampler(new Map([[el.src, image]])));
+      if (el.type !== 'image') continue;
+      let image = images.get(el.src);
+      if (!image) {
+        const path = isAbsolute(el.src) ? el.src : resolve(baseDir, el.src);
+        image = await loadImage(path);
+        images.set(el.src, image);
+        samplers.set(el.src, createImageSampler(new Map([[el.src, image]])));
+      }
+      const mark = marks.get(el.src);
+      if (imageAnalysis && mark) await imageAnalysis.analyze(el.src, image, mark);
     }
   }
 
@@ -76,12 +111,22 @@ export async function createWorkspace(
     images,
     attention,
     ...(saliency ? { saliency } : {}),
+    ...(imageAnalysis ? { imageAnalysis } : {}),
+    markImage(src, origin, backdrop) {
+      marks.set(src, { origin, ...(backdrop ? { backdrop } : {}) });
+    },
     ensure,
     async check(design, extraRules = []) {
       await ensure(design);
       return checkAsync(design, {
         config: options.config,
-        rules: [...builtinRules, ...(attention ? attentionRules : []), ...extraRules],
+        rules: [
+          ...builtinRules,
+          ...(attention ? attentionRules : []),
+          ...(imageAnalysis ? imageRules : []),
+          ...extraRules,
+        ],
+        ...(imageAnalysis ? { images: imageAnalysis } : {}),
         measurer,
         sampler,
         render,

@@ -24,6 +24,7 @@ import { BudgetExceededError, budgetedEditor, createMemoryLedger } from '../spen
 import type { SpendLedger } from '../spend.js';
 import { AssetStore } from './assets.js';
 import type { ManifestEntry } from './assets.js';
+import { cutOutWithQualityCheck, estimateBackdrop } from './cutout.js';
 import { createMockImageProvider } from './mock-provider.js';
 import { createWorkspace } from './workspace.js';
 import type { Workspace } from './workspace.js';
@@ -59,6 +60,11 @@ export interface GenerateOptions {
    */
   maxRegenerations?: number;
   attention?: boolean;
+  /**
+   * Image rules on generated and stock images: text drawn into them, damaged cutouts (default
+   * true). Only used when the pipeline creates its own workspace; a passed-in workspace decides.
+   */
+  imageChecks?: boolean;
   vision?: boolean;
   brandColors?: string[];
   /** Extra registered font families the plan may use (Inter is always available). */
@@ -189,7 +195,10 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const assets = new AssetStore(designDir, name, options.prompt);
   const workspace =
     options.workspace ??
-    (await createWorkspace(designDir, { attention: options.attention ?? true }));
+    (await createWorkspace(designDir, {
+      attention: options.attention ?? true,
+      imageChecks: options.imageChecks ?? true,
+    }));
   // What the copy may state: the prompt and the descriptions of supplied images.
   const sources = [
     options.prompt,
@@ -309,13 +318,23 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
       ...(args.regeneration ? { regeneration: args.regeneration } : {}),
     } as const;
     let stored: (SlotImage & { entry: ManifestEntry }) | undefined;
+    let backdrop: [number, number, number] | undefined;
     if (kind === 'subject' && options.remover) {
       const remover = options.remover;
       try {
-        const cut = await cutoutLock(() => remover.remove(image.bytes));
+        // With image checks on, a damaged cut is re-cut right away (free, no API call).
+        const checked = workspace.imageAnalysis
+          ? await cutoutLock(() => cutOutWithQualityCheck(remover, image.bytes))
+          : undefined;
+        const cut = checked?.cut ?? (await cutoutLock(() => remover.remove(image.bytes)));
         const used = cut.remover ?? remover;
         if (cut.fallbackReason)
           warn(`Cutout for ${key} used ${used.id} instead of BiRefNet: ${cut.fallbackReason}`);
+        if (checked?.recuts.length) {
+          warn(
+            `Cutout for ${key} was damaged (${checked.verdict.problems.map((p) => p.kind).join(', ') || 'fixed'} after re-cutting); ${checked.kept ? `kept the re-cut ${checked.kept}` : 'no re-cut was better'}.`,
+          );
+        }
         stored = await assets.saveGenerated(
           image,
           fileBase,
@@ -326,11 +345,22 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
               model: used.model,
               license: used.license,
               coverage: Number(cut.coverage.toFixed(4)),
+              ...(checked
+                ? {
+                    quality: checked.verdict.severity,
+                    ...(checked.verdict.problems.length
+                      ? { problems: checked.verdict.problems.map((p) => p.kind) }
+                      : {}),
+                    ...(checked.recuts.length ? { recuts: checked.recuts } : {}),
+                    ...(checked.kept ? { keptRecut: checked.kept } : {}),
+                  }
+                : {}),
             },
           },
           cut.png,
           'image/png',
         );
+        backdrop = await estimateBackdrop(image.bytes);
       } catch (err) {
         warn(`Cutout failed for ${key}, keeping the plain backdrop: ${(err as Error).message}`);
       }
@@ -341,6 +371,8 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     });
     emit({ type: 'image', entry: stored.entry });
     generated.set(stored.src, { slot, brief: args.brief });
+    // Generated and stock images get the image checks; the user's own images never do.
+    workspace.markImage(stored.src, image.provider === 'pexels' ? 'stock' : 'generated', backdrop);
     return { src: stored.src, width: stored.width, height: stored.height, costUsd: image.costUsd };
   }
 
