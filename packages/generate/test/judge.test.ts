@@ -269,6 +269,15 @@ describe('judge findings as issues', () => {
   });
 });
 
+/** A fixer that nudges the headline 2px down each step: a real change, nothing else. */
+const nudger = (steps: number) =>
+  createScriptedEditor(
+    Array.from({ length: steps }, (_, i) => ({
+      summary: `nudge ${i}`,
+      edits: [{ op: 'move' as const, elementId: 'headline', dx: 0, dy: 2, reason: 'nudge' }],
+    })),
+  );
+
 describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
   async function run(
     judge: ReturnType<typeof createScriptedJudge>,
@@ -355,7 +364,8 @@ describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
 
   it('ships the best reviewed design: the winner, when the fixes review worse', async () => {
     // A regeneration suspends the finding and looks like progress; the next reviews say worse.
-    const worse = () => verdict([fakeText('background'), fakeText(null), fakeText('headline')]);
+    const worse = () =>
+      verdict([fakeText('background'), fakeText(null), fakeText('headline'), fakeText('subject')]);
     const judge = createScriptedJudge([verdict([fakeText('background')]), worse, worse]);
     const editor = createScriptedEditor([
       {
@@ -364,6 +374,10 @@ describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
           { op: 'regenerateImage', elementId: 'background', brief: 'again', reason: 'judge' },
         ],
       },
+      ...Array.from({ length: 4 }, () => ({
+        summary: 'nudge',
+        edits: [{ op: 'move' as const, elementId: 'headline', dx: 0, dy: 2, reason: 'nudge' }],
+      })),
     ]);
     const result = await run(judge, editor);
     expect(result.judgments).toHaveLength(3);
@@ -375,11 +389,19 @@ describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
   it('caps the rounds: at most 3 judge calls and 2 fix loops when the judge never relents', async () => {
     const always = () => verdict([fakeText(null)]);
     const judge = createScriptedJudge([always, always, always, always, always]);
-    const result = await run(judge);
+    const result = await run(judge, nudger(8));
     expect(judge.requests).toHaveLength(3);
     expect(result.judgments).toHaveLength(3);
     expect(result.loop.history.filter((h) => h.status === 'initial')).toHaveLength(2);
     expect(result.final.report.issues.some((i) => i.ruleId === 'visual-judge')).toBe(true);
+  });
+
+  it("doesn't review the same design twice (the loop changed nothing)", async () => {
+    const always = () => verdict([fakeText(null)]);
+    const judge = createScriptedJudge([always, always, always]);
+    const result = await run(judge, createScriptedEditor([]));
+    expect(judge.requests).toHaveLength(1);
+    expect(result.judgments).toHaveLength(1);
   });
 
   it('keeps going without the judge if it fails', async () => {

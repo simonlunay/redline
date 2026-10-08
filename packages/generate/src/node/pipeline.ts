@@ -18,7 +18,12 @@ import type { ArtDirector, DirectorResult, UserImageInfo } from '../director/typ
 import { checkFactReplacement, createCopyGroundedRule } from '../grounding.js';
 import { buildImagePrompt } from '../image-prompt.js';
 import { createKeyElementsVisibleRule } from '../key-elements.js';
-import { createJudgeStore, judgeElements, judgeKnownIssues } from '../judge/rule.js';
+import {
+  createJudgeStore,
+  designFingerprint,
+  judgeElements,
+  judgeKnownIssues,
+} from '../judge/rule.js';
 import type { JudgeVerdict, VisualJudge } from '../judge/types.js';
 import type { DesignPlan, ImageSlot } from '../plan.js';
 import type { GeneratedImage, ImageProvider, ImageRequest } from '../providers/types.js';
@@ -699,6 +704,8 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const loops: LoopResult[] = [await runLoop(winner.design)];
   for (let round = 1; judged && round <= judgeRounds; round++) {
     const best = loops.at(-1)!.best.design;
+    // Nothing changed since the last review: another look would only sample the judge again.
+    if (designFingerprint(best) === designFingerprint(reviewed.at(-1)!.design)) break;
     judged = await judgeDesign(best, round);
     const severe = judgeStore.active(best).some((f) => f.severity === 'high');
     if (!judged || !severe || round === judgeRounds) break;

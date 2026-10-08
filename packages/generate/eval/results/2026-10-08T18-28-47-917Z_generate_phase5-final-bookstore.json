@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-08T18:30:16.712Z",
+  "git": {
+    "commit": "664ae04ecdfadac4fb3c715cc77078622d208816",
+    "dirty": true
+  },
+  "settings": {
+    "offline": false,
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "candidates": 4,
+    "target": 95,
+    "maxIterations": 4,
+    "maxRegenerations": 2,
+    "imageModel": "black-forest-labs/flux-schnell",
+    "imageChecks": true,
+    "judge": {
+      "model": "claude-opus-5-5",
+      "rounds": 2
+    }
+  },
+  "durationMs": 88862,
+  "outputs": "out\\eval-generate\\2026-10-08T18-28-47-917Z_phase5-final-bookstore",
+  "summary": {
+    "prompts": 1,
+    "failed": 0,
+    "meanFirst": 67,
+    "meanBestOfN": 100,
+    "meanFinal": 99,
+    "skipped": 0,
+    "stopped": null,
+    "reachedTarget": 1,
+    "firstAtTarget": 0,
+    "bestOfNAtTarget": 1,
+    "loopReachedTarget": 0,
+    "loopImproved": 0,
+    "directorRetriedForFacts": 0,
+    "copyGroundedWinners": 0,
+    "copyGroundedFinals": 0,
+    "copyEditsApplied": 0,
+    "runSpentUsd": 0.0496,
+    "meanIterations": 0,
+    "totalRegenerations": 0,
+    "regenerationsKept": 0,
+    "meanCtaBefore": 7,
+    "meanCtaAfter": 7,
+    "ctaBelowMinimumAfter": 0,
+    "totalCostUsd": 0.0496,
+    "meanCostUsd": 0.0496,
+    "ledgerTotalUsd": 5.4505,
+    "catches": {
+      "imageTextWinners": 0,
+      "cutoutWinners": 0,
+      "judgeWinners": 0,
+      "imageTextCandidates": 2,
+      "cutoutCandidates": 2,
+      "candidates": 4
+    },
+    "recuts": 1,
+    "recutsKept": 1,
+    "loopRan": 0,
+    "regenerationReasons": [],
+    "judge": {
+      "model": "claude-opus-5-5",
+      "reviews": 2,
+      "flaggedRulesPassed": 0,
+      "passedRulesFlagged": 0,
+      "bothFlagged": 0,
+      "bothPassed": 2,
+      "finalShip": 1,
+      "costUsd": 0.0139
+    }
+  },
+  "prompts": [
+    {
+      "id": "bookstore-event",
+      "prompt": "wide banner for an author reading night at an independent bookstore, literary, warm lamplight, deep green",
+      "size": "1500x500",
+      "ok": true,
+      "first": 67,
+      "bestOfN": 100,
+      "final": 99,
+      "candidates": [
+        67,
+        100,
+        71,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 0,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0696,
+      "ctaAfter": 0.0696,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.0496,
+      "llmUsd": 0.0346,
+      "imageUsd": 0.015,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 0,
+      "cutouts": [
+        "backdrop-key"
+      ],
+      "durationMs": 79763,
+      "out": "out\\eval-generate\\2026-10-08T18-28-47-917Z_phase5-final-bookstore\\bookstore-event\\bookstore-event.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 was damaged (bites after re-cutting); kept the re-cut backdrop-key:backdrop-flood-key-v1 (tolerance 45)."
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 2,
+      "candidatesCutout": 2,
+      "recuts": 1,
+      "recutsKept": 1,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "fake-text"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "fake-text"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0139,
+      "visualJudgeFinal": 0
+    }
+  ]
+}

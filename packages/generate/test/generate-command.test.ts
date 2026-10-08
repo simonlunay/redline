@@ -104,10 +104,11 @@ describe('redline generate', () => {
     const text = stripVTControlCharacters(out.join('\n'));
     expect(text).toMatch(/Vision judge: winner[\s\S]*fix · A gibberish pill/);
     expect(text).toMatch(/medium fake-text \[background\]: gibberish pill/);
-    expect(text).toMatch(/vision judge: fix → ship \(2 reviews\)/);
+    // The suggested-fixes editor leaves this design unchanged, so there is no second review.
+    expect(text).toMatch(/vision judge: fix \(1 review\)/);
     const record = JSON.parse(readFileSync(join(dir, 'd.generation.json'), 'utf8'));
     expect(record.judge).toBe('scripted');
-    expect(record.judgments).toHaveLength(2);
+    expect(record.judgments).toHaveLength(1);
 
     const off = createScriptedJudge();
     const second = io({ ...offline(), judge: off });
