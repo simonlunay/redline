@@ -57,17 +57,19 @@ redline check <design.json> [options]
 redline fix <design.json> [options]    # AI fix loop, see below
 redline rules                          # list rules, defaults and weights
 redline setup attention                # download the saliency model (50 MB, once)
+redline setup image-checks             # download the text detector for --image-checks (13 MB, once)
 redline generate "<prompt>" [options]  # prompt to design, see Generation below
 ```
 
-| Option                  | Description                                                                         |
-| ----------------------- | ----------------------------------------------------------------------------------- |
-| `--format pretty\|json` | Coloured report (default) or JSON for tools and CI                                  |
-| `--config <path>`       | JSON config file (see [Configuration](#configuration))                              |
-| `--render <out.png>`    | Render the design to PNG                                                            |
-| `--annotate <out.png>`  | Render with numbered issue boxes and the score drawn on top                         |
-| `--attention`           | Also run the [attention check](#attention-check) (needs `onnxruntime-node`)         |
-| `--heatmap <out.png>`   | Write a predicted-attention overlay with per-element shares (implies `--attention`) |
+| Option                  | Description                                                                                           |
+| ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| `--format pretty\|json` | Coloured report (default) or JSON for tools and CI                                                    |
+| `--config <path>`       | JSON config file (see [Configuration](#configuration))                                                |
+| `--render <out.png>`    | Render the design to PNG                                                                              |
+| `--annotate <out.png>`  | Render with numbered issue boxes and the score drawn on top                                           |
+| `--attention`           | Also run the [attention check](#attention-check) (needs `onnxruntime-node`)                           |
+| `--heatmap <out.png>`   | Write a predicted-attention overlay with per-element shares (implies `--attention`)                   |
+| `--image-checks`        | Also check the images: [text drawn into them and damaged cutouts](#image-checks-and-the-vision-judge) |
 
 **Exit codes:** `0` means no errors, `1` means errors were found (so it can gate CI), and `2` means invalid input or usage.
 
@@ -91,17 +93,18 @@ $ redline fix fixtures/worst.json --out fixed.json --render-steps steps/
     1 LLM call · 8.9k in (0 cached) / 1.6k out tokens · ≈ $0.036 · 20.2s
 ```
 
-| Option                 | Description                                                                                   |
-| ---------------------- | --------------------------------------------------------------------------------------------- |
-| `--out <path>`         | Where to write the best design (default `<name>.fixed.json`)                                  |
-| `--target <score>`     | Done when the score reaches this **and** no errors remain (default 90)                        |
-| `--max-iterations <n>` | Max repair iterations (default 4)                                                             |
-| `--model <id>`         | Claude model (default `claude-sonnet-5-5`)                                                    |
-| `--effort <level>`     | `low` `medium` `high` `xhigh` `max` (default `medium`)                                        |
-| `--editor <name>`      | `anthropic` (default) or `suggested`: applies the checker's own fixes, offline, no key needed |
-| `--render-steps <dir>` | Annotated PNG per iteration (`00-initial.png`, `01-accepted.png`, …, `final.png`)             |
-| `--no-vision`          | Don't send the annotated render to the model                                                  |
-| `--config`, `--format` | Same as `check`                                                                               |
+| Option                 | Description                                                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `--out <path>`         | Where to write the best design (default `<name>.fixed.json`)                                                                 |
+| `--target <score>`     | Done when the score reaches this **and** no errors remain (default 90)                                                       |
+| `--max-iterations <n>` | Max repair iterations (default 4)                                                                                            |
+| `--model <id>`         | Claude model (default `claude-sonnet-5-5`)                                                                                   |
+| `--effort <level>`     | `low` `medium` `high` `xhigh` `max` (default `medium`)                                                                       |
+| `--editor <name>`      | `anthropic` (default) or `suggested`: applies the checker's own fixes, offline, no key needed                                |
+| `--render-steps <dir>` | Annotated PNG per iteration (`00-initial.png`, `01-accepted.png`, …, `final.png`)                                            |
+| `--no-vision`          | Don't send the annotated render to the model                                                                                 |
+| `--image-checks`       | Also report text drawn into images and damaged cutouts (`redline fix` can't change images, so these are reported, not fixed) |
+| `--config`, `--format` | Same as `check`                                                                                                              |
 
 It needs `ANTHROPIC_API_KEY`, read from the environment or from `./.env` (copy `.env.example`). The exit code is `0` if the final design has no errors.
 
@@ -427,6 +430,102 @@ These numbers calibrate against "designs that pass the layout rules", not agains
 - **Thin banners get squeezed.** Extreme aspect ratios (728×90, 300×1050) are letterboxed into the model's input, so they're predicted at low resolution.
 - **The thresholds come from 86 designs**, calibrated against the layout rules, not against conversion data.
 
+## Image checks and the vision judge
+
+The rules check the layout. They can't see what's _inside_ an image. In the first generation eval, 3 of 12 winners scored 100 and still looked wrong: an image model had drawn a gibberish "button" into a photo, and two cut-out products had bites and see-through holes. Two layers catch this:
+
+1. **Two image rules** (deterministic, local, free): `image-text` and `cutout-quality`.
+2. **A vision judge** (`redline generate` only): a different model looks at the finished render and reports what looks wrong.
+
+### Image rules
+
+```bash
+npx redline setup image-checks                 # once: downloads + verifies the text detector
+npx redline check ad.json --image-checks       # your own design: image issues are warnings for your photos
+npx redline fix ad.json --image-checks         # reported, not fixed (redline fix never changes images)
+```
+
+They're an opt-in rule set (`imageRules`) like the attention rules. `redline generate` turns them on for every generated and stock image, and never checks the user's own images.
+
+| Rule             | Flags                                                                                                            | Severity                                                       | Suggested fix                                                                           |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `image-text`     | Lettering, fake signs, labels or buttons drawn into an image, where they're visible in the design                | error for generated/stock images (weight 3), warning for yours | Regenerate the image with "absolutely no text, lettering, signs, labels, buttons…"      |
+| `cutout-quality` | A cut-out subject with bites or tears, see-through patches, stray fragments, leftover backdrop, or no cut at all | error or warning (weight 2)                                    | Re-cut it (BiRefNet), or regenerate the subject on a plain, evenly lit, opaque backdrop |
+
+**How `image-text` works.** Each image runs through PaddleOCR's **PP-OCRv5 mobile text detector** (DBNet, 4.8 MB), using the preprocessing from the model's own config. Every detected box is then read by the matching **English PP-OCRv5 recognizer**. A box only counts as text when it reads as at least 3 characters with a mean confidence of at least 0.8. No dictionary is needed: CTC decoding counts the non-blank steps, so gibberish counts as text too.
+
+The verifier is there because the detector alone fires on rows of trees and crates of oranges. On the 48 backgrounds of the phase 4 eval plus the 10 fixture photos, the detector found boxes in 27 of the 58 images, and only the yoga pill survived the verifier. The yoga pill reads as 21 characters at 0.98 confidence; the row of trees reads as 4 at 0.71.
+
+Boxes are mapped from image pixels to the canvas through the element's `fit`. Boxes under an opaque rectangle painted above the image, and very small marks (under 1.2% of the canvas's short side), are ignored.
+
+**How `cutout-quality` works.** It measures the cutout's alpha, and the backdrop color when the pipeline knows it (otherwise it's estimated from the soft edge). It's pure TypeScript and isomorphic:
+
+| Signal            | Measured as                                                                             | Catches                                        |
+| ----------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| bites             | area a morphological closing (radius 1.5% of the subject) adds, relative to the subject | tears and notches in a keyed edge              |
+| see-through       | partly transparent pixels well inside the subject                                       | glass or frosted parts keyed away              |
+| fragments         | small detached opaque pieces                                                            | stray bits of backdrop or torn-off edges       |
+| leftover backdrop | flat, near-neutral, backdrop-colored regions                                            | slabs under a subject, discs inside a headband |
+| uncut             | the subject runs along 3+ sides of the image                                            | a photo that was never cut out                 |
+| jagged edges      | outline length against a smoothed outline                                               | ragged keyer edges                             |
+
+An error needs a signal past its error level, two stray fragments, or two warnings at once. Leftover backdrop alone is only a warning, because a flat white laptop screen or white cup looks the same in pixels as a grey disc of backdrop. It becomes an error only when another signal backs it up.
+
+The thresholds were tuned on the 26 subject cutouts of the phase 4 eval, labeled by eye first. On those 26: **7 of 9 damaged cutouts are errors, the other 2 are warnings, and none of the 17 good ones is an error**; 2 good ones get a warning. They were tuned on the same images they're scored on, so expect worse on new ones.
+
+In `redline generate`, a cutout that measures as damaged is **re-cut on the spot** with a tighter and a looser keyer. That costs no API call and takes a second or two. Whichever cut measures best is kept, and the manifest records the verdict and the re-cuts.
+
+### Vision judge
+
+In `redline generate` (on by default when `ANTHROPIC_API_KEY` is set; `--judge none` turns it off):
+
+```
+best-of-N winner ──► judge ──► fix loop ──► judge ──► (still something severe?) fix loop ──► judge
+```
+
+- **What it sees:** the **clean** render (no annotations; the long side scaled to 1024 px), the element table (ids, roles, boxes, text), the rules' open issues so it reports what they missed, and the user's prompt.
+- **What it never sees:** the fixer's reasoning or edit summaries, the history, the art director's plan, or any score. A test checks that.
+- **Independence:** it uses **Claude Opus 5.5** by default (`--judge-model`), while the fixer and art director use Sonnet 5.5. It has its own system prompt and a fresh, stateless request each time. No server-side model fallback is enabled, so a refusal can't quietly hand the verdict to another model.
+- **What it returns:** structured JSON (validated with Zod, retried once if invalid). That's a verdict (`ship`, `fix` or `reject`), a one- or two-sentence summary, and findings. Each finding has a category, a severity, an element, an optional box, a description and a suggested fix:
+  - categories: `fake-text`, `cutout`, `artifact`, `cropping`, `color`, `composition`, `legibility`, `other`
+  - suggested fixes: `regenerate-image`, `recut`, `layout`, `none`
+- **Findings become `visual-judge` issues:**
+  - Severity maps as high → error, medium → warning, low → info (weight 2).
+  - The fixer acts on them like any issue, including regenerating the image.
+  - The judge can't run on every re-check, so each finding is tied to a fingerprint of its element. It stays while the element is unchanged and is suspended once the element changes (a design-level finding: once anything changes). Then the **next judgment decides** whether the fix worked. Nudging an element can't fake a fix.
+  - Bracketed placeholders like `[Date]` are intentional, and the judge is told not to report them.
+- **Rounds:** another fix round runs only while the judge still reports something high-severity. That's at most 3 judge calls per design (`--judge-rounds 2`). The regeneration cap is shared across rounds.
+- **Cost:** about $0.015–0.03 per review with Opus 5.5 at `medium` effort. The image is about 1.4k tokens.
+
+**Blind pairwise mode** (`comparePair`, used by `npm run eval:pairwise`) compares two renders for evaluation:
+
+- The judge sees **only the two images and the brief**, as "Image 1" and "Image 2": no labels like before/after, no issues, no rules, no scores.
+- Each pair is judged **in both orders**. Which one goes first is shuffled with a seeded RNG.
+- A side wins only when both orders agree. Otherwise it's a tie, which cancels position bias.
+
+### How well it works
+
+Three measurements (details and every miss in [docs/phase-5-report.md](docs/phase-5-report.md)):
+
+1. **Replay on the phase 4 outputs** (`npm run eval:replay -w packages/generate`): the 48 candidates and 12 winners of the first generate eval, against hand labels.
+   - **Image rules, 12 winners:** caught all 4 that I had labeled as broken (yoga's fake button; coffee, skincare and headphones cutouts), with no false alarms.
+   - **Image rules, 48 candidates:** `image-text` 1 hit, 1 miss and 2 debatable flags (a laptop's UI labels). `cutout-quality` flagged 16 of 20 damaged-cutout candidates as errors and the other 4 as warnings, with 0 false errors.
+   - **Judge, 12 winners:** flagged the same 4, plus 5 I had labeled fine. Looking again, all 5 are real: a faint gibberish strip, halos, a hard overlay seam, a leftover plate rim, a shadow slab. It passed the other 3, which included one real miss (a floating towel).
+2. **Blind pairwise on the fix-loop eval** (`npm run eval:pairwise`): 42 before/after pairs (21 fixtures × Sonnet and Opus fixes), 84 calls, about $1.13.
+   - The fixed version won **40 of 42**. The 2 ties are `clean-poster`, where before and after are identical. The before version won 0.
+   - In 3 of 3 identity controls (the same design twice) it said tie.
+   - The LLM fix beat the checker's own one-shot fixes 6 of 6.
+   - The two orders never disagreed. Its reasons name concrete differences, including regressions inside wins: one fix left a badge unreadable, another pulled a stray decoration into view.
+3. **The generate eval with everything on** (see [Evaluation](#evaluation-1) under Generation): the judge flagged 9 of 14 winners, the loop ran on 9, and the judge shipped 6.
+
+### Limits
+
+- **The text detector reads lettering, not every mark.** It missed neon-sign letters drawn vertically on a wall and very faint gibberish along the bottom of a SaaS background. The judge caught the second.
+- **Product UI mocks contain text on purpose.** A generated laptop screen's kanban labels are flagged as `image-text`.
+- **The cutout signals are measured on 26 images** from one eval, all made by the backdrop keyer, because this machine rarely has the ~7.5 GB free that BiRefNet needs. They weren't tuned on BiRefNet cutouts.
+- **The judge is a model, not a ground truth.** Its findings vary from run to run, and it sometimes puts a finding in the wrong category (it called the yoga gibberish button "composition" rather than "fake-text"). It also has its own tastes: "the bottom of the panel is a little empty" comes up as a low-severity finding.
+- **The judge doesn't see the fixer's reasoning, but it does see the checker's issues.** Its in-loop findings are independent of the fixer, not of the rules. The pairwise mode is independent of both.
+
 ## AI fix loop
 
 ```
@@ -725,10 +824,12 @@ prompt ──► art director (Claude, JSON output) ──► plan: copy, palett
    plain backdrop → BiRefNet cutout) · logo and supplied images (used as-is)
               │
               ▼
-   N candidates = layouts × background seeds ──► checkAsync (layout + attention rules)
-              │
+   N candidates = layouts × background seeds ──► checkAsync (layout + attention + image rules)
+              │                                       damaged cutouts are re-cut first
               ▼
-   best of N (score, then errors, warnings, CTA attention) ──► fix loop (+ image regeneration)
+   best of N (score, then errors, warnings, CTA attention) ──► vision judge ──► fix loop
+              (+ image regeneration) ──► judge again ──► another round while it reports
+              something severe (at most 3 judge calls)
 ```
 
 1. **Art director.** One Claude call returns the design plan as structured JSON output (`output_config.format`, the whole response is the plan). The schema is generated from Zod, with the elements of each layout in per-kind arrays. The plan has the concept, a palette, all the copy, 1–3 alternative layouts (element roles, boxes, z-order, text styling) and an image brief per slot. Code then checks what a schema can't, and sends any problems back for **one retry**: exactly one headline, every image element points to a slot, boxes inside the canvas, hex colors, fonts that are actually available, a `calmAreas` description on every background ("keep the top third calm for the headline"), and **no copy inside any image brief**. Text is always a separate, editable text element. The image model is never asked to draw words. The copy must not **invent facts** either (see step 7): a plan whose copy states a date, place, price or similar that the prompt doesn't give also gets the retry, with the list. A retry for that alone never throws away a usable first plan.
@@ -752,6 +853,9 @@ prompt ──► art director (Claude, JSON output) ──► plan: copy, palett
    - The fix loop gets a second generation-only op, `replaceText {elementId, find, replace}`. It may only replace flagged facts (plus their separators) with a placeholder or nothing. Anything else, like rewriting the headline, is refused. `redline fix` still has no op that can touch copy.
    - It's pattern-based on purpose: deterministic, free and testable. It doesn't know arbitrary proper nouns, so an invented venue without a place word ("Riverside") gets through, and a title-case headline starting with a place word isn't flagged ("Farmers Market"), to avoid false alarms.
    - This came from the first live run, where "Charity 5K · Saturday, June 14 · City Park" scored 100 from a prompt with no date or venue.
+8. **Image checks.** `image-text` and `cutout-quality` (see [Image checks and the vision judge](#image-checks-and-the-vision-judge)) run on every generated and stock image, so they count in best-of-N and in the fix loop. A damaged cutout is re-cut with two other keyer settings before it is used, and the best cut is kept. The fixer's prompt says these issues come from the pixels, so a regeneration is the expected fix.
+9. **Vision judge.** Claude Opus 5.5 reviews the winner's clean render and reports visible defects the rules can't see. Its findings become `visual-judge` issues for the fix loop, and it reviews the result again (see [Vision judge](#vision-judge)). Its verdicts and findings go into `.generation.json` and the CLI output.
+10. **Reliability.** Every Replicate request (create, poll, download) has its own timeout, and each image has a 5-minute deadline that retries and rate-limit waits respect. An art-director plan whose layouts came back empty gets a third, more specific try at low effort. If only some layouts are usable, the plan keeps those. If no try works, it fails with an `ArtDirectorError` listing each try's problems.
 
 ### Assembly details
 
@@ -797,6 +901,10 @@ redline generate "<prompt>" [options]
 | `--logo`, `--image <path>`                            | Your logo / images; used as supplied                                                         |
 | `--budget <usd>`                                      | Spend cap for this run (default $2); paid calls that could cross it are refused              |
 | `--ledger <path>`                                     | Persistent spend ledger, so a cap holds across runs                                          |
+| `--judge <name>`                                      | `anthropic` (default when `ANTHROPIC_API_KEY` is set) or `none`                              |
+| `--judge-model <id>`                                  | Model for the vision judge (default `claude-opus-5-5`, not the fixer's model)                |
+| `--judge-rounds <n>`                                  | Re-judgments after a fix loop (default 2, so at most 3 judge calls)                          |
+| `--no-image-checks`                                   | Skip the image rules (text drawn into images, damaged cutouts)                               |
 | `--seed`, `--no-attention`, `--no-vision`, `--format` | As expected                                                                                  |
 
 Fully offline (no keys, no cost): `redline generate "…" --director template --provider mock --editor suggested`.
@@ -805,13 +913,15 @@ Fully offline (no keys, no cost): `redline generate "…" --director template --
 
 ### Models and licenses
 
-| Model                       | Used for                 | License                                                                                                                                                                                                                          | How it's obtained                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| --------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Claude Sonnet 5.5 (default) | Art director, fix loop   | Anthropic API terms                                                                                                                                                                                                              | API (`ANTHROPIC_API_KEY`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| FLUX.1 [schnell]            | Backgrounds and subjects | **Apache-2.0**: the model card says it "can be used for personal, scientific, and commercial purposes" ([license](https://github.com/black-forest-labs/flux/blob/main/model_licenses/LICENSE-FLUX1-schnell), checked 2026-10-06) | Hosted on Replicate, `black-forest-labs/flux-schnell`, $0.003/image                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| BiRefNet_lite               | Subject cutouts          | **MIT** ([ZhengPeng7/BiRefNet_lite](https://huggingface.co/ZhengPeng7/BiRefNet_lite)); see NOTICE for training-data caveats                                                                                                      | ONNX from [`onnx-community/BiRefNet_lite-ONNX`](https://huggingface.co/onnx-community/BiRefNet_lite-ONNX) at commit `de15b22`, 224,005,088 bytes, SHA-256 `56000243…f03333`. Downloaded from Hugging Face into the Redline cache on first use (not re-hosted), verified before use, about 7 s per cutout on a 20-thread laptop CPU. **Needs about 6 GB of free memory** for one inference (fixed 1024×1024 input; fp16 weights don't lower it on CPU). Memory is returned after each cutout, cutouts never run in parallel, and with less than 7.5 GB free (`REDLINE_CUTOUT_MIN_FREE_MB`) the backdrop keyer is used for that cutout instead |
-| MSI-Net                     | Attention check          | MIT                                                                                                                                                                                                                              | See [Attention check](#attention-check)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Pexels (optional)           | Stock backgrounds        | [Pexels License](https://www.pexels.com/license/)                                                                                                                                                                                | API (`PEXELS_API_KEY`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Model                        | Used for                 | License                                                                                                                                                                                                                          | How it's obtained                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ---------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Opus 5.5              | Vision judge             | Anthropic API terms                                                                                                                                                                                                              | API (`ANTHROPIC_API_KEY`), $4 / $20 per M tokens, about $0.02 per review                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| PP-OCRv5 mobile det + en rec | `image-text` check       | **Apache-2.0** ([det](https://huggingface.co/PaddlePaddle/PP-OCRv5_mobile_det_onnx), [rec](https://huggingface.co/PaddlePaddle/en_PP-OCRv5_mobile_rec_onnx), checked 2026-10-08); see NOTICE for the training-data caveat        | Official ONNX exports from Hugging Face at commits `e6f4fa8` (4,826,518 bytes, SHA-256 `a4319856…b6e61d`) and `3fafbc3` (7,848,423 bytes, SHA-256 `b5f833df…abc557f`). Downloaded on first use (`redline setup image-checks`), verified, not re-hosted. About 0.2–0.4 s per image on a laptop CPU                                                                                                                                                                                                                                                                                                                                            |
+| Claude Sonnet 5.5 (default)  | Art director, fix loop   | Anthropic API terms                                                                                                                                                                                                              | API (`ANTHROPIC_API_KEY`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| FLUX.1 [schnell]             | Backgrounds and subjects | **Apache-2.0**: the model card says it "can be used for personal, scientific, and commercial purposes" ([license](https://github.com/black-forest-labs/flux/blob/main/model_licenses/LICENSE-FLUX1-schnell), checked 2026-10-06) | Hosted on Replicate, `black-forest-labs/flux-schnell`, $0.003/image                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| BiRefNet_lite                | Subject cutouts          | **MIT** ([ZhengPeng7/BiRefNet_lite](https://huggingface.co/ZhengPeng7/BiRefNet_lite)); see NOTICE for training-data caveats                                                                                                      | ONNX from [`onnx-community/BiRefNet_lite-ONNX`](https://huggingface.co/onnx-community/BiRefNet_lite-ONNX) at commit `de15b22`, 224,005,088 bytes, SHA-256 `56000243…f03333`. Downloaded from Hugging Face into the Redline cache on first use (not re-hosted), verified before use, about 7 s per cutout on a 20-thread laptop CPU. **Needs about 6 GB of free memory** for one inference (fixed 1024×1024 input; fp16 weights don't lower it on CPU). Memory is returned after each cutout, cutouts never run in parallel, and with less than 7.5 GB free (`REDLINE_CUTOUT_MIN_FREE_MB`) the backdrop keyer is used for that cutout instead |
+| MSI-Net                      | Attention check          | MIT                                                                                                                                                                                                                              | See [Attention check](#attention-check)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Pexels (optional)            | Stock backgrounds        | [Pexels License](https://www.pexels.com/license/)                                                                                                                                                                                | API (`PEXELS_API_KEY`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ### Evaluation
 
@@ -819,6 +929,8 @@ Fully offline (no keys, no cost): `redline generate "…" --director template --
 npm run eval:generate                       # 14 prompts, Sonnet 5.5 + FLUX.1 schnell, ~$0.10/prompt
 npm run eval:generate -- --prompts charity-5k,saas-banner
 npm run eval:generate -- --offline          # template director + mock images + rules editor, free
+npm run eval:pairwise                       # blind judge on the fix-loop eval's before/after pairs
+npm run eval:replay -w packages/generate    # image rules + judge on a finished run, vs hand labels
 ```
 
 `packages/generate/eval/prompts.json` has 14 prompts covering ads, posters and social posts in five sizes: 1080×1350, 1080×1080, 1080×1920 (story), 1200×628 and 1500×500 (wide banners). The styles range from photographic to flat illustration. For each prompt the eval reports:
@@ -830,7 +942,33 @@ npm run eval:generate -- --offline          # template director + mock images + 
 - the CTA's share of predicted attention before and after the loop
 - the cost
 
-There's also a summary row with means. Every paid call goes through the persistent ledger `packages/generate/eval/results/spend-ledger.json`, which also enforces a cap.
+There's also a summary row with means. Every paid call goes through a persistent ledger (`--ledger`, default `packages/generate/eval/results/spend-ledger.json`), which also enforces a cap. With the image checks and the judge on, it also reports what each check caught on the winners and candidates, re-cuts, what the regenerations were for, and the judge's agreement with the rules.
+
+**Phase 5 results (2026-10-08): image checks and judge on.** Same settings as the first run, plus the image rules and the Opus 5.5 judge (2 rounds), `--concurrency 1`. Raw data: `packages/generate/eval/results/2026-10-08T18-00-25-677Z_generate_phase5-final.json` (13 prompts) and `…T18-28-47-917Z_generate_phase5-final-bookstore.json` (bookstore-event, which the eval's low-memory guard had skipped). "Final (rules)" is the rules-only score of the design that shipped; the final score the CLI prints also counts the judge's findings. Full analysis: [docs/phase-5-report.md](docs/phase-5-report.md).
+
+| Prompt            | Size      | First | Best-of-4 (rules) | Image rules on winner | Judge verdicts           | Iterations | Regenerations | Re-cuts | Final (rules) | Final judge    | Cost   |
+| ----------------- | --------- | ----- | ----------------- | --------------------- | ------------------------ | ---------- | ------------- | ------- | ------------- | -------------- | ------ |
+| charity-5k        | 1080×1350 | 69    | 84                | cutout                | reject → fix             | 1          | 1 (1 kept)    | 1       | 100           | fix            | $0.121 |
+| coffee-latte      | 1080×1080 | 53    | 64                | cutout                | reject → reject → reject | 8          | 2 (2 kept)    | 4       | 84 (1 err)    | reject         | $0.255 |
+| sneaker-drop      | 1080×1920 | 100   | 100               | –                     | fix → fix                | 1          | 1 (1 kept)    | 0       | 100           | fix            | $0.090 |
+| saas-banner       | 1200×628  | 67    | 100               | –                     | ship → ship              | 0          | 0             | 0       | 100           | ship           | $0.046 |
+| jazz-night        | 1080×1350 | 94    | 100               | –                     | ship → fix               | 0          | 0             | 0       | 100           | ship (round 0) | $0.075 |
+| summer-sale       | 1080×1080 | 94    | 94                | cutout                | fix → fix                | 1          | 1 (1 kept)    | 0       | 100           | fix            | $0.092 |
+| farmers-market    | 1080×1920 | 76    | 100               | –                     | fix → ship               | 3          | 2 (2 kept)    | 1       | 94            | ship           | $0.132 |
+| headphones-launch | 1500×500  | 88    | 94                | cutout                | fix → reject → reject    | 6          | 2 (2 kept)    | 0       | 94            | reject         | $0.132 |
+| yoga-retreat      | 1080×1350 | 100   | 100               | –                     | ship → ship              | 0          | 0             | 1       | 100           | ship           | $0.052 |
+| pizza-delivery    | 1200×628  | 74    | 97                | –                     | fix → fix                | 3          | 2 (1 kept)    | 1       | 100           | fix            | $0.109 |
+| tech-conference   | 1080×1080 | 100   | 100               | –                     | ship → ship              | 0          | 0             | 0       | 100           | ship           | $0.053 |
+| pet-adoption      | 1080×1350 | 84    | 100               | –                     | reject → fix → fix       | 5          | 2 (2 kept)    | 2       | 94            | fix            | $0.210 |
+| skincare-serum    | 1080×1920 | 79    | 84                | cutout                | fix → fix → fix          | 3          | 2 (2 kept)    | 3       | 100           | fix (round 1)  | $0.166 |
+| bookstore-event   | 1500×500  | 67    | 100               | –                     | ship → ship              | 0          | 0             | 1       | 100           | ship           | $0.050 |
+
+- **14 of 14 prompts completed.** In the first run 2 failed: an empty art-director plan and a Replicate timeout.
+- **The fix loop ran on 9 of 14** (0 of 12 before), with **15 regenerations**: 14 for cutouts, 1 for text in an image. 14 of them were kept.
+- **The judge flagged 9 of 14 winners.** The image rules flagged 5, all cutouts, and `image-text` flagged 6 candidates. Across all 32 of its reviews, the judge flagged 11 designs the rules passed and passed 1 the rules flagged.
+- **It shipped 6 of 14.** I looked at each: 5 are clean, and farmers-market keeps a minor `cutout-quality` warning on the basket edge. The 8 it didn't ship all still have a visible keyed-cutout defect (slabs, discs, patches, halos), and the judge named each one.
+- **The loop can't fix those 8**, because regenerating a subject sends it through the same keyer. This machine never had the ~7.5 GB free that BiRefNet needs, so every cutout in both runs was keyed.
+- **Cost: $1.58 for 14 designs** ($0.113 per design, against $0.039 before), of which the judge was $0.46.
 
 **Results (2026-10-07, first full run).** Sonnet 5.5 (`medium`) + FLUX.1 schnell, 4 candidates, target 95, max 4 iterations, 2 regenerations allowed, `--concurrency 1 --budget 5`. Raw data: `packages/generate/eval/results/2026-10-07T21-23-33-175Z_generate_claude-sonnet-5-5.json`.
 
@@ -877,11 +1015,11 @@ The cause was ONNX Runtime's CPU arena keeping BiRefNet's ~6 GB inference peak f
 
 ### Limits
 
-- **The checker is still the judge.** A generated design that scores 100 passes the layout and attention rules. It isn't necessarily a good design. The last column of the eval table flags the ones that score 100 but look wrong.
+- **The rules and the judge both have blind spots.** A design that passes every rule and that the judge ships is likely clean, not guaranteed: see the misses in [Image checks and the vision judge](#limits-1) and the phase 5 eval results above.
 - **Fonts:** only Inter is bundled. The art director can use other families only if you register them with `--font`.
 - **Cutouts** are as good as BiRefNet on a plain backdrop: fine for products, people and animals, weaker on thin structures. The keying fallback leaves halos on shadows.
 - **FLUX schnell** sometimes ignores parts of the brief, including "no text". The calm-area instruction is a request, not a guarantee, which is exactly what the regeneration op and the contrast rule are there to catch.
-- **No visual-quality model** judges aesthetics yet. Best-of-N picks by rule score, so two very different candidates that both score 100 are a tie broken by warnings and CTA attention.
+- **The judge reviews only the winner.** Best-of-N still picks by rule score (now including the image rules), so two candidates that both score 100 are a tie broken by warnings and CTA attention. The judge then reviews whichever won.
 
 ## Development
 
@@ -901,6 +1039,8 @@ npm run redline -- generate "poster for a bake sale" --director template --provi
 ```
 
 **Reproducing the saliency model:** `packages/checker/scripts/convert-msi-net.py` (Python 3.11, TensorFlow 2.15.1, tf2onnx 1.16.1). On Windows, use a short venv path, because TensorFlow exceeds the 260-character path limit otherwise. A real-model smoke test runs only if the model is already in the cache, so CI never downloads it.
+
+**Image-check models:** `npm run redline -- setup image-checks` downloads and verifies the two PP-OCRv5 files. Like the saliency test, the real-model text-detection test runs only if they are already cached.
 
 `npm run redline` runs the CLI straight from TypeScript source through a custom `@simonlunay/source` export condition, so you don't have to build first. Published builds ignore that condition.
 
@@ -932,8 +1072,9 @@ ESLint's `no-restricted-imports` rule forbids `node:*`, `fs`, `path` and `@napi-
 2. ~~**AI fix loop**: check → LLM edits → re-check with rollback, plus an eval harness.~~ Done.
 3. ~~**Attention check**: a saliency model predicts where viewers look, key elements get per-element attention shares, and the fix loop improves them. Plus a harder `--strict` benchmark.~~ Done.
 4. ~~**Generation**: produce designs in this format from a brief, then run them through the loop.~~ Done (see [Generation](#generation)).
-5. **Resizing**: adapt a design across formats (Instagram post, story, banner) and re-check every version.
-6. **Web app**: a React canvas editor (`apps/web`) that runs the checker live in the browser and replays fix-loop histories.
+5. ~~**Visual checks**: text drawn into images, cutout quality, and an independent vision judge in the generation loop.~~ Done (see [Image checks and the vision judge](#image-checks-and-the-vision-judge)).
+6. **Resizing**: adapt a design across formats (Instagram post, story, banner) and re-check every version.
+7. **Web app**: a React canvas editor (`apps/web`) that runs the checker live in the browser and replays fix-loop histories.
 
 ## License
 
