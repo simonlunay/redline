@@ -1,7 +1,7 @@
 # Builds the web app (apps/web) as a static site and publishes it to GitHub Pages.
 #
 # One-time setup: repo Settings → Pages → Source: "GitHub Actions". The site is then served at
-# https://simonlunay.github.io/redline/. For a custom domain, see "Deploying" in the README
+# https://simonlunay.github.io/redline/. For a custom domain, see "Deploying" in docs/web-app.md
 # (set BASE_PATH to '' and add the CNAME).
 #
 # The site has no server and no secrets: nothing here needs an API key, and the build fails if

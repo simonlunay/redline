@@ -78,7 +78,7 @@ The main entry point is isomorphic. `./node` adds file loading, rendering, and t
 
 ## Evaluation
 
-Mean score on 14 fixtures, 3 runs per model: **55.1 before, 80.0 with rules alone, 98.8 with Sonnet 5.5, 99.1 with Opus 5.5**. Both models cleared every error in every run. See the [main README](https://github.com/simonlunay/redline#evaluation) for the full table, the method and the caveats.
+Mean score on 14 fixtures, 3 runs per model: **55.1 before, 80.0 with rules alone, 98.8 with Sonnet 5.5, 99.1 with Opus 5.5**. Both models cleared every error in every run. See the [evaluation docs](https://github.com/simonlunay/redline/blob/main/docs/evaluation.md#fix-loop) for the full table, the method and the caveats.
 
 ## License
 

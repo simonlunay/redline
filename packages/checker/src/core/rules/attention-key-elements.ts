@@ -10,8 +10,8 @@ import type { Fix, RuleIssue } from '../types.js';
 export type AttentionMinimums = Partial<Record<Role, number>>;
 
 /**
- * Calibrated with MSI-Net (packages/agent/eval/calibrate-attention.ts, README "Attention
- * calibration"): the 10th percentile of each role's share across 86 designs with no layout
+ * Calibrated with MSI-Net (packages/agent/eval/calibrate-attention.ts, docs/attention.md,
+ * "Calibration"):the 10th percentile of each role's share across 86 designs with no layout
  * errors, rounded down to a whole percent. At these values 17/86 clean designs are flagged
  * (any role below), versus 34/86 at the 20th percentile.
  */

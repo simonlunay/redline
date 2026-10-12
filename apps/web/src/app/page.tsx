@@ -7,30 +7,30 @@ import { readGalleryIndex, readRun } from '@/lib/gallery/read';
 
 const REPO = 'https://github.com/simonlunay/redline';
 
-/** Only numbers from the README's evals, each linked to where it's measured. */
+/** Only numbers from the evals (docs/evaluation.md), each linked to where it's measured. */
 const FACTS = [
   {
     value: '62.1 → 98.8',
     text: 'Mean score of 21 deliberately broken test designs, before and after the fix loop with Claude Sonnet 5.5 (99.5 with Opus 5.5). Looping the checker’s own fixes without a model reaches 81.8.',
-    href: `${REPO}#results-strict-mode`,
+    href: `${REPO}/blob/main/docs/evaluation.md#fix-loop-strict-mode`,
     source: 'Strict benchmark, 3 runs per model',
   },
   {
     value: '40 of 42',
     text: 'Before/after pairs where a blind vision judge, shown only the two images, preferred the fixed version. It never preferred the original; the 2 ties were a design the loop left unchanged.',
-    href: `${REPO}#how-well-it-works`,
+    href: `${REPO}/blob/main/docs/evaluation.md#blind-pairwise-judge`,
     source: 'Blind pairwise eval',
   },
   {
     value: '4 → 0',
     text: 'Test designs whose call to action got less than 5% of predicted attention: 4 of 21 before the fix loop, and 0 of 63 fixed versions after it, with Sonnet and with Opus alike.',
-    href: `${REPO}#results-strict-mode`,
+    href: `${REPO}/blob/main/docs/evaluation.md#fix-loop-strict-mode`,
     source: 'Attention check, MSI-Net',
   },
   {
     value: '9 of 14',
     text: 'Designs generated from a one-line prompt that the independent judge would ship. The other 5 are in the gallery too, with what it still objected to.',
-    href: `${REPO}/blob/main/docs/phase-5b-report.md#part-2-model-cuts-kept-contact-shadows`,
+    href: `${REPO}/blob/main/docs/evaluation.md#generation-run-4-model-cuts-kept-contact-shadows`,
     source: 'Generate eval, phase 5b',
   },
 ];
