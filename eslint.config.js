@@ -60,6 +60,8 @@ export default tseslint.config(
   {
     // Node scripts of the web app (plain ESM, no TypeScript globals).
     files: ['apps/web/scripts/**/*.mjs'],
-    languageOptions: { globals: { process: 'readonly', console: 'readonly' } },
+    languageOptions: {
+      globals: { process: 'readonly', console: 'readonly', setTimeout: 'readonly' },
+    },
   },
 );

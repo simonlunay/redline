@@ -1,3 +1,4 @@
+/* global window, document -- used inside page.evaluate callbacks, which run in the browser */
 // Records the README demo from the real player: npm run demo-video -w apps/web
 //
 // Needs a built site (npm run build -w apps/web) and ffmpeg on the PATH. It serves out/, plays
