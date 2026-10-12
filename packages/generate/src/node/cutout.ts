@@ -314,7 +314,7 @@ export function borderMedian(rgba: {
 
 /**
  * Where a cut-out subject touches the ground: the horizontal extent of its opaque pixels in the
- * bottom 6% of its height, and its lowest opaque row. For its contact shadow. Null when the
+ * bottom 12% of its height, and its lowest opaque row. For its contact shadow. Null when the
  * image has no opaque pixels.
  */
 export async function measureFootprint(png: Uint8Array): Promise<Footprint | null> {
@@ -330,7 +330,7 @@ export async function measureFootprint(png: Uint8Array): Promise<Footprint | nul
     }
   }
   if (bottom < 0) return null;
-  const top = Math.max(0, bottom - Math.max(1, Math.round(height * 0.06)));
+  const top = Math.max(0, bottom - Math.max(1, Math.round(height * 0.12)));
   let left = width;
   let right = -1;
   for (let y = top; y <= bottom; y++) {

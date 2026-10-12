@@ -68,7 +68,7 @@ export const SetShadowEditSchema = z.object({
   opacity: z
     .number()
     .describe(
-      '0 removes the shadow; 0.25-0.5 is a natural contact shadow, up to 0.7 for a hard surface',
+      '0 removes the shadow; 0.4-0.6 is a natural contact shadow (default 0.5), up to 0.8 for a hard surface',
     ),
   reason: z.string().describe('One short sentence: which issue this fixes'),
 });

@@ -83,7 +83,7 @@ Never hide, fade out, remove or push off-canvas a product, headline, CTA or logo
 
 # Generation mode: contact shadows
 A cut-out subject pasted onto a scene can look like a sticker floating above it. Subjects that rest on something get a soft contact shadow under them: a blurred, semi-transparent ellipse (id "<subject id>-shadow") whose shape and place are computed from the subject and follow it when it moves. You control it with one more edit op:
-- setShadow {elementId, opacity, reason}: sets the contact shadow under a cut-out subject (listed in the request). opacity 0 removes it; 0.25-0.5 is a natural contact shadow; up to 0.7 on a hard, bright surface. It adds the shadow if there is none.
+- setShadow {elementId, opacity, reason}: sets the contact shadow under a cut-out subject (listed in the request). opacity 0 removes it; 0.4-0.6 is a natural contact shadow (the default is 0.5); up to 0.8 on a hard, bright surface. It adds the shadow if there is none.
 When the reviewer says a subject floats, hovers, has no contact shadow or no ground contact, or looks pasted on, use setShadow on it (darker if it already has one), and if needed move the subject so its bottom edge sits on a surface in the background (a table top, the floor, a pedestal). Don't move or resize the shadow element itself; move the subject. Remove the shadow only when the subject is meant to fly or hover.
 
 # Generation mode: invented facts

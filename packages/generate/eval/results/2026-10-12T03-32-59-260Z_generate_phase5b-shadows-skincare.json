@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-12T03:34:55.307Z",
+  "git": {
+    "commit": "79c720882d6c6483be01666ad48c91f9e30dd819",
+    "dirty": true
+  },
+  "settings": {
+    "offline": false,
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "candidates": 4,
+    "target": 95,
+    "maxIterations": 4,
+    "maxRegenerations": 2,
+    "imageModel": "black-forest-labs/flux-schnell",
+    "cutout": "auto",
+    "imageChecks": true,
+    "judge": {
+      "model": "claude-opus-5-5",
+      "rounds": 2
+    }
+  },
+  "durationMs": 116097,
+  "outputs": "out\\eval-generate\\2026-10-12T03-32-59-260Z_phase5b-shadows-skincare",
+  "summary": {
+    "prompts": 1,
+    "failed": 0,
+    "meanFirst": 88,
+    "meanBestOfN": 94,
+    "meanFinal": 87,
+    "skipped": 0,
+    "stopped": null,
+    "reachedTarget": 0,
+    "firstAtTarget": 0,
+    "bestOfNAtTarget": 0,
+    "loopReachedTarget": 0,
+    "loopImproved": 1,
+    "directorRetriedForFacts": 0,
+    "copyGroundedWinners": 0,
+    "copyGroundedFinals": 0,
+    "copyEditsApplied": 0,
+    "runSpentUsd": 0.1262,
+    "meanIterations": 2,
+    "totalRegenerations": 1,
+    "regenerationsKept": 1,
+    "meanCtaBefore": 5.9,
+    "meanCtaAfter": 5.9,
+    "ctaBelowMinimumAfter": 0,
+    "totalCostUsd": 0.1262,
+    "meanCostUsd": 0.1262,
+    "ledgerTotalUsd": 1.419,
+    "catches": {
+      "imageTextWinners": 0,
+      "cutoutWinners": 1,
+      "judgeWinners": 1,
+      "imageTextCandidates": 0,
+      "cutoutCandidates": 4,
+      "candidates": 4
+    },
+    "cutoutsBy": {
+      "replicate-birefnet": 3
+    },
+    "recuts": 0,
+    "recutsKept": 0,
+    "loopRan": 1,
+    "regenerationReasons": [
+      "cutout"
+    ],
+    "judge": {
+      "model": "claude-opus-5-5",
+      "reviews": 1,
+      "flaggedRulesPassed": 0,
+      "passedRulesFlagged": 0,
+      "bothFlagged": 1,
+      "bothPassed": 0,
+      "finalShip": 0,
+      "costUsd": 0.0192
+    }
+  },
+  "prompts": [
+    {
+      "id": "skincare-serum",
+      "prompt": "story ad for a vitamin C face serum, luxurious, minimal, soft peach and white, product hero",
+      "size": "1080x1920",
+      "ok": true,
+      "first": 88,
+      "bestOfN": 94,
+      "final": 87,
+      "candidates": [
+        88,
+        94,
+        88,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 2,
+      "regenerations": 1,
+      "regenerationsKept": 1,
+      "ctaBefore": 0.0587,
+      "ctaAfter": 0.0587,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.1262,
+      "llmUsd": 0.1007,
+      "imageUsd": 0.0255,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 104579,
+      "out": "out\\eval-generate\\2026-10-12T03-32-59-260Z_phase5b-shadows-skincare\\skincare-serum\\skincare-serum.json",
+      "failingRules": [
+        "cutout-quality",
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3581 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 3220 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/sub2/1 used replicate-birefnet instead of local BiRefNet: only 3202 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 1,
+      "candidatesImageText": 0,
+      "candidatesCutout": 4,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [
+        "cutout"
+      ],
+      "judgeVerdicts": [
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "artifact",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false
+      ],
+      "judgeUsd": 0.0192,
+      "visualJudgeFinal": 1
+    }
+  ]
+}

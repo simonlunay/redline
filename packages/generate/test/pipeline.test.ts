@@ -378,7 +378,7 @@ describe(
         {
           summary: 'Ground the product, darker, and sit it lower.',
           edits: [
-            { op: 'setShadow', elementId: 'subject', opacity: 0.5, reason: 'it floats' },
+            { op: 'setShadow', elementId: 'subject', opacity: 0.65, reason: 'it floats' },
             { op: 'move', elementId: 'subject', dx: 0, dy: 40, reason: 'sit on the surface' },
           ],
         },
@@ -395,16 +395,19 @@ describe(
       const shadowAt = (d: typeof start) => d.elements.find((e) => e.id === 'subject-shadow');
       const ids = start.elements.map((e) => e.id);
       expect(ids.indexOf('subject-shadow')).toBe(ids.indexOf('subject') - 1);
-      expect(shadowAt(start)).toMatchObject({ type: 'shape', role: 'decoration', opacity: 0.35 });
-      expect(editor.requests[0]!.shadows).toEqual([{ elementId: 'subject', opacity: 0.35 }]);
+      expect(shadowAt(start)).toMatchObject({ type: 'shape', role: 'decoration', opacity: 0.5 });
+      expect(editor.requests[0]!.shadows).toEqual([{ elementId: 'subject', opacity: 0.5 }]);
 
       const step = result.loop.history[1]!;
       expect(step.shadowEdits).toEqual([
-        { elementId: 'subject', opacity: 0.5, reason: 'it floats', status: 'applied' },
+        { elementId: 'subject', opacity: 0.65, reason: 'it floats', status: 'applied' },
       ]);
       // The shadow followed the subject down (the loop re-syncs shadows after the edits).
-      expect(shadowAt(step.design)).toMatchObject({ opacity: 0.5 });
+      expect(shadowAt(step.design)).toMatchObject({ opacity: 0.65 });
       expect(shadowAt(step.design)!.y).toBeCloseTo(shadowAt(start)!.y + 40, 0);
+      // The record keeps the shadow edits.
+      const record = JSON.parse(readFileSync(result.generationFile, 'utf8'));
+      expect(record.loop.history[1].shadowEdits).toEqual(step.shadowEdits);
     });
 
     it('never re-cuts a damaged model cut; it is reported as a warning only', async () => {

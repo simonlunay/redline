@@ -67,10 +67,12 @@ describe('contact shadows', () => {
       zIndex: 1,
       groupId: 'product',
     });
-    // Footprint 240 px wide -> shadow 15% wider, centered at x 500.
-    expect(s.width).toBeCloseTo(276, 0);
+    // Footprint 240 px wide -> shadow 20% wider, centered at x 500.
+    expect(s.width).toBeCloseTo(288, 0);
     expect(s.x + s.width / 2).toBeCloseTo(500, 0);
-    expect(s.height).toBeCloseTo(276 * 0.14, 0);
+    expect(s.height).toBeCloseTo(288 * 0.22, 0);
+    // Blurred by under half its height, so the core stays dark.
+    expect(s.blur).toBeLessThan(s.height / 2);
     // Straddles the contact line (y 800) so it peeks out under the subject.
     expect(s.y).toBeLessThan(800);
     expect(s.y + s.height).toBeGreaterThan(800);
@@ -92,7 +94,7 @@ describe('contact shadows', () => {
 
   it('sets the opacity within limits, keeps 0 as "off", and removes it at assembly', () => {
     const on = setContactShadow(design(), 'product', FOOT, { enabled: true, opacity: 0.95 });
-    expect(shadowOf(on as Design).opacity).toBe(0.7);
+    expect(shadowOf(on as Design).opacity).toBe(0.8);
     const off = setContactShadow(on as Design, 'product', FOOT, { enabled: true, opacity: 0 });
     expect(shadowOf(off as Design).opacity).toBe(0);
     const removed = setContactShadow(on as Design, 'product', FOOT, { enabled: false });
@@ -125,7 +127,7 @@ describe('contact shadows', () => {
     const s = shadowOf(synced);
     expect(s.opacity).toBe(0.5);
     expect(s.x + s.width / 2).toBeCloseTo(600, 0);
-    expect(s.width).toBeCloseTo(460, 0);
+    expect(s.width).toBeCloseTo(480, 0);
     expect(s.y).toBeLessThan(350 + 360);
     expect(s.y + s.height).toBeGreaterThan(350 + 360);
     // Nothing to do: the same object comes back.

@@ -1,0 +1,1131 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-12T03:32:30.820Z",
+  "git": {
+    "commit": "79c720882d6c6483be01666ad48c91f9e30dd819",
+    "dirty": true
+  },
+  "settings": {
+    "offline": false,
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "candidates": 4,
+    "target": 95,
+    "maxIterations": 4,
+    "maxRegenerations": 2,
+    "imageModel": "black-forest-labs/flux-schnell",
+    "cutout": "auto",
+    "imageChecks": true,
+    "judge": {
+      "model": "claude-opus-5-5",
+      "rounds": 2
+    }
+  },
+  "durationMs": 1934088,
+  "outputs": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows",
+  "summary": {
+    "prompts": 14,
+    "failed": 1,
+    "meanFirst": 85.3,
+    "meanBestOfN": 95.5,
+    "meanFinal": 93.9,
+    "skipped": 0,
+    "stopped": null,
+    "reachedTarget": 6,
+    "firstAtTarget": 6,
+    "bestOfNAtTarget": 7,
+    "loopReachedTarget": 0,
+    "loopImproved": 10,
+    "directorRetriedForFacts": 0,
+    "copyGroundedWinners": 0,
+    "copyGroundedFinals": 0,
+    "copyEditsApplied": 0,
+    "runSpentUsd": 1.2928,
+    "meanIterations": 1.62,
+    "totalRegenerations": 2,
+    "regenerationsKept": 1,
+    "meanCtaBefore": 8.8,
+    "meanCtaAfter": 8.9,
+    "ctaBelowMinimumAfter": 1,
+    "totalCostUsd": 1.2667,
+    "meanCostUsd": 0.0974,
+    "ledgerTotalUsd": 1.2928,
+    "catches": {
+      "imageTextWinners": 0,
+      "cutoutWinners": 3,
+      "judgeWinners": 7,
+      "imageTextCandidates": 0,
+      "cutoutCandidates": 14,
+      "candidates": 52
+    },
+    "cutoutsBy": {
+      "replicate-birefnet": 22
+    },
+    "recuts": 0,
+    "recutsKept": 0,
+    "loopRan": 10,
+    "regenerationReasons": [
+      "text in image",
+      "cutout"
+    ],
+    "judge": {
+      "model": "claude-opus-5-5",
+      "reviews": 21,
+      "flaggedRulesPassed": 6,
+      "passedRulesFlagged": 4,
+      "bothFlagged": 5,
+      "bothPassed": 6,
+      "finalShip": 8,
+      "costUsd": 0.3643
+    }
+  },
+  "prompts": [
+    {
+      "id": "charity-5k",
+      "prompt": "poster for a charity 5K, energetic, blue and orange",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 100,
+      "bestOfN": 100,
+      "final": 100,
+      "candidates": [
+        100,
+        94,
+        94,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 1,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.077,
+      "ctaAfter": 0.0833,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.1233,
+      "llmUsd": 0.107,
+      "imageUsd": 0.0163,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": true,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "replicate-birefnet"
+      ],
+      "durationMs": 115372,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\charity-5k\\charity-5k.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 3404 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "categories": []
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0392,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "coffee-latte",
+      "prompt": "Instagram post announcing a new oat milk latte at a neighborhood coffee shop, cozy, warm morning light",
+      "size": "1080x1080",
+      "ok": true,
+      "first": 54,
+      "bestOfN": 86,
+      "final": 82,
+      "candidates": [
+        54,
+        86,
+        54,
+        86
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 4,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.1267,
+      "ctaAfter": 0.1353,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "max-iterations",
+      "costUsd": 0.1465,
+      "llmUsd": 0.1262,
+      "imageUsd": 0.0202,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 3,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 134808,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\coffee-latte\\coffee-latte.json",
+      "failingRules": [
+        "attention-key-elements",
+        "cutout-quality",
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3576 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 3577 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 1,
+      "candidatesImageText": 0,
+      "candidatesCutout": 4,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 2,
+          "low": 0,
+          "categories": [
+            "composition",
+            "other"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        false
+      ],
+      "judgeUsd": 0.0426,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "sneaker-drop",
+      "prompt": "story ad for a limited sneaker drop, bold streetwear style, neon green on black",
+      "size": "1080x1920",
+      "ok": true,
+      "first": 100,
+      "bestOfN": 100,
+      "final": 98,
+      "candidates": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 0,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.1886,
+      "ctaAfter": 0.1886,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.0589,
+      "llmUsd": 0.0387,
+      "imageUsd": 0.0202,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": true,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 0,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 103229,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\sneaker-drop\\sneaker-drop.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3310 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 3327 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "fake-text"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true
+      ],
+      "judgeUsd": 0.0163,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "saas-banner",
+      "prompt": "LinkedIn banner ad for a project management SaaS, clean, trustworthy, minimal, free trial",
+      "size": "1200x628",
+      "ok": true,
+      "first": 86,
+      "bestOfN": 94,
+      "final": 93,
+      "candidates": [
+        86,
+        94,
+        91,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 1,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0441,
+      "ctaAfter": 0.0441,
+      "ctaBelowMinimumAfter": true,
+      "stopReason": "no-issues",
+      "costUsd": 0.0762,
+      "llmUsd": 0.06,
+      "imageUsd": 0.0162,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "replicate-birefnet"
+      ],
+      "durationMs": 87850,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\saas-banner\\saas-banner.json",
+      "failingRules": [
+        "attention-key-elements"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3194 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Kept the design from judge round 0: the later fixes didn't hold up on review."
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 2,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        true
+      ],
+      "judgeUsd": 0.0248,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "jazz-night",
+      "prompt": "poster for a late-night jazz concert in a small club, moody, deep purple and gold, vintage",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 71,
+      "bestOfN": 94,
+      "final": 92,
+      "candidates": [
+        71,
+        94,
+        63,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 2,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0572,
+      "ctaAfter": 0.0572,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.0922,
+      "llmUsd": 0.076,
+      "imageUsd": 0.0162,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 2,
+      "cutouts": [
+        "replicate-birefnet"
+      ],
+      "durationMs": 92608,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\jazz-night\\jazz-night.json",
+      "failingRules": [
+        "attention-competition"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 2632 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 2,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "artifact",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false
+      ],
+      "judgeUsd": 0.0208,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "summer-sale",
+      "prompt": "summer sale social post for a beachwear brand, 40% off, bright and playful, turquoise and coral",
+      "size": "1080x1080",
+      "ok": true,
+      "first": 100,
+      "bestOfN": 100,
+      "final": 98,
+      "candidates": [
+        100,
+        97,
+        100,
+        97
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 1,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.1536,
+      "ctaAfter": 0.1213,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.1022,
+      "llmUsd": 0.0799,
+      "imageUsd": 0.0223,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": true,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 124043,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\summer-sale\\summer-sale.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3010 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 2969 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 2,
+          "low": 1,
+          "categories": [
+            "composition",
+            "cutout",
+            "fake-text"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "fake-text",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0414,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "farmers-market",
+      "prompt": "story for a Saturday farmers market, fresh vegetables, friendly, natural greens and earthy tones",
+      "size": "1080x1920",
+      "ok": true,
+      "first": 44,
+      "bestOfN": 94,
+      "final": 87,
+      "candidates": [
+        44,
+        94,
+        39,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 4,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0676,
+      "ctaAfter": 0.069,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.1505,
+      "llmUsd": 0.1291,
+      "imageUsd": 0.0214,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 2,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 145336,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\farmers-market\\farmers-market.json",
+      "failingRules": [
+        "cutout-quality",
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 2935 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 2944 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 1,
+      "candidatesImageText": 0,
+      "candidatesCutout": 2,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition",
+            "other"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        false
+      ],
+      "judgeUsd": 0.0352,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "headphones-launch",
+      "prompt": "wide web banner launching premium wireless headphones, sleek, dark studio look, silver accents",
+      "size": "1500x500",
+      "ok": true,
+      "first": 83,
+      "bestOfN": 88,
+      "final": 92,
+      "candidates": [
+        83,
+        88,
+        83,
+        88
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 3,
+      "regenerations": 1,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0387,
+      "ctaAfter": 0.0878,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.1152,
+      "llmUsd": 0.0947,
+      "imageUsd": 0.0204,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 2,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 294100,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\headphones-launch\\headphones-launch.json",
+      "failingRules": [
+        "attention-key-elements"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 2986 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 2995 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [
+        "text in image"
+      ],
+      "judgeVerdicts": [
+        "ship",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        false
+      ],
+      "judgeUsd": 0.0303,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "yoga-retreat",
+      "prompt": "ad for a weekend yoga retreat in the mountains, calm, airy, soft pastel colors",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 88,
+      "bestOfN": 88,
+      "final": 94,
+      "candidates": [
+        88,
+        79,
+        88,
+        88
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 2,
+      "regenerations": 1,
+      "regenerationsKept": 1,
+      "ctaBefore": 0.0479,
+      "ctaAfter": 0.0746,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.1167,
+      "llmUsd": 0.092,
+      "imageUsd": 0.0247,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 2,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 107609,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\yoga-retreat\\yoga-retreat.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3131 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 3037 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for regen/sub1/1 used replicate-birefnet instead of local BiRefNet: only 2971 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 1,
+      "candidatesImageText": 0,
+      "candidatesCutout": 4,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [
+        "cutout"
+      ],
+      "judgeVerdicts": [
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition",
+            "cutout"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 0,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        true
+      ],
+      "judgeUsd": 0.0349,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "pizza-delivery",
+      "prompt": "Facebook ad for a pizza delivery app, free delivery this week, appetizing, red and cream, fun",
+      "size": "1200x628",
+      "ok": true,
+      "first": 97,
+      "bestOfN": 97,
+      "final": 95,
+      "candidates": [
+        97,
+        74,
+        97,
+        74
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 0,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0787,
+      "ctaAfter": 0.0787,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.0592,
+      "llmUsd": 0.0375,
+      "imageUsd": 0.0217,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": true,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 0,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 104281,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\pizza-delivery\\pizza-delivery.json",
+      "failingRules": [
+        "alignment"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3049 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 3032 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true
+      ],
+      "judgeUsd": 0.0163,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "tech-conference",
+      "prompt": "square post for a developer conference, futuristic, flat geometric illustration style, indigo and cyan",
+      "size": "1080x1080",
+      "ok": true,
+      "first": 100,
+      "bestOfN": 100,
+      "final": 98,
+      "candidates": [
+        100,
+        94,
+        100,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 1,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.1432,
+      "ctaAfter": 0.0936,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.0774,
+      "llmUsd": 0.0608,
+      "imageUsd": 0.0166,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": true,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "replicate-birefnet"
+      ],
+      "durationMs": 78616,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\tech-conference\\tech-conference.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 2946 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 2,
+          "categories": [
+            "artifact",
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0255,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "pet-adoption",
+      "prompt": "poster for a pet adoption day at the local animal shelter, heartwarming, friendly, sunny yellow",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 100,
+      "bestOfN": 100,
+      "final": 93,
+      "candidates": [
+        100,
+        91,
+        100,
+        91
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 2,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0594,
+      "ctaAfter": 0.0594,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-improvement",
+      "costUsd": 0.0975,
+      "llmUsd": 0.0747,
+      "imageUsd": 0.0228,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": true,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 2,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 118038,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\pet-adoption\\pet-adoption.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/dog1 used replicate-birefnet instead of local BiRefNet: only 2980 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/pets2 used replicate-birefnet instead of local BiRefNet: only 2999 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition",
+            "artifact"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true
+      ],
+      "judgeUsd": 0.0222,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "skincare-serum",
+      "prompt": "story ad for a vitamin C face serum, luxurious, minimal, soft peach and white, product hero",
+      "size": "1080x1920",
+      "ok": false,
+      "error": "Replicate prediction 9ks3w6qrsdrp20d15rk9tbq038 failed: Director: unexpected error handling prediction (E9828)",
+      "failure": "other"
+    },
+    {
+      "id": "bookstore-event",
+      "prompt": "wide banner for an author reading night at an independent bookstore, literary, warm lamplight, deep green",
+      "size": "1500x500",
+      "ok": true,
+      "first": 86,
+      "bestOfN": 100,
+      "final": 99,
+      "candidates": [
+        86,
+        100,
+        86,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 0,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0641,
+      "ctaAfter": 0.0641,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.0509,
+      "llmUsd": 0.0349,
+      "imageUsd": 0.016,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 0,
+      "cutouts": [
+        "replicate-birefnet"
+      ],
+      "durationMs": 76520,
+      "out": "out\\eval-generate\\2026-10-12T03-00-16-784Z_phase5b-shadows\\bookstore-event\\bookstore-event.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3001 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "fake-text"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true
+      ],
+      "judgeUsd": 0.0148,
+      "visualJudgeFinal": 0
+    }
+  ]
+}

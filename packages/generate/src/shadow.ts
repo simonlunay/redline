@@ -19,9 +19,9 @@ export interface Footprint {
 }
 
 export const SHADOW_SUFFIX = '-shadow';
-export const DEFAULT_SHADOW_OPACITY = 0.35;
+export const DEFAULT_SHADOW_OPACITY = 0.5;
 export const MIN_SHADOW_OPACITY = 0.1;
-export const MAX_SHADOW_OPACITY = 0.7;
+export const MAX_SHADOW_OPACITY = 0.8;
 
 export const shadowIdFor = (subjectId: string) => `${subjectId}${SHADOW_SUFFIX}`;
 
@@ -29,9 +29,11 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
 /**
- * The shadow for a subject: an ellipse a little wider than the footprint, flat (14% of its
- * width), centered on the contact line so it peeks out under the subject, and blurred by about
- * half its height. Kept inside the canvas. Opacity 0 is a shadow that's switched off.
+ * The shadow for a subject: an ellipse 20% wider than the footprint, flat (22% of its width),
+ * centered on the contact line so it peeks out under the subject, and blurred by 30% of its
+ * height, which keeps a dark core. (The first version, 14% tall with half its height of blur,
+ * was invisible on anything but a light, flat surface in the eval.) Kept inside the canvas.
+ * Opacity 0 is a shadow that's switched off.
  */
 export function contactShadow(
   subject: ImageElement,
@@ -41,8 +43,8 @@ export function contactShadow(
 ): ShapeElement {
   const footWidth = Math.max(0.05, footprint.right - footprint.left) * subject.width;
   const cx = subject.x + ((footprint.left + footprint.right) / 2) * subject.width;
-  const width = Math.max(8, footWidth * 1.15);
-  const height = Math.max(4, width * 0.14);
+  const width = Math.max(8, footWidth * 1.2);
+  const height = Math.max(4, width * 0.22);
   const contact = subject.y + footprint.bottom * subject.height;
   const x = clamp(cx - width / 2, 0, Math.max(0, canvas.width - width));
   const y = clamp(contact - height * 0.55, 0, Math.max(0, canvas.height - height));
@@ -58,7 +60,7 @@ export function contactShadow(
     fill: '#000000',
     opacity: opacity <= 0 ? 0 : r2(clamp(opacity, MIN_SHADOW_OPACITY, MAX_SHADOW_OPACITY)),
     cornerRadius: 0,
-    blur: r2(Math.max(2, height * 0.45)),
+    blur: r2(Math.max(2, height * 0.3)),
     rotation: 0,
     zIndex: subject.zIndex,
     groupId: subject.groupId ?? subject.id,
