@@ -8,6 +8,8 @@ export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
   fullyParallel: true,
+  // One retry in CI only: a single unreproduced failure was seen locally once (see the phase 6 report).
+  retries: process.env.CI ? 1 : 0,
   reporter: [['list']],
   use: { baseURL: 'http://localhost:4174', trace: 'retain-on-failure' },
   projects: [
