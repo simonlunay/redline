@@ -1,0 +1,94 @@
+{
+  "capUsd": 0.5,
+  "spentUsd": 0.262,
+  "entries": [
+    {
+      "at": "2026-10-12T12:36:33.380Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.042395,
+      "tag": "phase6-fix-runs:worst"
+    },
+    {
+      "at": "2026-10-12T12:36:36.390Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.011490799999999999,
+      "tag": "phase6-fix-runs:worst"
+    },
+    {
+      "at": "2026-10-12T12:36:52.485Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.030500799999999998,
+      "tag": "phase6-fix-runs:ad-sneaker-sale"
+    },
+    {
+      "at": "2026-10-12T12:36:59.646Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0180008,
+      "tag": "phase6-fix-runs:ad-sneaker-sale"
+    },
+    {
+      "at": "2026-10-12T12:37:09.760Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0197028,
+      "tag": "phase6-fix-runs:ad-sneaker-sale"
+    },
+    {
+      "at": "2026-10-12T12:37:27.242Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.033784800000000004,
+      "tag": "phase6-fix-runs:story-concert"
+    },
+    {
+      "at": "2026-10-12T12:37:35.632Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0235748,
+      "tag": "phase6-fix-runs:story-concert"
+    },
+    {
+      "at": "2026-10-12T12:37:46.033Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0233908,
+      "tag": "phase6-fix-runs:story-concert"
+    },
+    {
+      "at": "2026-10-12T12:37:52.929Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0210388,
+      "tag": "phase6-fix-runs:story-concert"
+    },
+    {
+      "at": "2026-10-12T12:37:58.112Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.018958799999999998,
+      "tag": "phase6-fix-runs:story-concert"
+    },
+    {
+      "at": "2026-10-12T12:38:05.968Z",
+      "kind": "llm",
+      "what": "fix-loop",
+      "model": "claude-sonnet-5-5",
+      "costUsd": 0.0191348,
+      "tag": "phase6-fix-runs:hard-story-hero"
+    }
+  ]
+}
