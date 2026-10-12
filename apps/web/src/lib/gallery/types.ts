@@ -32,6 +32,8 @@ export interface Snapshot {
   attention?: Record<string, FrozenRuleOutput>;
   /** Heatmap of predicted attention: an 8-bit grayscale PNG, relative to the run folder. */
   heatmap?: string;
+  /** A small static rendering (WebP, 240 px wide), relative to the run folder. */
+  thumbnail?: string;
 }
 
 export interface JudgeFindingRecord {

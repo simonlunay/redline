@@ -80,6 +80,8 @@ export const SIZE_BUDGET_BYTES = 15 * 1024 * 1024;
 const WEBP_QUALITY = 82;
 const HEATMAP_MAX_SIDE = 160;
 const THUMB_WIDTH = 480;
+/** Per-snapshot thumbnails, for static pages (the landing page's pipeline). */
+const SNAPSHOT_THUMB_WIDTH = 240;
 const FIX_TARGET = 100;
 const FIX_MAX_ITERATIONS = 5;
 
@@ -296,6 +298,16 @@ async function snapshot(b: Builder, absDesign: Design, ruleSet: RuleSet): Promis
     }
     snap.heatmap = heatmap;
   }
+  const thumbnail = `thumbs/${hash(design)}.webp`;
+  if (!existsSync(join(b.outDir, thumbnail))) {
+    const png = renderPng(design, {
+      images: b.webpImages,
+      scale: SNAPSHOT_THUMB_WIDTH / design.canvas.width,
+    });
+    mkdirSync(join(b.outDir, 'thumbs'), { recursive: true });
+    writeFileSync(join(b.outDir, thumbnail), await encodeWebp(await loadImage(png)));
+  }
+  snap.thumbnail = thumbnail;
   b.snapshots[id] = snap;
   return id;
 }
