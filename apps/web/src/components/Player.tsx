@@ -393,7 +393,7 @@ export function Player({
   const url = useCallback((src: string) => runFile(record.id, src), [record.id]);
   const { env } = useDesignEnv(record.id, srcs, url, record.images);
 
-  // Deep links: ?frame=<n> (1-based) and ?heatmap=1 open a run at that moment.
+  // Deep links: ?frame=<n> (1-based), ?heatmap=1, and ?play=1&speed=<1|2|4> (the demo recording).
   useEffect(() => {
     if (compact) return;
     const params = new URLSearchParams(window.location.search);
@@ -403,6 +403,9 @@ export function Player({
       setPlaying(false);
     }
     if (params.get('heatmap') === '1') setShowHeatmap(true);
+    const s = Number(params.get('speed'));
+    if ([1, 2, 4].includes(s)) setSpeed(s);
+    if (params.get('play') === '1') setPlaying(true);
   }, [compact, frames.length]);
 
   const frame = frames[index]!;

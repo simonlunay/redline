@@ -7,7 +7,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run build -w packages/checker && npm run build -w packages/agent && npm run build -w packages/generate",
+    "build": "npm run build -w packages/checker && npm run build -w packages/agent && npm run build -w packages/generate && npm run build -w apps/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -17,7 +17,10 @@
     "eval": "npm run eval -w packages/agent --",
     "redline": "tsx --conditions=@simonlunay/source packages/checker/src/cli.ts",
     "eval:generate": "npm run eval -w packages/generate --",
-    "eval:pairwise": "npm run eval:pairwise -w packages/generate --"
+    "eval:pairwise": "npm run eval:pairwise -w packages/generate --",
+    "build:packages": "npm run build -w packages/checker && npm run build -w packages/agent && npm run build -w packages/generate",
+    "e2e": "npm run e2e -w apps/web",
+    "web": "npm run dev -w apps/web"
   },
   "engines": {
     "node": ">=20"
