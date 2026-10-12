@@ -26,7 +26,7 @@ async function metricsOf(file: string) {
 
 /**
  * Real, clean BiRefNet cuts from the phase 5b eval that the keyer-tuned thresholds misread
- * (see fixtures/cutouts/README.md). Each row: the signal that fires, and its severity when the
+ * (see fixtures/cutouts/SOURCES.md). Each row: the signal that fires, and its severity when the
  * source isn't known.
  */
 const CASES: {
