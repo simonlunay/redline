@@ -14,7 +14,8 @@
     "record-fix-runs": "tsx --conditions=@simonlunay/source scripts/record-fix-runs.ts",
     "predev": "node scripts/copy-fonts.mjs",
     "prebuild": "node scripts/copy-fonts.mjs",
-    "postbuild": "node scripts/flatten-segments.mjs"
+    "postbuild": "node scripts/flatten-segments.mjs",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
