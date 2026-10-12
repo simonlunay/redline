@@ -14,7 +14,7 @@
     "record-fix-runs": "tsx --conditions=@simonlunay/source scripts/record-fix-runs.ts",
     "predev": "node scripts/copy-fonts.mjs",
     "prebuild": "node scripts/copy-fonts.mjs",
-    "postbuild": "node scripts/flatten-segments.mjs",
+    "postbuild": "node scripts/flatten-segments.mjs && node scripts/check-no-secrets.mjs",
     "e2e": "playwright test",
     "demo-video": "node scripts/record-demo.mjs"
   },

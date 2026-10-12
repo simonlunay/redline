@@ -1,0 +1,72 @@
+# Builds the web app (apps/web) as a static site and publishes it to GitHub Pages.
+#
+# One-time setup: repo Settings → Pages → Source: "GitHub Actions". The site is then served at
+# https://simonlunay.github.io/redline/. For a custom domain, see "Deploying" in the README
+# (set BASE_PATH to '' and add the CNAME).
+#
+# The site has no server and no secrets: nothing here needs an API key, and the build fails if
+# anything key-like ends up in it (apps/web/scripts/check-no-secrets.mjs).
+name: Web app
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # '' for a custom domain (redline.simonlunay.com); '/redline' for simonlunay.github.io/redline.
+  BASE_PATH: /redline
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build:packages
+      - run: npm test
+      - name: Build the site
+        run: npm run build -w apps/web
+        env:
+          NEXT_PUBLIC_BASE_PATH: ${{ env.BASE_PATH }}
+      - name: End-to-end tests (Chromium)
+        run: |
+          npx playwright install --with-deps chromium
+          # The e2e suite runs against a build without a base path, served at the root.
+          npm run build -w apps/web
+          npm run e2e
+          NEXT_PUBLIC_BASE_PATH="$BASE_PATH" npm run build -w apps/web
+        env:
+          CI: true
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: apps/web/out
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
