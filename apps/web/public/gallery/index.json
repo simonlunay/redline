@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-10-12T12:59:37.722Z",
+  "builtAt": "2026-10-12T13:24:16.432Z",
   "runs": [
     {
       "id": "charity-5k",
       "kind": "generate",
-      "title": "Charity 5k",
+      "title": "Charity 5K",
       "prompt": "poster for a charity 5K, energetic, blue and orange",
       "canvas": {
         "width": 1080,
@@ -95,7 +95,7 @@
     {
       "id": "fix-hard-busy-photo-tiny-cta",
       "kind": "fix",
-      "title": "Busy photo tiny cta",
+      "title": "Busy photo tiny CTA",
       "fixture": "hard-busy-photo-tiny-cta",
       "canvas": {
         "width": 1080,
@@ -221,7 +221,7 @@
     {
       "id": "saas-banner",
       "kind": "generate",
-      "title": "Saas banner",
+      "title": "SaaS banner",
       "prompt": "LinkedIn banner ad for a project management SaaS, clean, trustworthy, minimal, free trial",
       "canvas": {
         "width": 1200,
@@ -419,7 +419,7 @@
     },
     {
       "id": "banner-saas",
-      "title": "Banner saas",
+      "title": "Banner SaaS",
       "canvas": {
         "width": 1200,
         "height": 628,
@@ -464,7 +464,7 @@
     },
     {
       "id": "hard-busy-photo-tiny-cta",
-      "title": "Busy photo tiny cta",
+      "title": "Busy photo tiny CTA",
       "canvas": {
         "width": 1080,
         "height": 1080,

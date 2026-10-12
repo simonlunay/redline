@@ -92,6 +92,9 @@ const titleCase = (id: string) =>
   id
     .replace(/^hard-/, '')
     .replace(/-/g, ' ')
+    .replace(/\b5k\b/, '5K')
+    .replace(/\bsaas\b/, 'SaaS')
+    .replace(/\bcta\b/, 'CTA')
     .replace(/^./, (c) => c.toUpperCase());
 
 // ---------------------------------------------------------------------------------------------

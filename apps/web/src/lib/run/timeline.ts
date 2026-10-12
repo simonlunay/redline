@@ -20,6 +20,8 @@ export interface Frame {
   judgment?: number;
   /** Index into record.loop.steps (step frames). */
   step?: number;
+  /** Step frames: whether the step was accepted, rolled back, ... */
+  status?: StepRecord['status'];
   /** Short description for the timeline and screen readers. */
   label: string;
   /** How long the player holds this frame at 1×. */
@@ -55,6 +57,7 @@ function stepFrames(record: RunRecord, revealed: number, includeInitial: boolean
           snapshot: step.snapshot,
           revealed,
           step: i,
+          status: step.status,
           label: `Before: ${step.recordedScoreAfter}`,
           holdMs: HOLD_MS.step,
         });
@@ -68,6 +71,7 @@ function stepFrames(record: RunRecord, revealed: number, includeInitial: boolean
       ...(current ? { previous: current } : {}),
       revealed,
       step: i,
+      status: step.status,
       label: `Fix ${step.iteration}: ${STATUS_LABEL[step.status]}, ${step.recordedScoreBefore} → ${step.recordedScoreAfter}`,
       holdMs: HOLD_MS.step,
     });
