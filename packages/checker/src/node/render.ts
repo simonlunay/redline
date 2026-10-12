@@ -1,9 +1,8 @@
 import { createCanvas } from '@napi-rs/canvas';
-import type { Image, SKRSContext2D } from '@napi-rs/canvas';
+import type { Image } from '@napi-rs/canvas';
 import { round2, shortSide } from '../core/geometry.js';
-import type { Design, DesignElement, ImageElement } from '../core/schema.js';
-import { paintOrder } from '../core/rules/util.js';
-import { fontOf, wrapText } from '../core/text-measure.js';
+import { paintDesign } from '../core/paint.js';
+import type { Design } from '../core/schema.js';
 import type { Issue, RasterImage, Report, Severity } from '../core/types.js';
 import { createFontMeasurer } from './font-measurer.js';
 import { cssFont, registerBundledFonts } from './fonts.js';
@@ -13,92 +12,6 @@ export interface RenderOptions {
   images?: Map<string, Image>;
   /** Output scale, e.g. 0.5 for a smaller preview. */
   scale?: number;
-}
-
-function drawImageElement(ctx: SKRSContext2D, el: ImageElement, img: Image | undefined) {
-  if (!img) {
-    // Visible placeholder so a missing file is obvious in previews.
-    ctx.fillStyle = '#d0d0d0';
-    ctx.fillRect(el.x, el.y, el.width, el.height);
-    ctx.strokeStyle = '#888888';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(el.x, el.y);
-    ctx.lineTo(el.x + el.width, el.y + el.height);
-    ctx.moveTo(el.x + el.width, el.y);
-    ctx.lineTo(el.x, el.y + el.height);
-    ctx.stroke();
-    return;
-  }
-  if (el.fit === 'fill') {
-    ctx.drawImage(img, el.x, el.y, el.width, el.height);
-    return;
-  }
-  const sx = el.width / img.width;
-  const sy = el.height / img.height;
-  const scale = el.fit === 'cover' ? Math.max(sx, sy) : Math.min(sx, sy);
-  const w = img.width * scale;
-  const h = img.height * scale;
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(el.x, el.y, el.width, el.height);
-  ctx.clip();
-  ctx.drawImage(img, el.x + (el.width - w) / 2, el.y + (el.height - h) / 2, w, h);
-  ctx.restore();
-}
-
-function drawElement(
-  ctx: SKRSContext2D,
-  el: DesignElement,
-  images: Map<string, Image>,
-  measurer: ReturnType<typeof createFontMeasurer>,
-) {
-  ctx.save();
-  ctx.globalAlpha = el.opacity;
-  if (el.rotation !== 0) {
-    const cx = el.x + el.width / 2;
-    const cy = el.y + el.height / 2;
-    ctx.translate(cx, cy);
-    ctx.rotate((el.rotation * Math.PI) / 180);
-    ctx.translate(-cx, -cy);
-  }
-
-  if (el.type === 'shape') {
-    ctx.fillStyle = el.fill;
-    if (el.blur > 0) ctx.filter = `blur(${el.blur}px)`;
-    ctx.beginPath();
-    if (el.kind === 'ellipse') {
-      ctx.ellipse(
-        el.x + el.width / 2,
-        el.y + el.height / 2,
-        el.width / 2,
-        el.height / 2,
-        0,
-        0,
-        Math.PI * 2,
-      );
-    } else {
-      ctx.roundRect(el.x, el.y, el.width, el.height, el.cornerRadius);
-    }
-    ctx.fill();
-    ctx.filter = 'none';
-  } else if (el.type === 'image') {
-    drawImageElement(ctx, el, images.get(el.src));
-  } else {
-    const font = fontOf(el);
-    ctx.font = cssFont(font);
-    ctx.fillStyle = el.color;
-    ctx.textAlign = el.align;
-    ctx.textBaseline = 'middle';
-    const lineHeight = el.fontSize * el.lineHeight;
-    const x =
-      el.align === 'left' ? el.x : el.align === 'right' ? el.x + el.width : el.x + el.width / 2;
-    // Deliberately not clipped: overflowing text should be visible in the preview.
-    wrapText(el.content, el.width, font, measurer).forEach((line, i) => {
-      ctx.fillText(line, x, el.y + i * lineHeight + lineHeight / 2);
-    });
-  }
-  ctx.restore();
 }
 
 /** Draws the design. `headerHeight` reserves a strip above it (used by the annotated view). */
@@ -112,12 +25,11 @@ function renderToCanvas(design: Design, options: RenderOptions, headerHeight = 0
   const ctx = canvas.getContext('2d');
   ctx.scale(scale, scale);
   ctx.translate(0, headerHeight);
-  ctx.fillStyle = design.canvas.background;
-  ctx.fillRect(0, 0, design.canvas.width, design.canvas.height);
-  const measurer = createFontMeasurer();
-  for (const el of paintOrder(design)) {
-    drawElement(ctx, el, options.images ?? new Map(), measurer);
-  }
+  paintDesign(ctx, design, {
+    images: options.images ?? new Map(),
+    measurer: createFontMeasurer(),
+    cssFont,
+  });
   return { canvas, ctx };
 }
 

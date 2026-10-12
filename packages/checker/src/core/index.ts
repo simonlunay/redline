@@ -44,6 +44,8 @@ export {
   textOverflow,
   unintendedOverlap,
 } from './rules/index.js';
+export { paintDesign, paintElement } from './paint.js';
+export type { PaintContext, PaintImage, PaintOptions } from './paint.js';
 export { renderedTextBounds } from './rules/label-centered.js';
 export { backdropAt, imageUV } from './backdrop.js';
 export { imageRectToCanvas } from './image-analysis.js';

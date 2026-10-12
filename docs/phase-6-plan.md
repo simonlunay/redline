@@ -1,6 +1,6 @@
 # Phase 6 plan: the web app (static)
 
-Branch `phase-6-web` (from `main` at `220b349`). **Status: revised, waiting for approval.** No code is written until you approve.
+Branch `phase-6-web` (from `main` at `220b349`). **Status: approved 2026-10-12** (see [Approval](#approval-2026-10-12)).
 
 **Revision 2 (2026-10-12):** no backend and no live AI calls. The site is fully static: replayed runs, a checker and editor that run in the browser, and export. It deploys for free. The code leaves a clean seam for a live backend later, which isn't built. The first version of this plan (Vercel + a job server) is in git history at `ed38103`.
 
