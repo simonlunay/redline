@@ -10,6 +10,25 @@ import { loadImages } from '@/lib/env/images';
 let measureCanvas: OffscreenCanvas | undefined;
 
 /**
+ * Resolves once the page itself has loaded, so the design fonts and images (several hundred KB)
+ * don't compete with the page's own text and styles on a slow connection.
+ */
+async function pageLoaded(): Promise<void> {
+  if (document.readyState !== 'complete') {
+    await new Promise<void>((resolve) =>
+      window.addEventListener('load', () => resolve(), { once: true }),
+    );
+  }
+  // The page's own font first (the headline waits on it), then an idle moment.
+  await document.fonts.ready;
+  await new Promise<void>((resolve) =>
+    'requestIdleCallback' in window
+      ? window.requestIdleCallback(() => resolve(), { timeout: 600 })
+      : setTimeout(resolve, 50),
+  );
+}
+
+/**
  * Loads the design fonts and a run's (or sample's, or upload's) images, and builds the
  * environment the checker and renderer share. Returns null until everything is ready, plus the
  * images that failed to load.
@@ -29,6 +48,7 @@ export function useDesignEnv(
     if (key === null) return;
     let live = true;
     (async () => {
+      await pageLoaded();
       await loadDesignFonts();
       const { images, errors } = await loadImages(srcs, url);
       measureCanvas ??= new OffscreenCanvas(1, 1);

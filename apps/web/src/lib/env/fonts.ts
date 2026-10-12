@@ -8,10 +8,10 @@ import { asset } from '../base-path';
 export const DESIGN_FONT_FAMILY = 'Redline Inter';
 
 export const DESIGN_FONT_FILES: Record<number, string> = {
-  400: 'Inter-Regular.ttf',
-  600: 'Inter-SemiBold.ttf',
-  700: 'Inter-Bold.ttf',
-  900: 'Inter-Black.ttf',
+  400: 'Inter-Regular.woff2',
+  600: 'Inter-SemiBold.woff2',
+  700: 'Inter-Bold.woff2',
+  900: 'Inter-Black.woff2',
 };
 
 export function cssFont(font: FontSpec): string {

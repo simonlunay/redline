@@ -1,9 +1,22 @@
-import '@fontsource-variable/archivo/wdth.css';
+import localFont from 'next/font/local';
 import './globals.css';
 import './pages.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
+
+/**
+ * Archivo, the UI face, with its width axis (the wide headlines). Loaded through next/font so it's
+ * preloaded and self-hosted, with a metric-matched fallback while it loads. Latin only.
+ */
+const archivo = localFont({
+  src: '../../../../node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2',
+  weight: '100 900',
+  style: 'normal',
+  display: 'swap',
+  variable: '--font-archivo',
+  declarations: [{ prop: 'font-stretch', value: '62% 125%' }],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -41,7 +54,7 @@ const CSP = [
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={archivo.variable}>
       <head>
         {process.env.NODE_ENV === 'production' ? (
           <meta httpEquiv="Content-Security-Policy" content={CSP} />

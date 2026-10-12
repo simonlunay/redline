@@ -30,7 +30,7 @@ const samples = index.samples.map(
 
 beforeAll(() => {
   for (const file of Object.values(DESIGN_FONT_FILES)) {
-    GlobalFonts.registerFromPath(join(FONTS, file), DESIGN_FONT_FAMILY);
+    GlobalFonts.registerFromPath(join(FONTS, file.replace(/\.woff2$/, '.ttf')), DESIGN_FONT_FAMILY);
   }
 });
 

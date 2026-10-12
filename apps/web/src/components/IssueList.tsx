@@ -42,7 +42,7 @@ export function IssueList({
         <li
           key={`${i}-${issue.ruleId}`}
           className={`issue ${issue.severity}`}
-          aria-selected={selected === i}
+          data-selected={selected === i}
           onPointerEnter={() => onSelect?.(i)}
           onPointerLeave={() => onSelect?.(null)}
           onFocus={() => onSelect?.(i)}

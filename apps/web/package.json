@@ -30,6 +30,7 @@
     "@playwright/test": "^1.64.0",
     "@simonlunay/redline-generate": "^0.1.0",
     "@types/react": "^19",
-    "@types/react-dom": "^19"
+    "@types/react-dom": "^19",
+    "wawoff2": "^2.0.1"
   }
 }

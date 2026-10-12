@@ -10,7 +10,7 @@
   --paper-sunk: #e2e6df;
   --ink: #1f2421;
   --ink-2: #4a524d;
-  --ink-3: #6f7872;
+  --ink-3: #5d665f;
   --rule: #c9cfc7;
   --mat: #2e463b;
   --mat-line: #3d5a4c;
@@ -24,7 +24,7 @@
   --ring: #ffffff;
   --focus: #2f6fd0;
 
-  --font-ui: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-ui: var(--font-archivo), system-ui, sans-serif;
   --wide: 125%;
   --semi-wide: 112%;
 
@@ -543,7 +543,7 @@ pre {
 }
 
 .issue:hover,
-.issue[aria-selected='true'] {
+.issue[data-selected='true'] {
   background: var(--paper-sunk);
 }
 
