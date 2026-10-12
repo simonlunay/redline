@@ -317,6 +317,10 @@ pre {
   transition: opacity 300ms ease;
 }
 
+.stage.blank canvas {
+  opacity: 0;
+}
+
 .stage canvas {
   display: block;
   width: 100%;

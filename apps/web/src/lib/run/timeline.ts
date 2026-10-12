@@ -4,7 +4,7 @@
  */
 import type { RunRecord, StepRecord } from '../gallery/types';
 
-export type FrameKind = 'plan' | 'candidate' | 'winner' | 'judge' | 'step' | 'final';
+export type FrameKind = 'prompt' | 'plan' | 'candidate' | 'winner' | 'judge' | 'step' | 'final';
 
 export interface Frame {
   kind: FrameKind;
@@ -29,6 +29,7 @@ export interface Frame {
 }
 
 export const HOLD_MS: Record<FrameKind, number> = {
+  prompt: 3200,
   plan: 2600,
   candidate: 1000,
   winner: 1600,
@@ -97,6 +98,7 @@ export function buildTimeline(record: RunRecord): Frame[] {
 
   const candidates = record.candidates ?? [];
   const frames: Frame[] = [
+    { kind: 'prompt', revealed: 0, label: 'The prompt', holdMs: HOLD_MS.prompt },
     { kind: 'plan', revealed: 0, label: 'Art direction', holdMs: HOLD_MS.plan },
   ];
   candidates.forEach((c, i) => {

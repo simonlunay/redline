@@ -24,9 +24,10 @@ const run = (id: string) =>
   ) as RunRecord;
 
 describe('timeline', () => {
-  it('orders a generate run: plan, candidates, winner, judge, fixes, judge, final', () => {
+  it('orders a generate run: prompt, plan, candidates, winner, judge, fixes, judge, final', () => {
     const frames = buildTimeline(run('yoga-retreat-tuned'));
     expect(frames.map((f) => f.kind)).toEqual([
+      'prompt',
       'plan',
       'candidate',
       'candidate',

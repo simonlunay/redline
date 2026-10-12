@@ -35,8 +35,8 @@ export interface StageProps {
   selectedElement?: string | null;
   onSelectElement?: (id: string | null) => void;
   onEdit?: (design: Design, done: boolean) => void;
-  /** Shown faded (the plan, before any design exists). */
-  dimmed?: boolean;
+  /** Shown faded (the plan), or hidden (the prompt), before the design exists. */
+  dimmed?: boolean | 'blank';
   /** Longest side of the stage on screen, as a CSS length (keeps tall designs in view). */
   maxHeight?: string;
   label: string;
@@ -239,7 +239,7 @@ export function Stage(props: StageProps) {
     <div className="mat">
       <div
         ref={wrap}
-        className={`stage${editable ? ' editable' : ''}${dimmed ? ' dimmed' : ''}`}
+        className={`stage${editable ? ' editable' : ''}${dimmed ? ' dimmed' : ''}${dimmed === 'blank' ? ' blank' : ''}`}
         style={{ maxWidth: `calc(${maxHeight} * ${W / H})`, aspectRatio: `${W} / ${H}` }}
         role="img"
         aria-label={label}

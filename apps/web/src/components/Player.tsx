@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { asset } from '@/lib/base-path';
 import { diffDesigns } from '@/lib/diff';
 import type { DesignEnv } from '@/lib/env/design-env';
@@ -18,6 +18,7 @@ import { buildTimeline } from '@/lib/run/timeline';
 import type { Frame } from '@/lib/run/timeline';
 import { ExportButtons } from './ExportButtons';
 import { FontWarning } from './FontWarning';
+import { PipelineCaption } from './PipelineCaption';
 import { IssueList } from './IssueList';
 import { Score } from './Score';
 import { Stage } from './Stage';
@@ -371,6 +372,19 @@ function CandidatesPanel({
   );
 }
 
+function PromptPanel({ record }: { record: RunRecord }) {
+  return (
+    <div className="panel">
+      <div className="label">The prompt</div>
+      <h2>“{record.prompt}”</h2>
+      <p className="note">
+        One line in, {record.canvas.width}×{record.canvas.height}. Everything after this is what the
+        pipeline did with it, as recorded.
+      </p>
+    </div>
+  );
+}
+
 export function Player({
   record,
   autoplay = false,
@@ -378,15 +392,27 @@ export function Player({
   compact = false,
 }: {
   record: RunRecord;
-  autoplay?: boolean;
-  /** Start over at the end (the landing page's demo). */
+  /** true: play on load. 'visible': play while at least half of the player is on screen. */
+  autoplay?: boolean | 'visible';
+  /** Start over at the end (the landing page's demos). */
   loop?: boolean;
-  /** Stage and timeline only (the landing page). */
+  /** Stage, a one-line caption per stage and the timeline (the landing page). */
   compact?: boolean;
 }) {
   const frames = useMemo(() => buildTimeline(record), [record]);
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(autoplay);
+  const [playing, setPlaying] = useState(autoplay === true);
+  const root = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (autoplay !== 'visible' || !root.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPlaying(Boolean(entry?.isIntersecting)),
+      { threshold: 0.5 },
+    );
+    observer.observe(root.current);
+    return () => observer.disconnect();
+  }, [autoplay]);
   const [speed, setSpeed] = useState(1);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState<number | null>(null);
@@ -446,12 +472,12 @@ export function Player({
       {...(previous ? { previous } : {})}
       {...(judgment ? { judgeFindings: judgment.findings } : {})}
       {...(snap.heatmap ? { heatmapUrl: runFile(record.id, snap.heatmap) } : {})}
-      showHeatmap={showHeatmap}
-      showIssues={frame.kind !== 'plan'}
+      showHeatmap={showHeatmap || (compact && frame.kind === 'candidate')}
+      showIssues={frame.kind !== 'plan' && frame.kind !== 'prompt'}
       selectedIssue={selectedIssue}
       onSelectIssue={setSelectedIssue}
-      maxHeight={compact ? '58vh' : '58vh'}
-      dimmed={frame.kind === 'plan'}
+      maxHeight={compact ? '48vh' : '58vh'}
+      dimmed={frame.kind === 'prompt' ? 'blank' : frame.kind === 'plan'}
       label={`${record.title}: ${frame.label}`}
     />
   );
@@ -485,10 +511,19 @@ export function Player({
 
   if (compact) {
     return (
-      <div className="player compact">
+      <div className="player compact" ref={root}>
         {stage}
         <div className="compact-bar">
-          <Score report={snap.report} caption={frame.label} />
+          <div className="compact-info">
+            {record.kind === 'generate' ? (
+              <PipelineCaption record={record} frame={frame} />
+            ) : (
+              <div className="caption-line">{frame.label}</div>
+            )}
+            {frame.kind !== 'prompt' && frame.kind !== 'plan' ? (
+              <Score report={snap.report} />
+            ) : null}
+          </div>
           {controls}
         </div>
       </div>
@@ -503,6 +538,7 @@ export function Player({
         {controls}
       </div>
       <aside className="player-side">
+        {frame.kind === 'prompt' ? <PromptPanel record={record} /> : null}
         {frame.kind === 'plan' ? <PlanPanel record={record} /> : null}
         {frame.kind === 'candidate' || frame.kind === 'winner' ? (
           <CandidatesPanel
@@ -519,7 +555,7 @@ export function Player({
           <StepPanel record={record} step={record.loop.steps[frame.step!]!} />
         ) : null}
         {frame.kind === 'final' ? <FinalPanel record={record} /> : null}
-        {frame.kind !== 'plan' ? (
+        {frame.kind !== 'plan' && frame.kind !== 'prompt' ? (
           <div className="panel">
             <Score report={snap.report} caption="Rules score of the design on the stage" />
             {snap.report.issues.length ? <h3>Issues</h3> : null}
