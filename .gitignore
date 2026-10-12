@@ -9,3 +9,10 @@ coverage/
 *.render.png
 *.annotated.png
 .env
+
+# Web app build output
+apps/web/.next/
+apps/web/out/
+apps/web/next-env.d.ts
+apps/web/test-results/
+apps/web/playwright-report/

@@ -3,3 +3,11 @@ dist
 coverage
 package-lock.json
 **/__snapshots__
+
+# Web app: generated gallery data and build output
+apps/web/public/gallery/
+apps/web/public/samples/
+apps/web/gallery-src/
+apps/web/.next/
+apps/web/out/
+apps/web/next-env.d.ts

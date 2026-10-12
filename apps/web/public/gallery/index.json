@@ -1,0 +1,614 @@
+{
+  "schemaVersion": 1,
+  "builtAt": "2026-10-12T12:59:37.722Z",
+  "runs": [
+    {
+      "id": "charity-5k",
+      "kind": "generate",
+      "title": "Charity 5k",
+      "prompt": "poster for a charity 5K, energetic, blue and orange",
+      "canvas": {
+        "width": 1080,
+        "height": 1350
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 100,
+        "bestOfN": 100,
+        "final": 100
+      },
+      "rank": 0,
+      "thumbnail": "charity-5k/thumb.webp"
+    },
+    {
+      "id": "fix-worst",
+      "kind": "fix",
+      "title": "Worst",
+      "fixture": "worst",
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background": "#ffffff"
+      },
+      "outcome": "solved",
+      "scores": {
+        "first": 5,
+        "final": 100
+      },
+      "rank": 1,
+      "thumbnail": "fix-worst/thumb.webp"
+    },
+    {
+      "id": "pet-adoption-tuned",
+      "kind": "generate",
+      "title": "Pet adoption, after shadow tuning",
+      "prompt": "poster for a pet adoption day at the local animal shelter, heartwarming, friendly, sunny yellow",
+      "canvas": {
+        "width": 1080,
+        "height": 1350
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 58,
+        "bestOfN": 94,
+        "final": 99
+      },
+      "rank": 2,
+      "thumbnail": "pet-adoption-tuned/thumb.webp"
+    },
+    {
+      "id": "fix-story-concert",
+      "kind": "fix",
+      "title": "Story concert",
+      "fixture": "story-concert",
+      "canvas": {
+        "width": 1080,
+        "height": 1920,
+        "background": "#0b0b1a"
+      },
+      "outcome": "solved",
+      "scores": {
+        "first": 16,
+        "final": 100
+      },
+      "rank": 3,
+      "thumbnail": "fix-story-concert/thumb.webp"
+    },
+    {
+      "id": "bookstore-event",
+      "kind": "generate",
+      "title": "Bookstore event",
+      "prompt": "wide banner for an author reading night at an independent bookstore, literary, warm lamplight, deep green",
+      "canvas": {
+        "width": 1500,
+        "height": 500
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 86,
+        "bestOfN": 100,
+        "final": 99
+      },
+      "rank": 4,
+      "thumbnail": "bookstore-event/thumb.webp"
+    },
+    {
+      "id": "fix-hard-busy-photo-tiny-cta",
+      "kind": "fix",
+      "title": "Busy photo tiny cta",
+      "fixture": "hard-busy-photo-tiny-cta",
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background": "#3b2f2f"
+      },
+      "outcome": "solved",
+      "scores": {
+        "first": 70,
+        "final": 100
+      },
+      "rank": 5,
+      "thumbnail": "fix-hard-busy-photo-tiny-cta/thumb.webp"
+    },
+    {
+      "id": "yoga-retreat-tuned",
+      "kind": "generate",
+      "title": "Yoga retreat, after shadow tuning",
+      "prompt": "ad for a weekend yoga retreat in the mountains, calm, airy, soft pastel colors",
+      "canvas": {
+        "width": 1080,
+        "height": 1350
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 94,
+        "bestOfN": 100,
+        "final": 99
+      },
+      "rank": 6,
+      "thumbnail": "yoga-retreat-tuned/thumb.webp"
+    },
+    {
+      "id": "fix-hard-story-hero",
+      "kind": "fix",
+      "title": "Story hero",
+      "fixture": "hard-story-hero",
+      "canvas": {
+        "width": 1080,
+        "height": 1920,
+        "background": "#111827"
+      },
+      "outcome": "solved",
+      "scores": {
+        "first": 79,
+        "final": 100
+      },
+      "rank": 7,
+      "thumbnail": "fix-hard-story-hero/thumb.webp"
+    },
+    {
+      "id": "sneaker-drop",
+      "kind": "generate",
+      "title": "Sneaker drop",
+      "prompt": "story ad for a limited sneaker drop, bold streetwear style, neon green on black",
+      "canvas": {
+        "width": 1080,
+        "height": 1920
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 100,
+        "bestOfN": 100,
+        "final": 98
+      },
+      "rank": 8,
+      "thumbnail": "sneaker-drop/thumb.webp"
+    },
+    {
+      "id": "summer-sale",
+      "kind": "generate",
+      "title": "Summer sale",
+      "prompt": "summer sale social post for a beachwear brand, 40% off, bright and playful, turquoise and coral",
+      "canvas": {
+        "width": 1080,
+        "height": 1080
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 100,
+        "bestOfN": 100,
+        "final": 98
+      },
+      "rank": 9,
+      "thumbnail": "summer-sale/thumb.webp"
+    },
+    {
+      "id": "tech-conference",
+      "kind": "generate",
+      "title": "Tech conference",
+      "prompt": "square post for a developer conference, futuristic, flat geometric illustration style, indigo and cyan",
+      "canvas": {
+        "width": 1080,
+        "height": 1080
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 100,
+        "bestOfN": 100,
+        "final": 98
+      },
+      "rank": 10,
+      "thumbnail": "tech-conference/thumb.webp"
+    },
+    {
+      "id": "pizza-delivery",
+      "kind": "generate",
+      "title": "Pizza delivery",
+      "prompt": "Facebook ad for a pizza delivery app, free delivery this week, appetizing, red and cream, fun",
+      "canvas": {
+        "width": 1200,
+        "height": 628
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 97,
+        "bestOfN": 97,
+        "final": 95
+      },
+      "rank": 11,
+      "thumbnail": "pizza-delivery/thumb.webp"
+    },
+    {
+      "id": "saas-banner",
+      "kind": "generate",
+      "title": "Saas banner",
+      "prompt": "LinkedIn banner ad for a project management SaaS, clean, trustworthy, minimal, free trial",
+      "canvas": {
+        "width": 1200,
+        "height": 628
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 86,
+        "bestOfN": 94,
+        "final": 93
+      },
+      "rank": 12,
+      "thumbnail": "saas-banner/thumb.webp"
+    },
+    {
+      "id": "jazz-night",
+      "kind": "generate",
+      "title": "Jazz night",
+      "prompt": "poster for a late-night jazz concert in a small club, moody, deep purple and gold, vintage",
+      "canvas": {
+        "width": 1080,
+        "height": 1350
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 71,
+        "bestOfN": 94,
+        "final": 92
+      },
+      "rank": 13,
+      "thumbnail": "jazz-night/thumb.webp"
+    },
+    {
+      "id": "headphones-launch",
+      "kind": "generate",
+      "title": "Headphones launch",
+      "prompt": "wide web banner launching premium wireless headphones, sleek, dark studio look, silver accents",
+      "canvas": {
+        "width": 1500,
+        "height": 500
+      },
+      "outcome": "shipped",
+      "scores": {
+        "first": 83,
+        "bestOfN": 88,
+        "final": 92
+      },
+      "rank": 14,
+      "thumbnail": "headphones-launch/thumb.webp"
+    },
+    {
+      "id": "yoga-retreat",
+      "kind": "generate",
+      "title": "Yoga retreat",
+      "prompt": "ad for a weekend yoga retreat in the mountains, calm, airy, soft pastel colors",
+      "canvas": {
+        "width": 1080,
+        "height": 1350
+      },
+      "outcome": "judge-fix",
+      "outcomeNote": "The cut-out figure sits right on the far grass horizon line with no visible contact shadow. Her legs appear to hover above the meadow, so she reads as a sticker pasted onto the scene rather than someone sitting in it. Her warm studio lighting also doesn't quite match the hazy backlit landscape.",
+      "scores": {
+        "first": 88,
+        "bestOfN": 88,
+        "final": 94
+      },
+      "rank": 15,
+      "thumbnail": "yoga-retreat/thumb.webp"
+    },
+    {
+      "id": "fix-ad-sneaker-sale",
+      "kind": "fix",
+      "title": "Ad sneaker sale",
+      "fixture": "ad-sneaker-sale",
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background": "#ffffff"
+      },
+      "outcome": "unsolved",
+      "outcomeNote": "The loop stopped at 91 (no improvement); the target was 100 with no errors.",
+      "scores": {
+        "first": 9,
+        "final": 91
+      },
+      "rank": 16,
+      "thumbnail": "fix-ad-sneaker-sale/thumb.webp"
+    },
+    {
+      "id": "coffee-latte-tuned",
+      "kind": "generate",
+      "title": "Coffee latte, after shadow tuning",
+      "prompt": "Instagram post announcing a new oat milk latte at a neighborhood coffee shop, cozy, warm morning light",
+      "canvas": {
+        "width": 1080,
+        "height": 1080
+      },
+      "outcome": "judge-fix",
+      "outcomeNote": "The translucent brown panel shows faint, murky shapes of a mug and a cup and saucer from the background photo behind the subheading and CTA. They read as dirty ghosting rather than intentional texture.",
+      "scores": {
+        "first": 51,
+        "bestOfN": 100,
+        "final": 93
+      },
+      "rank": 17,
+      "thumbnail": "coffee-latte-tuned/thumb.webp"
+    },
+    {
+      "id": "pet-adoption",
+      "kind": "generate",
+      "title": "Pet adoption",
+      "prompt": "poster for a pet adoption day at the local animal shelter, heartwarming, friendly, sunny yellow",
+      "canvas": {
+        "width": 1080,
+        "height": 1350
+      },
+      "outcome": "judge-fix",
+      "outcomeNote": "The puppy reads as a pasted cut-out. It is neither on the bench nor clearly on the floor in front of it: its paws float just above the floorline, and the bench seat passes behind its body at an ambiguous depth. The decorative shadow is barely visible and doesn't ground it.",
+      "scores": {
+        "first": 100,
+        "bestOfN": 100,
+        "final": 93
+      },
+      "rank": 18,
+      "thumbnail": "pet-adoption/thumb.webp"
+    },
+    {
+      "id": "farmers-market",
+      "kind": "generate",
+      "title": "Farmers market",
+      "prompt": "story for a Saturday farmers market, fresh vegetables, friendly, natural greens and earthy tones",
+      "canvas": {
+        "width": 1080,
+        "height": 1920
+      },
+      "outcome": "judge-fix",
+      "outcomeNote": "The basket hovers in the middle of the blurred garden scene with no surface beneath it. Its sharp, evenly lit look does not match the warm backlit background, so it reads as a sticker rather than part of the scene. The shadow shape is barely visible and does not ground it.",
+      "scores": {
+        "first": 44,
+        "bestOfN": 94,
+        "final": 87
+      },
+      "rank": 19,
+      "thumbnail": "farmers-market/thumb.webp"
+    },
+    {
+      "id": "skincare-serum",
+      "kind": "generate",
+      "title": "Skincare serum",
+      "prompt": "story ad for a vitamin C face serum, luxurious, minimal, soft peach and white, product hero",
+      "canvas": {
+        "width": 1080,
+        "height": 1920
+      },
+      "outcome": "judge-fix",
+      "outcomeNote": "The bottle already has its dropper cap fitted, yet a second dropper lies on its side next to it. This duplicated part is physically illogical and looks like a generation artifact.",
+      "scores": {
+        "first": 88,
+        "bestOfN": 94,
+        "final": 87
+      },
+      "rank": 20,
+      "thumbnail": "skincare-serum/thumb.webp"
+    },
+    {
+      "id": "coffee-latte",
+      "kind": "generate",
+      "title": "Coffee latte",
+      "prompt": "Instagram post announcing a new oat milk latte at a neighborhood coffee shop, cozy, warm morning light",
+      "canvas": {
+        "width": 1080,
+        "height": 1080
+      },
+      "outcome": "judge-fix",
+      "outcomeNote": "The glass is huge relative to the window and plant, and evenly front-lit while the scene is strongly backlit by the sun. Its base rests on the top edge of the brown panel instead of on a table or sill, so it reads as a floating sticker rather than part of the cozy scene.",
+      "scores": {
+        "first": 54,
+        "bestOfN": 86,
+        "final": 82
+      },
+      "rank": 21,
+      "thumbnail": "coffee-latte/thumb.webp"
+    }
+  ],
+  "samples": [
+    {
+      "id": "ad-sneaker-sale",
+      "title": "Ad sneaker sale",
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background": "#ffffff"
+      },
+      "run": "fix-ad-sneaker-sale"
+    },
+    {
+      "id": "banner-saas",
+      "title": "Banner saas",
+      "canvas": {
+        "width": 1200,
+        "height": 628,
+        "background": "#eef2ff"
+      }
+    },
+    {
+      "id": "clean-poster",
+      "title": "Clean poster",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "competing-headline",
+      "title": "Competing headline",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "hard-attention-badge",
+      "title": "Attention badge",
+      "canvas": {
+        "width": 1200,
+        "height": 628,
+        "background": "#1e293b"
+      }
+    },
+    {
+      "id": "hard-attention-burst",
+      "title": "Attention burst",
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background": "#f8fafc"
+      }
+    },
+    {
+      "id": "hard-busy-photo-tiny-cta",
+      "title": "Busy photo tiny cta",
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background": "#3b2f2f"
+      },
+      "run": "fix-hard-busy-photo-tiny-cta"
+    },
+    {
+      "id": "hard-cluttered-flyer",
+      "title": "Cluttered flyer",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#fff7ed"
+      }
+    },
+    {
+      "id": "hard-leaderboard",
+      "title": "Leaderboard",
+      "canvas": {
+        "width": 728,
+        "height": 90,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "hard-skyscraper",
+      "title": "Skyscraper",
+      "canvas": {
+        "width": 300,
+        "height": 1050,
+        "background": "#fefce8"
+      }
+    },
+    {
+      "id": "hard-story-hero",
+      "title": "Story hero",
+      "canvas": {
+        "width": 1080,
+        "height": 1920,
+        "background": "#111827"
+      },
+      "run": "fix-hard-story-hero"
+    },
+    {
+      "id": "low-contrast-on-image",
+      "title": "Low contrast on image",
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "id": "misaligned",
+      "title": "Misaligned",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "off-canvas",
+      "title": "Off canvas",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "off-center-label",
+      "title": "Off center label",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "overlap-headline-product",
+      "title": "Overlap headline product",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "promo-food",
+      "title": "Promo food",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#fff7ed"
+      }
+    },
+    {
+      "id": "story-concert",
+      "title": "Story concert",
+      "canvas": {
+        "width": 1080,
+        "height": 1920,
+        "background": "#0b0b1a"
+      },
+      "run": "fix-story-concert"
+    },
+    {
+      "id": "stretched-image",
+      "title": "Stretched image",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "text-overflow",
+      "title": "Text overflow",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "tiny-text",
+      "title": "Tiny text",
+      "canvas": {
+        "width": 1080,
+        "height": 1350,
+        "background": "#0f172a"
+      }
+    },
+    {
+      "id": "worst",
+      "title": "Worst",
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background": "#ffffff"
+      },
+      "run": "fix-worst"
+    }
+  ]
+}
