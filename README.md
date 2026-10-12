@@ -29,6 +29,10 @@ $ npx @simonlunay/redline check fixtures/worst.json
 
 `--annotate` draws the same issues onto the rendered design, numbered to match the report.
 
+![A recorded generate run replayed in the web app: the vision judge marks a floating figure, the fix loop moves it (blue marks), the judge ships it, and the attention heatmap shows where viewers are predicted to look](docs/media/redline-demo.gif)
+
+**Web app: [simonlunay.github.io/redline](https://simonlunay.github.io/redline/).** Replays recorded runs step by step (plan, candidates, winner, judge reviews, every fix with its edits and reasons), and runs the checker in your browser while you drag, resize and recolor a design. It's a static site: no server, no API keys, no AI calls. See [Web app](#web-app). ([MP4 of the demo](docs/media/redline-demo.mp4))
+
 ## Why
 
 AI tools are good at producing designs and bad at noticing their own mistakes: white text on a pale photo, a headline sliding under the product shot, a stretched logo, a button label that doesn't fit. Redline is the missing feedback signal. It checks a design against concrete, explainable design rules and describes each problem precisely enough for a program to repair it.
@@ -1055,11 +1059,70 @@ The cause was ONNX Runtime's CPU arena keeping BiRefNet's ~6 GB inference peak f
 - **FLUX schnell** sometimes ignores parts of the brief, including "no text". The calm-area instruction is a request, not a guarantee, which is exactly what the regeneration op and the contrast rule are there to catch.
 - **The judge reviews only the winner.** Best-of-N still picks by rule score (now including the image rules), so two candidates that both score 100 are a tie broken by warnings and CTA attention. The judge then reviews whichever won.
 
+## Web app
+
+`apps/web` is a Next.js (App Router) site, exported as static files. It has three parts:
+
+- **Recorded runs** (`/gallery`, `/runs/<id>`): 17 generate runs from the phase 5b evals and 5 fix-loop runs, replayed on a timeline you can scrub with the mouse or the arrow keys. Red marks are the checker's issues (solid: error, dashed: warning), blue corner marks are what the fix loop changed, and dashed red `J` boxes are the vision judge's findings. The heatmap shows predicted attention. Runs the judge didn't ship, or the loop didn't solve, are included and labeled with what still looks wrong.
+- **Check and edit** (`/check`): open one of the 22 sample designs, a step of any run, or your own design JSON (images embedded as data URLs, 4 MB max). Drag, resize (Shift keeps the ratio) and recolor elements; the checker re-runs on every change. **Fix it with the rules (no AI)** runs the real fix loop in your browser with the checker's own suggested fixes, next to the recorded AI result for that design.
+- **Export** a PNG at full size, or the design as self-contained JSON that `redline check` and `redline fix` accept.
+
+**How the browser checks.** The isomorphic `check()` runs client-side with the same Inter files, the same shared renderer (`paintDesign` in the checker's core, which the CLI's PNGs use too), the same pixel sampler and the same rule order as the CLI. The models stay out of the browser:
+
+- **Attention:** the gallery build ran MSI-Net on every recorded design and stored the attention rules' results plus a small heatmap. The browser replays those results for an unedited design, so its score is exactly what was measured. Once you edit, the attention rules pause (the page says so) until you undo back.
+- **Image rules:** each image's text detection and cutout analysis is stored with the run, since editing never changes an image.
+
+A unit test re-checks every stored snapshot with the browser's rule set and gets the stored report exactly. An end-to-end test does the same for all 22 samples in Chromium, where text is measured by the browser's own canvas.
+
+### Running it locally
+
+```bash
+npm install
+npm run build:packages          # the site imports the packages' dist/
+npm run web                     # dev server on http://localhost:3000
+npm run build -w apps/web       # static site in apps/web/out/
+node apps/web/scripts/serve-static.mjs 4173    # serve out/ like GitHub Pages
+npm run e2e                     # Playwright end-to-end tests (after a build)
+```
+
+`npm run build -w apps/web` also flattens Next 16's route-segment files so prefetching works on a plain static host, and fails if anything key-like ends up in `out/` (`scripts/check-no-secrets.mjs`).
+
+### Rebuilding the gallery
+
+The gallery data is committed (`apps/web/public/gallery/`, `public/samples/`: 5.7 MB of images, 0.9 MB of JSON). To rebuild it:
+
+```bash
+npm run gallery -w apps/web     # free: no API calls; needs out/eval-generate/ from the evals
+```
+
+It reads the runs listed in `apps/web/scripts/gallery-sources.ts`, converts generated images to WebP (fixture images stay lossless PNG), and checks every snapshot twice:
+
+1. on the original images with every rule the run used, which is compared with the score the run recorded and is where the attention results, image analyses and heatmaps come from;
+2. on the images as served, with exactly the browser's rule set, which is the report the site shows.
+
+It prints any differences and fails above 15 MB of images. The fix runs `worst`, `story-concert` and `ad-sneaker-sale` were recorded for the gallery with `npm run record-fix-runs -w apps/web` (Sonnet 5.5, strict settings, $0.26 through a $0.50 ledger in `apps/web/gallery-src/`). `hard-story-hero` and `hard-busy-photo-tiny-cta` come from the strict eval; it didn't keep each edit's values, so their pages show the recorded reasons and the changes computed from the two designs.
+
+`npm run demo-video -w apps/web` re-records `docs/media/redline-demo.gif` and `.mp4` from the real player (needs ffmpeg).
+
+### Deploying
+
+`.github/workflows/pages.yml` lints, typechecks, runs the unit and end-to-end tests, builds the site and publishes it to GitHub Pages on every push to `main`. One-time setup: **Settings → Pages → Source: GitHub Actions**. The site is then at `https://simonlunay.github.io/redline/`, built with `NEXT_PUBLIC_BASE_PATH=/redline`. No secrets are needed.
+
+**Moving to `redline.simonlunay.com` later:**
+
+1. At your DNS provider, add a `CNAME` record: `redline` → `simonlunay.github.io`.
+2. In **Settings → Pages → Custom domain**, enter `redline.simonlunay.com`, wait for the DNS check, and turn on **Enforce HTTPS**. (With an Actions deployment, the domain lives in the settings; no `CNAME` file is needed.)
+3. In `.github/workflows/pages.yml`, set `BASE_PATH: ''`, since the site now lives at the domain's root, and push.
+
+### Adding a live backend later
+
+Nothing live is built, but the seams are there. The player reads runs through a `RunSource` (`src/lib/run/source.ts`) that yields the record as it grows. Today `staticRunSource` yields a stored file once; a live source would turn the pipeline's `GenerateEvent`s and the loop's `IterationRecord`s, streamed over Server-Sent Events, into the same record. Attention would come from a server or an onnxruntime-web model behind the core's existing `SaliencyModel` interface. Rate limits, spend caps and hosting for that were planned in the first version of `docs/phase-6-plan.md` (commit `ed38103`).
+
 ## Development
 
 ```bash
 npm install
-npm test                 # vitest: checker, agent and generate (no test calls a real API)
+npm test                 # vitest: checker, agent, generate and the web app (no test calls a real API)
 npm run lint             # eslint (also blocks Node imports in isomorphic code)
 npm run typecheck
 npm run build                                 # checker, then agent, then generate
@@ -1095,6 +1158,12 @@ packages/agent/              @simonlunay/redline-agent
   src/          isomorphic: loop, edit schema + guardrails, prompt, editors/
   src/node/     redline fix command, sessions, output formatting
   eval/         npm run eval + saved results
+apps/web/                    the web app (static Next.js site, see Web app)
+  src/lib/      browser environment, rule set, timeline, editor ops (tested in Node)
+  src/components/  stage, player, timeline, check workspace
+  scripts/      gallery build, fix-run recording, demo recording, static server, checks
+  public/       committed gallery and sample data
+  e2e/          Playwright tests against the static export
 fixtures/       sample designs: clean, one per defect, worst case, four messy ads
 ```
 
@@ -1108,7 +1177,7 @@ ESLint's `no-restricted-imports` rule forbids `node:*`, `fs`, `path` and `@napi-
 4. ~~**Generation**: produce designs in this format from a brief, then run them through the loop.~~ Done (see [Generation](#generation)).
 5. ~~**Visual checks**: text drawn into images, cutout quality, and an independent vision judge in the generation loop.~~ Done (see [Image checks and the vision judge](#image-checks-and-the-vision-judge)).
 6. **Resizing**: adapt a design across formats (Instagram post, story, banner) and re-check every version.
-7. **Web app**: a React canvas editor (`apps/web`) that runs the checker live in the browser and replays fix-loop histories.
+7. ~~**Web app**: replays recorded runs and runs the checker live in the browser while you edit (`apps/web`).~~ Done, as a static site (see [Web app](#web-app)). A live backend for generate and fix is not built.
 
 ## License
 
