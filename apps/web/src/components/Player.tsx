@@ -14,6 +14,7 @@ import type {
 } from '@/lib/gallery/types';
 import { modelName } from '@/lib/models';
 import { runFile } from '@/lib/run/source';
+import { runTarget } from '@/lib/run/target';
 import { buildTimeline } from '@/lib/run/timeline';
 import type { Frame } from '@/lib/run/timeline';
 import { ExportButtons } from './ExportButtons';
@@ -488,6 +489,8 @@ export function Player({
         frames={frames}
         index={index}
         scores={scores}
+        target={runTarget(record)}
+        legend={!compact}
         playing={playing}
         speed={speed}
         onSeek={seek}

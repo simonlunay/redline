@@ -265,12 +265,6 @@
   outline-offset: 4px;
 }
 
-.track-score {
-  width: 100%;
-  height: 40px;
-  overflow: visible;
-}
-
 .track-line {
   fill: none;
   stroke: var(--ink-2);
@@ -280,9 +274,143 @@
 }
 
 .track-ref {
-  stroke: var(--rule);
+  stroke: var(--ink-3);
+  stroke-width: 1;
   stroke-dasharray: 2 3;
   vector-effect: non-scaling-stroke;
+}
+
+/* The score over the run, above the blocks */
+
+.score-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--t-12);
+  color: var(--ink-3);
+}
+
+.score-head strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.target-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.target-swatch {
+  width: 16px;
+  border-top: 1px dashed var(--ink-3);
+}
+
+.score-chart {
+  position: relative;
+  height: 44px;
+}
+
+.score-chart svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* A dot per scored frame; hovering shows the exact score and what happened then. */
+.score-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+}
+
+.score-dot::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--ink-2);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.score-dot.current::before {
+  inset: 3px;
+  background: var(--ink);
+}
+
+.score-tip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  z-index: 3;
+  padding: 4px 8px;
+  border-radius: var(--radius-s);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: var(--t-12);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.score-dot:hover .score-tip {
+  opacity: 1;
+}
+
+/* Start and end values, just above their dots */
+.score-end {
+  position: absolute;
+  margin-top: -8px;
+  font-size: var(--t-12);
+  font-weight: 700;
+  line-height: 1;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+
+/* What the block colors mean */
+
+.tick-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  font-size: var(--t-12);
+  color: var(--ink-3);
+}
+
+.tick-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--ink-3);
+}
+
+.legend-swatch.step {
+  background: var(--blue);
+}
+
+.legend-swatch.judge {
+  background: var(--red);
+}
+
+.legend-swatch.rolled-back {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--red);
 }
 
 .ticks {
@@ -317,6 +445,14 @@
 
 .tick.step.past {
   background: var(--blue);
+}
+
+.tick.step.initial {
+  background: var(--rule);
+}
+
+.tick.step.initial.past {
+  background: var(--ink-3);
 }
 
 .tick.judge {

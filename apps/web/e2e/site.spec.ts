@@ -102,6 +102,26 @@ test('How it works: every stage opens the replay at its moment', async ({ page }
   expect(problems).toEqual([]);
 });
 
+test('the timeline labels the score line, the target and the block colors', async ({ page }) => {
+  const problems = watch(page);
+  await page.goto('/runs/fix-story-concert/');
+  const track = page.getByRole('slider', { name: 'Run timeline' });
+  await expect(track.locator('.score-head')).toHaveText(/Score 16 → 100\s*target 100/);
+  await expect(track.locator('.tick-legend')).toHaveText(
+    /Before and best\s*Fix step\s*Rolled back/,
+  );
+  // Each point shows its exact score on hover.
+  const dot = track.locator('.score-dot').nth(2);
+  await dot.hover();
+  await expect(dot.locator('.score-tip')).toHaveCSS('opacity', '1');
+  await expect(dot.locator('.score-tip')).toHaveText(/^\d+ rules score, /);
+
+  await page.goto('/runs/yoga-retreat-tuned/');
+  await expect(page.locator('.score-head')).toContainText('target 95');
+  await expect(page.locator('.tick-legend')).toContainText('Judge review');
+  expect(problems).toEqual([]);
+});
+
 test('gallery lists every run, strongest first, with honest labels', async ({ page }) => {
   const problems = watch(page);
   await page.goto('/gallery/');
