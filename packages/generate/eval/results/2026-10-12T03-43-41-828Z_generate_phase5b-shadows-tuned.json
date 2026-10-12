@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-12T03:49:47.065Z",
+  "git": {
+    "commit": "9af86a2f4cc1f445b6200893358171b727bb5209",
+    "dirty": true
+  },
+  "settings": {
+    "offline": false,
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "candidates": 4,
+    "target": 95,
+    "maxIterations": 4,
+    "maxRegenerations": 2,
+    "imageModel": "black-forest-labs/flux-schnell",
+    "cutout": "auto",
+    "imageChecks": true,
+    "judge": {
+      "model": "claude-opus-5-5",
+      "rounds": 2
+    }
+  },
+  "durationMs": 365283,
+  "outputs": "out\\eval-generate\\2026-10-12T03-43-41-828Z_phase5b-shadows-tuned",
+  "summary": {
+    "prompts": 3,
+    "failed": 0,
+    "meanFirst": 67.7,
+    "meanBestOfN": 98,
+    "meanFinal": 97,
+    "skipped": 0,
+    "stopped": null,
+    "reachedTarget": 2,
+    "firstAtTarget": 0,
+    "bestOfNAtTarget": 2,
+    "loopReachedTarget": 1,
+    "loopImproved": 3,
+    "directorRetriedForFacts": 0,
+    "copyGroundedWinners": 0,
+    "copyGroundedFinals": 0,
+    "copyEditsApplied": 0,
+    "runSpentUsd": 0.3249,
+    "meanIterations": 1,
+    "totalRegenerations": 0,
+    "regenerationsKept": 0,
+    "meanCtaBefore": 6.9,
+    "meanCtaAfter": 7.5,
+    "ctaBelowMinimumAfter": 0,
+    "totalCostUsd": 0.3249,
+    "meanCostUsd": 0.1083,
+    "ledgerTotalUsd": 1.7438,
+    "catches": {
+      "imageTextWinners": 0,
+      "cutoutWinners": 0,
+      "judgeWinners": 2,
+      "imageTextCandidates": 0,
+      "cutoutCandidates": 2,
+      "candidates": 12
+    },
+    "cutoutsBy": {
+      "replicate-birefnet": 5
+    },
+    "recuts": 0,
+    "recutsKept": 0,
+    "loopRan": 3,
+    "regenerationReasons": [],
+    "judge": {
+      "model": "claude-opus-5-5",
+      "reviews": 6,
+      "flaggedRulesPassed": 3,
+      "passedRulesFlagged": 1,
+      "bothFlagged": 0,
+      "bothPassed": 2,
+      "finalShip": 2,
+      "costUsd": 0.1226
+    }
+  },
+  "prompts": [
+    {
+      "id": "coffee-latte",
+      "prompt": "Instagram post announcing a new oat milk latte at a neighborhood coffee shop, cozy, warm morning light",
+      "size": "1080x1080",
+      "ok": true,
+      "first": 51,
+      "bestOfN": 100,
+      "final": 93,
+      "candidates": [
+        51,
+        100,
+        51,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 1,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0901,
+      "ctaAfter": 0.0947,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.139,
+      "llmUsd": 0.1183,
+      "imageUsd": 0.0207,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 126020,
+      "out": "out\\eval-generate\\2026-10-12T03-43-41-828Z_phase5b-shadows-tuned\\coffee-latte\\coffee-latte.json",
+      "failingRules": [
+        "visual-judge"
+      ],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3131 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 3130 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 2,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "fix"
+      ],
+      "judgeFindings": [
+        {
+          "high": 1,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0517,
+      "visualJudgeFinal": 1
+    },
+    {
+      "id": "yoga-retreat",
+      "prompt": "ad for a weekend yoga retreat in the mountains, calm, airy, soft pastel colors",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 94,
+      "bestOfN": 100,
+      "final": 99,
+      "candidates": [
+        94,
+        94,
+        100,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 1,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0711,
+      "ctaAfter": 0.0549,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "no-issues",
+      "costUsd": 0.0859,
+      "llmUsd": 0.0696,
+      "imageUsd": 0.0163,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "replicate-birefnet"
+      ],
+      "durationMs": 90103,
+      "out": "out\\eval-generate\\2026-10-12T03-43-41-828Z_phase5b-shadows-tuned\\yoga-retreat\\yoga-retreat.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 2742 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "fix",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 1,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true,
+        true
+      ],
+      "judgeUsd": 0.0317,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "pet-adoption",
+      "prompt": "poster for a pet adoption day at the local animal shelter, heartwarming, friendly, sunny yellow",
+      "size": "1080x1350",
+      "ok": true,
+      "first": 58,
+      "bestOfN": 94,
+      "final": 99,
+      "candidates": [
+        58,
+        94,
+        49,
+        94
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 1,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.0451,
+      "ctaAfter": 0.0743,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.1,
+      "llmUsd": 0.0792,
+      "imageUsd": 0.0208,
+      "directorRetried": false,
+      "directorCalls": 1,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": false,
+      "bestOfNAtTarget": false,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 1,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 111142,
+      "out": "out\\eval-generate\\2026-10-12T03-43-41-828Z_phase5b-shadows-tuned\\pet-adoption\\pet-adoption.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 3043 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 2960 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship",
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        },
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        false,
+        true
+      ],
+      "judgeUsd": 0.0392,
+      "visualJudgeFinal": 0
+    }
+  ]
+}

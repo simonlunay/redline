@@ -1,5 +1,7 @@
 # Phase 5b report: hosted BiRefNet cutouts
 
+Two parts: part 1 adds hosted BiRefNet and measures it; [part 2](#part-2-model-cuts-kept-contact-shadows) keeps model cuts, caps their `cutout-quality` verdicts and adds contact shadows.
+
 Branch `phase-5b-cutouts` (from `main` at `aa11816`). Not pushed, not merged. Run date: 2026-10-11 (UTC 2026-10-12).
 
 ## TL;DR
@@ -102,7 +104,7 @@ I put every subject cutout in the manifests on magenta (the phase 5 labeling met
   1. **At cutout time.** The clean hosted cut measured as an error, so `cutOutWithQualityCheck` re-cut with the two keyer settings and kept the better-measuring one (a warning): a bottle with its white dropper keyed away. The judge's first review: "no cap or dropper bulb… looks unfinished and malformed" (high).
   2. **At the final pick.** The loop regenerated the bottle, and the new hosted cut was clean, dropper and all. The judge's second review dropped the artifact and asked only for a contact shadow (medium). But that cut also measured as a `cutout-quality` error. The final pick counts rules errors, so it kept round 0's design. **The design that shipped is the headless bottle**, rules score 70.
 
-**Recommendation (not done on this branch, since it changes the checker's tuned rule):**
+**Recommendation (done in [part 2](#part-2-model-cuts-kept-contact-shadows), the first and third points):**
 
 - Don't let a keyer re-cut replace a model cut. When the first cut came from BiRefNet, local or hosted, keep it and just report the verdict.
 - Make `bites` relative to the subject's local width rather than its overall size, or require a second signal before it becomes an error, the way `leftover-backdrop` already does.
@@ -137,13 +139,121 @@ By kind: art director $0.37, judge $0.34, fix loop $0.32, FLUX $0.25, **hosted c
 
 The smoke test created the ledger with a $0.10 cap, and file-ledger caps only go down. I reset it to $3 by hand before the eval and added the probe call, which had run outside the ledger.
 
+## Part 2: model cuts kept, contact shadows
+
+Run date: 2026-10-12 (UTC). Commits `cdc5acc`, `79c7208` and `9af86a2` on the same branch. You approved the part 1 recommendations and asked for contact shadows.
+
+### What changed
+
+| Change                                            | Where                                                                       | Notes                                                                                                                                                                                                                                 |
+| ------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A model cut is never re-cut                       | `cutOutWithQualityCheck`, `RemoverKind`                                     | Removers declare `kind` (`model` or `keyer`), and each cut carries it (the auto remover chooses per cut). Only a keyed cut gets keyed re-cuts                                                                                         |
+| Model-cut verdicts capped at a warning            | `judgeCutout({ source })`, image analyzer `cutoutSource`, `markImage`       | In the checker, so the pipeline's own assessment, the analyzer and the rule agree. The rule's message says the signal is often a false alarm on a model cut                                                                           |
+| The six false alarms as tests                     | `packages/checker/test/cutout-model-cuts.test.ts`, `test/fixtures/cutouts/` | White cat, white laptop screen, cream clothing, white dropper, dropper bottle collar, laptop hinge: real BiRefNet cuts from part 1, with provenance in `SOURCES.md`. Each fires its signal, and each is only a warning as a model cut |
+| `blur` on shapes                                  | design schema, renderer                                                     | Gaussian blur radius in px, default 0. Rules still use the box                                                                                                                                                                        |
+| Contact shadows                                   | `src/shadow.ts`, `assembleDesign`, `measureFootprint`                       | Deterministic: a black ellipse sized from the subject's footprint (the opaque span of the bottom 12% of the cut), painted directly behind it in its group                                                                             |
+| The director decides per subject                  | plan slot `grounding` (`surface` or `floating`), director prompt            | For `surface` the director also plans the surface into the background brief and puts the subject's base on it                                                                                                                         |
+| `setShadow {elementId, opacity}`                  | agent `SetShadowEditSchema`, loop `shadows` option, editor prompt           | Generation mode only. Opacity 0 switches a shadow off (the loop's guardrail forbids removing elements). The prompt maps the judge's "floats / no contact shadow / pasted on" findings to it                                           |
+| Shadows follow their subject                      | loop `normalize` hook, `syncContactShadows`                                 | After every step's edits, before the check: a moved, resized or regenerated subject keeps its shadow under it                                                                                                                         |
+| Grouped shadows aren't competitors                | `attention-competition`, `isBacking`                                        | A decoration in the same group as the content above it counts as part of it, like a backing panel                                                                                                                                     |
+| The record keeps the loop's copy and shadow edits | `serializeResult`                                                           | It only kept regenerations, so this run's records lack `shadowEdits`. I recovered them from each step's stored design                                                                                                                 |
+
+**Tests: 345, all passing** (316 at the end of part 1, plus 29). Lint, typecheck and build are clean.
+
+- **One flaky failure under load:** `is reproducible` once produced different scores for one candidate (63 vs 71) during a full-suite run. It passed in 3 isolated runs, 3 runs of its file and the next 2 full-suite runs. I couldn't reproduce it, so I'm reporting it rather than claiming it's fixed.
+
+### The eval
+
+Same settings as part 1, on a new ledger (`spend-ledger-phase5b-shadows.json`, capped at $2), `--cutout auto`. The machine had 2.6–4 GB free, so all 30 cutouts were hosted BiRefNet.
+
+**First run** (`2026-10-12T03-00-16-784Z_generate_phase5b-shadows.json`, at `cdc5acc`): 13 of 14 completed.
+
+- skincare-serum failed on the same Replicate FLUX server error as in part 1 (`E9828`). I re-ran it on its own (`…T03-32-59-260Z_generate_phase5b-shadows-skincare.json`).
+
+"Judge" is the verdict on the design that shipped. The eval's own counter says 8/13, because it uses the last verdict: saas-banner went ship → fix, and the final pick kept the round-0 design the judge shipped. That's how phase 5 counted jazz-night too.
+
+| Prompt            | Part 1 judge | Part 2 judge | Final (rules) | Subject grounding → shadow                        | What still looks wrong (judge, checked by eye)                                                                              |
+| ----------------- | ------------ | ------------ | ------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| charity-5k        | fix          | **ship**     | 100           | floating → none                                   | –                                                                                                                           |
+| coffee-latte      | fix          | fix          | 82            | surface → 0.35, raised to 0.7 by the fixer        | The glass is huge and front-lit against a backlit window; its base sits behind the panel, where no shadow can show (medium) |
+| sneaker-drop      | ship         | ship         | 98            | floating → none                                   | (low: fake lettering on the tongue label)                                                                                   |
+| saas-banner       | fix          | **ship**     | 93            | the winner has no subject                         | –                                                                                                                           |
+| jazz-night        | ship         | ship         | 92            | surface → none (the winning layout has no shadow) | (low: an ambiguous second bass)                                                                                             |
+| summer-sale       | fix          | **ship**     | 98            | surface → 0.5 (fixer)                             | (low: "sits mostly over the water")                                                                                         |
+| farmers-market    | ship         | fix          | 87            | surface → 0.7 (fixer)                             | The basket hovers mid-scene: no surface was planned under it (medium)                                                       |
+| headphones-launch | ship         | ship         | 92            | surface → 0.35, invisible on black                | –                                                                                                                           |
+| yoga-retreat      | ship         | fix          | 94            | surface → 0.5 (fixer)                             | Hovers over the meadow, no visible shadow (medium)                                                                          |
+| pizza-delivery    | ship         | ship         | 95            | floating → none                                   | (low: no contact shadow)                                                                                                    |
+| tech-conference   | ship         | ship         | 98            | floating → none                                   | –                                                                                                                           |
+| pet-adoption      | fix          | fix          | 93            | surface → 0.35 (the fixer's 0.7 wasn't picked)    | The puppy's paws float just above the floor line (medium)                                                                   |
+| skincare-serum    | fix          | fix          | 87            | surface → 0.35                                    | **The bottle is intact, cap and dropper and all**, but FLUX drew a second, loose dropper beside it (medium, real)           |
+| bookstore-event   | ship         | ship         | 99            | surface → none (no subject in the winner)         | –                                                                                                                           |
+
+**The judge would ship 9 of 14** (8 in part 1).
+
+- **skincare** now keeps BiRefNet's clean cut: 3 cuts, all warnings, none replaced. The headless bottle is gone. It still doesn't ship, for a real image artifact.
+- **Model cuts:** 0 re-cuts on 22 hosted cuts. `cutout-quality` flagged 3 winners and 14 of 52 candidates, all as warnings.
+
+**I looked at the renders: the first shadows were too faint.**
+
+- On summer-sale's light sand the shadow grounds the hat and towels well. On grass, wood, dark panels and black they were invisible.
+- pet's shadow covered only the front paws, since the bottom 6% of the cut missed the back paw, and the blur (half the height of a 26 px ellipse) washed the core out at 0.35.
+- So "floating" stayed a medium finding on coffee, farmers, pet and yoga, even where the fixer raised the opacity with `setShadow` (5 prompts).
+
+**Tuned (`9af86a2`).**
+
+- **What changed:** the footprint band went from 6% to 12% of the cut, the ellipse got taller (22% of its width, was 14%), the blur dropped to 30% of its height, and the default opacity went from 0.35 to 0.5 (max 0.8).
+- **How I chose it:** I compared both versions by rendering the pet, yoga and farmers finals with each. With the new one, yoga sits on the meadow and the puppy's paws have a shadow.
+- **The re-run:** coffee, pet and yoga, on what was left of the $2 (`…T03-43-41-828Z_generate_phase5b-shadows-tuned.json`):
+
+| Prompt       | First run (part 2) | Tuned re-run    | What still looks wrong                                                                                                                                 |
+| ------------ | ------------------ | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| coffee-latte | fix                | fix             | Murky mug shapes from the photo ghost through the brown panel (medium); the glass is front-lit against a sunrise (low). It no longer reads as floating |
+| pet-adoption | fix                | **ship → ship** | (low) the shadow is faint on grass; flat lighting against a backlit park                                                                               |
+| yoga-retreat | fix                | **fix → ship**  | (low) the shadow is light; front-lit against a backlit sunrise                                                                                         |
+
+On coffee, pet and saas specifically:
+
+- **coffee:** it no longer floats. The fixer set its shadow to 0.7, and the remaining findings are a ghosted panel (medium) and lighting (low).
+- **pet:** grounded enough to ship. A faint shadow on grass, with the paws close to the panel's edge.
+- **saas:** its winner, in both part-2 runs, had no subject at all, so there's nothing to ground.
+
+**Counting the tuned re-run instead of the first-run results for those three prompts, 11 of 14 would ship.** That mixes two runs, so treat it as an estimate.
+
+### What still looks wrong
+
+- **Lighting, not floating, is now the top composite note.** A studio-lit, front-lit subject on a backlit scene (coffee, pet, yoga) reads as composited even with a good shadow. A shadow can't fix that.
+- **A shadow can't show under a panel or on black.** coffee's first-run layout tucked the glass's base behind the brown panel, and headphones sits on black. The judge didn't object to headphones.
+- **No surface, no grounding.** farmers' basket was planned mid-scene with nothing under it. The director's grounding instruction asks it to plan a surface, and it didn't. The shadow then makes things slightly worse.
+- **FLUX artifacts in subjects:** skincare's loose second dropper, sneaker's fake tongue label. Real, and not cutout problems.
+- **Replicate `E9828`** failed a FLUX prediction for the third time across the two parts (coffee in part 1, skincare twice). The client still doesn't retry a `failed` prediction.
+
+### Spend
+
+**$1.74 of $2** (`packages/generate/eval/results/spend-ledger-phase5b-shadows.json`, 201 entries):
+
+- Main run: $1.29
+- skincare re-run: $0.13
+- Tuned re-run: $0.32
+
+By kind:
+
+- judge $0.51
+- fix loop $0.47
+- art director $0.43
+- FLUX $0.30
+- hosted cutouts $0.044 (30 cuts)
+
+Part 1 and part 2 together: $3.06 across two ledgers ($1.31 + $1.74).
+
 ## What you need to do
 
-1. **Decide on the `cutout-quality` changes above.** I'd do the first and third before relying on hosted cutouts: keep model cuts over keyed re-cuts, and don't let the rule outvote the judge on BiRefNet cuts. As it stands, the checker can turn a clean hosted cut into a broken shipped design.
-2. **Review and merge `phase-5b-cutouts`.** Nothing is pushed.
+1. **Review and merge `phase-5b-cutouts`.** Nothing is pushed.
+2. **Decide on lighting.** It's the next composite problem. Two ways to fix it: brief the subject's lighting to match the background ("backlit, warm rim light from the right"), or have the director plan the light direction for both images.
 
 ## Suggestions
 
-- **Compositing is the next bottleneck.** Every remaining complaint about a correctly cut subject is "floats, no contact shadow". The assembler could add a soft contact shadow under any cut-out subject placed on a scene background, or the director could plan a surface for it. Either is cheaper than another regeneration.
-- **Retry `failed` predictions once in the Replicate client** when the error is a server-side `E…` code, as with a 5xx.
+- **Retry `failed` predictions once in the Replicate client** when the error is a server-side `E…` code, as with a 5xx. It cost a prompt three times.
+- **Hold the director to its surface:** when a "surface" subject's base doesn't land on anything in the background, warn or let the fixer move it. That needs a cheap check, such as the judge's finding or a background-edge test under the base.
+- **Shadow color from the ground:** darken the ground's own color instead of using black, so shadows read on dark wood and grass.
 - **Write the eval's results file incrementally**, so a stopped run keeps its summary.

@@ -207,17 +207,17 @@ A design is JSON validated by a Zod schema (`DesignSchema`). The TypeScript type
 }
 ```
 
-| Field                                                                             | Applies to | Notes                                                                                                     |
-| --------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------- |
-| `id`, `type`, `x`, `y`, `width`, `height`                                         | all        | Pixels in canvas space. `id`s must be unique.                                                             |
-| `rotation`                                                                        | all        | Degrees clockwise around the centre. Default `0`.                                                         |
-| `opacity`                                                                         | all        | `0`–`1`, default `1`.                                                                                     |
-| `zIndex`                                                                          | all        | Paint order (ties are broken by array order). Default `0`.                                                |
-| `groupId`                                                                         | all        | Elements in the same group may overlap.                                                                   |
-| `role`                                                                            | all        | `background` `logo` `headline` `subheading` `body` `cta` `product` `decoration`. Many rules depend on it. |
-| `content`, `fontFamily`, `fontSize`, `fontWeight`, `color`, `lineHeight`, `align` | text       | `lineHeight` is a multiplier (like CSS). Text wraps at word boundaries within `width`.                    |
-| `src`, `naturalWidth`, `naturalHeight`, `fit`                                     | image      | `fit`: `fill` (stretch, default), `cover` (crop), `contain` (letterbox).                                  |
-| `kind`, `fill`, `cornerRadius`                                                    | shape      | `kind`: `rect` or `ellipse`.                                                                              |
+| Field                                                                             | Applies to | Notes                                                                                                                                    |
+| --------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`, `type`, `x`, `y`, `width`, `height`                                         | all        | Pixels in canvas space. `id`s must be unique.                                                                                            |
+| `rotation`                                                                        | all        | Degrees clockwise around the centre. Default `0`.                                                                                        |
+| `opacity`                                                                         | all        | `0`–`1`, default `1`.                                                                                                                    |
+| `zIndex`                                                                          | all        | Paint order (ties are broken by array order). Default `0`.                                                                               |
+| `groupId`                                                                         | all        | Elements in the same group may overlap.                                                                                                  |
+| `role`                                                                            | all        | `background` `logo` `headline` `subheading` `body` `cta` `product` `decoration`. Many rules depend on it.                                |
+| `content`, `fontFamily`, `fontSize`, `fontWeight`, `color`, `lineHeight`, `align` | text       | `lineHeight` is a multiplier (like CSS). Text wraps at word boundaries within `width`.                                                   |
+| `src`, `naturalWidth`, `naturalHeight`, `fit`                                     | image      | `fit`: `fill` (stretch, default), `cover` (crop), `contain` (letterbox).                                                                 |
+| `kind`, `fill`, `cornerRadius`, `blur`                                            | shape      | `kind`: `rect` or `ellipse`. `blur`: Gaussian blur radius in px, default `0` (a contact shadow is a blurred ellipse). Rules use the box. |
 
 Colours are hex: `#rgb`, `#rrggbb` or `#rrggbbaa`.
 
@@ -473,7 +473,9 @@ An error needs a signal past its error level, two stray fragments, or two warnin
 
 The thresholds were tuned on the 26 subject cutouts of the phase 4 eval, labeled by eye first. On those 26: **7 of 9 damaged cutouts are errors, the other 2 are warnings, and none of the 17 good ones is an error**; 2 good ones get a warning. They were tuned on the same images they're scored on, so expect worse on new ones.
 
-In `redline generate`, a cutout that measures as damaged is **re-cut on the spot** with a tighter and a looser keyer. That costs no API call and takes a second or two. Whichever cut measures best is kept, and the manifest records the verdict and the re-cuts.
+In `redline generate`, a keyed cutout that measures as damaged is **re-cut on the spot** with a tighter and a looser keyer. That costs no API call and takes a second or two. Whichever cut measures best is kept, and the manifest records the verdict and the re-cuts.
+
+**On cuts by a segmentation model (BiRefNet), every `cutout-quality` flag is a warning, never an error,** and the cut is never re-cut. The thresholds were tuned on keyed cutouts. On BiRefNet cuts in the phase 5b eval, all 7 of the rule's flags on 21 cuts were false alarms: subjects colored like the backdrop (a white cat, a white laptop screen, cream clothing, a white dropper bulb) read as leftover backdrop, and stepped outlines (a dropper bottle's collar, a laptop's hinge) read as bites. As errors, they once swapped a clean bottle for a keyed one without its dropper, and then outvoted the judge in the final pick. Those six cuts are now tests (`packages/checker/test/fixtures/cutouts/`). The image analyzer is told what made each cut (`cutoutSource`).
 
 ### Vision judge
 
@@ -845,6 +847,10 @@ prompt ──► art director (Claude, JSON output) ──► plan: copy, palett
      3. Otherwise a flood-fill keyer removes the plain backdrop.
 
      Only the hosted model's alpha is used. It's applied to the original pixels and trimmed exactly like a local cut.
+
+     A BiRefNet cut (local or hosted) is never replaced by a keyed one: the keyer is only for when no model cut is available.
+
+   - **Contact shadows.** The art director marks each subject slot `grounding: "surface"` (it rests on a table, floor, pedestal or ground in the scene, which it then also plans into the background brief) or `"floating"`. A cut-out subject on a surface gets a soft contact shadow: a blurred, semi-transparent black ellipse (`blur` on a `decoration` shape) painted directly behind it, in its group. It's deterministic: sized and placed from the subject's footprint, the opaque span of the bottom 12% of the cut. Default opacity 0.5, 22% as tall as it is wide, blurred by 30% of its height.
 4. **Best-of-N.** Candidate _i_ uses layout `i mod L` and background variant `⌊i / L⌋`, so the default (4 candidates, 2 layouts) tries both layouts with two different backgrounds each. Subjects are made once per layout. Each candidate is assembled into the design format and scored with `checkAsync`, with layout and attention rules. The winner has the highest score, then fewest errors, then fewest warnings, then the most CTA attention. All candidates are kept.
 5. **Fix loop.** The existing loop runs on the winner, with attention and vision on and a default target of 95.
 6. **Image-aware fixing.** In generation mode the loop's editor gets one extra op, `regenerateImage {elementId, brief, reason}`. When an issue comes from the image itself, for example text contrast over a busy area or a background hot spot competing with the CTA, Claude can choose between layout edits (a scrim, moving text) and a new image from a revised brief ("…keep the top-left third plain and dark"). Details:
@@ -853,12 +859,13 @@ prompt ──► art director (Claude, JSON output) ──► plan: copy, palett
    - The result is accepted or rolled back like any edit.
    - Regenerations are capped per run (`--max-regenerations`, default 2) and counted when attempted, since they cost money even if rolled back.
    - Each one is recorded in history and in the manifest with its reason and the image it replaced.
+   - A third generation-only op, `setShadow {elementId, opacity}`, adds, darkens, lightens or switches off (opacity 0) a subject's contact shadow, which is how the fixer answers the judge's "the product floats" findings. The fixer moves the subject, never the shadow: after every step the loop re-fits each shadow to its subject (`normalize`), so it follows moves, resizes and regenerations.
    - **`redline fix` on your own designs is unchanged.** The op isn't in its tool schema or prompt, a regeneration request there fails validation, and the guardrail still rejects any change to an image `src`. A test runs `redline fix` with an editor that asks to regenerate and checks that every `src` is untouched.
 7. **Content faithfulness (`copy-grounded`).** Generated copy is checked against the prompt (and any `--image` descriptions). Dates, weekdays, times, prices and discounts, numbers, phone numbers, URLs, emails, `@handles`, places ("· City Park", "at Riverside Park") and names ("featuring DJ Nova", "Acme Inc.") that the prompt doesn't give are an **error** (weight 3), so such a design can't reach the target. Other spellings of a given fact count as given ("June 14th" = "Sat 6/14", "9am" = "9:00 AM", "$2" = "$2.00"), and bracketed placeholders like `[Date]` are never flagged.
    - The fix loop gets a second generation-only op, `replaceText {elementId, find, replace}`. It may only replace flagged facts (plus their separators) with a placeholder or nothing. Anything else, like rewriting the headline, is refused. `redline fix` still has no op that can touch copy.
    - It's pattern-based on purpose: deterministic, free and testable. It doesn't know arbitrary proper nouns, so an invented venue without a place word ("Riverside") gets through, and a title-case headline starting with a place word isn't flagged ("Farmers Market"), to avoid false alarms.
    - This came from the first live run, where "Charity 5K · Saturday, June 14 · City Park" scored 100 from a prompt with no date or venue.
-8. **Image checks.** `image-text` and `cutout-quality` (see [Image checks and the vision judge](#image-checks-and-the-vision-judge)) run on every generated and stock image, so they count in best-of-N and in the fix loop. A damaged cutout is re-cut with two other keyer settings before it is used, and the best cut is kept. The fixer's prompt says these issues come from the pixels, so a regeneration is the expected fix.
+8. **Image checks.** `image-text` and `cutout-quality` (see [Image checks and the vision judge](#image-checks-and-the-vision-judge)) run on every generated and stock image, so they count in best-of-N and in the fix loop. A damaged keyed cutout is re-cut with two other keyer settings before it is used, and the best cut is kept. A BiRefNet cut is never re-cut, and its `cutout-quality` verdict is at most a warning. The fixer's prompt says these issues come from the pixels, so a regeneration is the expected fix.
 9. **Vision judge.** Claude Opus 5.5 reviews the winner's clean render and reports visible defects the rules can't see. Its findings become `visual-judge` issues for the fix loop, and it reviews the result again (see [Vision judge](#vision-judge)). Its verdicts and findings go into `.generation.json` and the CLI output.
 10. **Reliability.** Every Replicate request (create, poll, download) has its own timeout, and each image has a 5-minute deadline that retries and rate-limit waits respect. An art-director plan whose layouts came back empty gets a third, more specific try at low effort. If only some layouts are usable, the plan keeps those. If no try works, it fails with an `ArtDirectorError` listing each try's problems.
 
@@ -950,6 +957,13 @@ npm run eval:replay -w packages/generate    # image rules + judge on a finished 
 
 There's also a summary row with means. Every paid call goes through a persistent ledger (`--ledger`, default `packages/generate/eval/results/spend-ledger.json`), which also enforces a cap. With the image checks and the judge on, it also reports what each check caught on the winners and candidates, re-cuts, what the regenerations were for, and the judge's agreement with the rules.
 
+**Phase 5b results, part 2 (2026-10-12): model cuts kept, contact shadows.** Same settings, `--budget 2`. Raw data: `packages/generate/eval/results/2026-10-12T03-00-16-784Z_generate_phase5b-shadows.json` (13 prompts) and `…T03-32-59-260Z_generate_phase5b-shadows-skincare.json` (skincare-serum, re-run after a Replicate server error). A re-run of 3 prompts with the tuned shadows: `…T03-43-41-828Z_generate_phase5b-shadows-tuned.json`. Full analysis: [docs/phase-5b-report.md](docs/phase-5b-report.md#part-2-model-cuts-kept-contact-shadows).
+
+- **The judge would ship 9 of 14** (8 in part 1). After the shadow tuning, a re-run of coffee, pet and yoga shipped pet and yoga too.
+- **skincare-serum's bottle is intact**, cap and dropper and all, with a visible shadow. The judge still didn't ship it: FLUX drew a second, loose dropper beside the bottle.
+- **"Floating subject" findings dropped from medium to low once the shadows were visible.** The first shadows were too faint on anything but light, flat ground (medium findings on coffee, farmers, pet and yoga), so they were tuned. In the re-run, the remaining notes on coffee, pet and yoga are low: a faint shadow on grass, and a front-lit subject on a backlit scene.
+- **No model cut was re-cut** (0 re-cuts on 22 hosted cuts). `cutout-quality` flagged 3 winners, all as warnings.
+
 **Phase 5b results (2026-10-11): hosted BiRefNet cutouts.** Same settings as phase 5, with `--cutout auto`. The machine had under 3 GB free, so every cutout went to BiRefNet on Replicate. Raw data: `packages/generate/eval/results/2026-10-12T01-50-47-382Z_generate_phase5b-hosted.json` (sneaker-drop; that run stopped on low memory) and `…T01-57-32-671Z_generate_phase5b-hosted-rest.json` (the other 13). Full analysis: [docs/phase-5b-report.md](docs/phase-5b-report.md).
 
 - **The judge would ship 8 of 14** (6 in phase 5). headphones, pizza, sneaker and bookstore are newly shipped; saas no longer is.
@@ -1035,8 +1049,9 @@ The cause was ONNX Runtime's CPU arena keeping BiRefNet's ~6 GB inference peak f
 
 - **The rules and the judge both have blind spots.** A design that passes every rule and that the judge ships is likely clean, not guaranteed: see the misses in [Image checks and the vision judge](#limits-1) and the phase 5 eval results above.
 - **Fonts:** only Inter is bundled. The art director can use other families only if you register them with `--font`.
-- **Cutouts** are as good as BiRefNet on a plain backdrop: fine for products, people and animals, weaker on thin structures. The keying fallback leaves halos on shadows. A cut subject gets no contact shadow, so on a scene background it can look pasted on.
-- **`cutout-quality` was tuned on keyed cutouts.** On BiRefNet cuts it raises false `leftover-backdrop` warnings on backdrop-colored subjects, and false `bites` on stepped outlines (a dropper bottle). A `bites` error can make the re-cut step replace a good BiRefNet cut with a worse keyed one, and can make the final pick reject a design whose only flaw was the false error.
+- **Cutouts** are as good as BiRefNet on a plain backdrop: fine for products, people and animals, weaker on thin structures. The keying fallback leaves halos on shadows.
+- **Contact shadows are a black ellipse, not real light.** They show on light and mid-tone ground and vanish on black or under a panel that covers the subject's base. They don't fix a lighting mismatch (a front-lit subject on a backlit scene), which is now the judge's most common note on a composited subject.
+- **`cutout-quality` was tuned on keyed cutouts.** On BiRefNet cuts it still raises false `leftover-backdrop` and `bites` flags, but only as warnings.
 - **FLUX schnell** sometimes ignores parts of the brief, including "no text". The calm-area instruction is a request, not a guarantee, which is exactly what the regeneration op and the contrast rule are there to catch.
 - **The judge reviews only the winner.** Best-of-N still picks by rule score (now including the image rules), so two candidates that both score 100 are a tie broken by warnings and CTA attention. The judge then reviews whichever won.
 
