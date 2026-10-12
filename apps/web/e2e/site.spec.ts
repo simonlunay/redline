@@ -104,9 +104,13 @@ test.describe("the browser's checker matches the stored reports", () => {
       const problems = watch(page);
       await page.goto(`/check/?sample=${s.id}`);
       await expect(page.locator('.player-side .score-number')).toBeVisible();
+      // The design fonts loaded and measure like the CLI (hinting would fail this).
+      await expect(page.locator('.font-warning')).toHaveCount(0);
       const stored = sample(s.id).snapshot.report;
       await expect.poll(() => liveScore(page)).toBe(stored.score);
-      await expect(page.locator('.issues .issue')).toHaveCount(stored.issues.length);
+      const live = await page.locator('.issues .issue').allInnerTexts();
+      expect(live).toHaveLength(stored.issues.length);
+      stored.issues.forEach((issue, i) => expect(live[i]).toContain(issue.message));
       expect(problems).toEqual([]);
     });
   }

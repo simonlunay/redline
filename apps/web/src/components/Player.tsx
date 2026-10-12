@@ -17,6 +17,7 @@ import { runFile } from '@/lib/run/source';
 import { buildTimeline } from '@/lib/run/timeline';
 import type { Frame } from '@/lib/run/timeline';
 import { ExportButtons } from './ExportButtons';
+import { FontWarning } from './FontWarning';
 import { IssueList } from './IssueList';
 import { Score } from './Score';
 import { Stage } from './Stage';
@@ -391,7 +392,7 @@ export function Player({
   const [selectedIssue, setSelectedIssue] = useState<number | null>(null);
   const srcs = useMemo(() => Object.keys(record.images), [record]);
   const url = useCallback((src: string) => runFile(record.id, src), [record.id]);
-  const { env } = useDesignEnv(record.id, srcs, url, record.images);
+  const { env, fontProblems } = useDesignEnv(record.id, srcs, url, record.images);
 
   // Deep links: ?frame=<n> (1-based), ?heatmap=1, and ?play=1&speed=<1|2|4> (the demo recording).
   useEffect(() => {
@@ -497,6 +498,7 @@ export function Player({
   return (
     <div className="player">
       <div className="player-main">
+        <FontWarning problems={fontProblems} />
         {stage}
         {controls}
       </div>

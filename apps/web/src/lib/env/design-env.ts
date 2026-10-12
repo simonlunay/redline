@@ -16,6 +16,7 @@ import type {
 } from '@simonlunay/redline';
 import { browserRules } from '../rules';
 import type { RuleSetup } from '../rules';
+import { setGeometricText } from './font-check';
 import { cssFont } from './fonts';
 
 /** What checking and drawing one design (and its edits) needs: fonts, pixels, image analyses. */
@@ -87,5 +88,7 @@ export function drawDesign<I extends { width: number; height: number }>(
   scale = 1,
 ): void {
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  // Draw glyphs at the same unhinted positions the measurer used to wrap the lines.
+  setGeometricText(ctx);
   paintDesign(ctx, design, { images: env.images, measurer: env.measurer, cssFont });
 }

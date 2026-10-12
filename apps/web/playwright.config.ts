@@ -7,6 +7,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
+  // The score appears after the page, its fonts and images have loaded and the browser is idle;
+  // on a busy machine that can take more than the default 5 s. A wait, never a result tolerance.
+  expect: { timeout: 15_000 },
   fullyParallel: true,
   // One retry in CI only: a single unreproduced failure was seen locally once (see the phase 6 report).
   retries: process.env.CI ? 1 : 0,

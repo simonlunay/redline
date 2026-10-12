@@ -4,6 +4,7 @@ import type { ImageAnalysis } from '@simonlunay/redline';
 import { useEffect, useState } from 'react';
 import { createDesignEnv } from '@/lib/env/design-env';
 import type { DesignEnv } from '@/lib/env/design-env';
+import { checkDesignFonts, setGeometricText } from '@/lib/env/font-check';
 import { loadDesignFonts } from '@/lib/env/fonts';
 import { loadImages } from '@/lib/env/images';
 
@@ -28,21 +29,32 @@ async function pageLoaded(): Promise<void> {
   );
 }
 
+export interface DesignEnvState {
+  env: DesignEnv<ImageBitmap> | null;
+  /** Images that failed to load, by src. */
+  errors: Map<string, string>;
+  /**
+   * Why this browser's text measurement doesn't match the CLI's, if it doesn't. The page shows
+   * it: scores would otherwise differ silently (a wrapped label is a text-overflow error).
+   */
+  fontProblems: string[];
+}
+
 /**
  * Loads the design fonts and a run's (or sample's, or upload's) images, and builds the
- * environment the checker and renderer share. Returns null until everything is ready, plus the
- * images that failed to load.
+ * environment the checker and renderer share. `env` is null until everything is ready.
  */
 export function useDesignEnv(
   key: string | null,
   srcs: string[],
   url: (src: string) => string,
   analyses?: Record<string, { analysis?: ImageAnalysis }>,
-): { env: DesignEnv<ImageBitmap> | null; errors: Map<string, string> } {
+): DesignEnvState {
   const [state, setState] = useState<{
     key: string;
     env: DesignEnv<ImageBitmap>;
     errors: Map<string, string>;
+    fontProblems: string[];
   } | null>(null);
   useEffect(() => {
     if (key === null) return;
@@ -50,16 +62,22 @@ export function useDesignEnv(
     (async () => {
       await pageLoaded();
       await loadDesignFonts();
+      await document.fonts.ready;
       const { images, errors } = await loadImages(srcs, url);
       measureCanvas ??= new OffscreenCanvas(1, 1);
+      const measureContext = measureCanvas.getContext('2d')!;
+      setGeometricText(measureContext);
       const env = createDesignEnv({
-        measureContext: measureCanvas.getContext('2d')!,
+        measureContext,
         images: new Map(
           [...images].map(([src, img]) => [src, { drawable: img.bitmap, pixels: img.pixels }]),
         ),
         ...(analyses ? { analyses } : {}),
       });
-      if (live) setState({ key, env, errors });
+      const fonts = checkDesignFonts(env.measurer, (css) => document.fonts.check(css));
+      if (!fonts.ok)
+        console.error(`Design fonts don't measure like the CLI: ${fonts.problems.join(' ')}`);
+      if (live) setState({ key, env, errors, fontProblems: fonts.problems });
     })().catch((err: unknown) => {
       if (live) setState(null);
       console.error(err);
@@ -70,6 +88,6 @@ export function useDesignEnv(
     // The key identifies the image set; srcs/url/analyses are derived from the same record.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
-  if (!state || state.key !== key) return { env: null, errors: new Map() };
-  return { env: state.env, errors: state.errors };
+  if (!state || state.key !== key) return { env: null, errors: new Map(), fontProblems: [] };
+  return { env: state.env, errors: state.errors, fontProblems: state.fontProblems };
 }

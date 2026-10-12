@@ -21,6 +21,7 @@ import type { RuleSetup } from '@/lib/rules';
 import { loadSample, runFile, sampleFile, staticRunSource } from '@/lib/run/source';
 import { readUpload } from '@/lib/upload';
 import { ExportButtons } from './ExportButtons';
+import { FontWarning } from './FontWarning';
 import { IssueList } from './IssueList';
 import { Score } from './Score';
 import { Stage } from './Stage';
@@ -139,7 +140,11 @@ export function CheckWorkspace({ index }: { index: GalleryIndex }) {
     },
     [source],
   );
-  const { env, errors: imageErrors } = useDesignEnv(
+  const {
+    env,
+    errors: imageErrors,
+    fontProblems,
+  } = useDesignEnv(
     source?.key ?? null,
     srcs,
     url,
@@ -340,6 +345,7 @@ export function CheckWorkspace({ index }: { index: GalleryIndex }) {
           {error}
         </p>
       ) : null}
+      <FontWarning problems={fontProblems} />
       {imageErrors.size ? (
         <p className="alert" role="alert">
           {imageErrors.size} {imageErrors.size === 1 ? 'image' : 'images'} couldn&apos;t be loaded
