@@ -240,3 +240,45 @@ describe('attention-competition backing panels', () => {
     expect(report.issues.filter((i) => i.elementIds.includes('panel'))).toEqual([]);
   });
 });
+
+describe('attention-competition contact shadows', () => {
+  it('does not count a shadow grouped with the product under it as a competitor', async () => {
+    const shadow = (groupId?: string) =>
+      shape({
+        id: 'product-shadow',
+        role: 'decoration',
+        kind: 'ellipse',
+        x: 380,
+        y: 660,
+        width: 320,
+        height: 60,
+        fill: '#000000',
+        blur: 20,
+        ...(groupId ? { groupId } : {}),
+      });
+    const design = (groupId?: string) =>
+      makeDesign([
+        shadow(groupId),
+        image({
+          id: 'product',
+          role: 'product',
+          x: 400,
+          y: 300,
+          width: 280,
+          height: 400,
+          zIndex: 1,
+          ...(groupId ? { groupId } : {}),
+        }),
+        text({ id: 'headline', role: 'headline', x: 90, y: 90, width: 900, height: 120 }),
+        shape({ id: 'cta', role: 'cta', x: 400, y: 900, width: 280, height: 80 }),
+      ]);
+    // Attention on the product's base spills onto the shadow below it.
+    const saliency = createFakeSaliencyModel(blob(0.5, 0.66, 0.1));
+    const flagged = async (d: ReturnType<typeof design>) =>
+      (await checkAsync(d, { rules: attentionRules, render, saliency })).issues.filter((i) =>
+        i.elementIds.includes('product-shadow'),
+      );
+    expect(await flagged(design())).not.toEqual([]); // ungrouped: an ordinary decoration
+    expect(await flagged(design('product'))).toEqual([]);
+  });
+});

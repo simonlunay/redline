@@ -27,6 +27,7 @@ export {
   createBackdropKeyRemover,
   createBiRefNetRemover,
   createReplicateBiRefNetRemover,
+  measureFootprint,
 } from './cutout.js';
 export { createWorkspace } from './workspace.js';
 export type { Workspace } from './workspace.js';

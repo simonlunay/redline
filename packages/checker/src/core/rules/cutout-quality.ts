@@ -51,7 +51,10 @@ export const cutoutQuality = defineRule({
       issues.push({
         severity: verdict.severity,
         elementIds: [el.id],
-        message: `${label(el)} is a damaged cutout: ${worst.map((p) => DESCRIBE[p.kind](p.measured)).join('; ')}. Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it.`,
+        message:
+          verdict.source === 'model'
+            ? `${label(el)} may be a damaged cutout: ${worst.map((p) => DESCRIBE[p.kind](p.measured)).join('; ')}. It was cut by a segmentation model, where these signals are often false alarms (a subject colored like the backdrop, a stepped outline), so this is only a warning. Regenerate the subject only if the cut really looks damaged.`
+            : `${label(el)} is a damaged cutout: ${worst.map((p) => DESCRIBE[p.kind](p.measured)).join('; ')}. Re-cut it with BiRefNet, or regenerate the subject on a plain, evenly lit backdrop with no transparent or glass parts against it.`,
         measured: Number(main.measured.toFixed(4)),
         threshold: main.limit,
         unit: main.kind,

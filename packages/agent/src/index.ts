@@ -1,6 +1,6 @@
 // Isomorphic API of the fix loop. Node-only helpers (CLI, PNG steps) live in ./node.
 export { DEFAULT_MAX_REGENERATIONS, runFixLoop, goalReached, newIssues } from './loop.js';
-export type { CopyEditOptions, LoopOptions, RegenerateOptions } from './loop.js';
+export type { CopyEditOptions, LoopOptions, RegenerateOptions, ShadowOptions } from './loop.js';
 export {
   EditResponseSchema,
   EditSchema,
@@ -8,6 +8,7 @@ export {
   MAX_EDITS_PER_RESPONSE,
   RegenerateImageEditSchema,
   ReplaceTextEditSchema,
+  SetShadowEditSchema,
   parseEditResponse,
   protectedFieldViolations,
   toFix,
@@ -31,6 +32,9 @@ export type {
   RegenerateEdit,
   RegenerationRecord,
   ReplaceTextEdit,
+  SetShadowEdit,
+  ShadowableSubject,
+  ShadowEditRecord,
   StopReason,
   TokenUsage,
 } from './types.js';

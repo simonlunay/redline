@@ -1,6 +1,7 @@
 import { createCanvas } from '@napi-rs/canvas';
 import type { Image } from '@napi-rs/canvas';
 import { judgeCutout, measureCutout } from '../../core/cutout-quality.js';
+import type { CutoutSource } from '../../core/cutout-quality.js';
 import type { ImageAnalysis, ImageAnalysisSource, ImageOrigin } from '../../core/image-analysis.js';
 import type { Design } from '../../core/schema.js';
 import { createOnnxTextDetector } from './text-detector.js';
@@ -10,11 +11,18 @@ import type { TextDetector, TextDetectorOptions } from './text-detector.js';
 const CUTOUT_MIN_SHARE = 0.02;
 
 export interface ImageAnalyzer extends ImageAnalysisSource {
-  /** Analyzes one image (once per src; later calls return the cached result). */
+  /**
+   * Analyzes one image (once per src; later calls return the cached result). `cutoutSource`
+   * says what made a cutout: a segmentation model's verdict is capped at a warning.
+   */
   analyze(
     src: string,
     image: Image,
-    options: { origin: ImageOrigin; backdrop?: [number, number, number] },
+    options: {
+      origin: ImageOrigin;
+      backdrop?: [number, number, number];
+      cutoutSource?: CutoutSource;
+    },
   ): Promise<ImageAnalysis>;
   /** Analyzes every image of a design that `originOf` doesn't skip (returns null to skip). */
   analyzeDesign(
@@ -85,11 +93,14 @@ export function createImageAnalyzer(
     image: Image,
     origin: ImageOrigin,
     backdrop?: [number, number, number],
+    cutoutSource?: CutoutSource,
   ): Promise<ImageAnalysis> {
     const px = rgba(image);
     const det = await getDetector();
     const text = det ? await det.detect(px) : undefined;
-    const cutout = isCutout(px) ? judgeCutout(measureCutout(px, backdrop)) : undefined;
+    const cutout = isCutout(px)
+      ? judgeCutout(measureCutout(px, backdrop), { source: cutoutSource })
+      : undefined;
     return { origin, ...(text ? { text } : {}), ...(cutout ? { cutout } : {}) };
   }
 
@@ -97,10 +108,10 @@ export function createImageAnalyzer(
     warnings,
     detector: getDetector,
     get: (src) => settled.get(src),
-    analyze(src, image, { origin, backdrop }) {
+    analyze(src, image, { origin, backdrop, cutoutSource }) {
       let result = results.get(src);
       if (!result) {
-        result = run(image, origin, backdrop).then((r) => {
+        result = run(image, origin, backdrop, cutoutSource).then((r) => {
           settled.set(src, r);
           return r;
         });

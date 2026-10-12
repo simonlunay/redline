@@ -12,7 +12,7 @@ import type {
 } from '@simonlunay/redline-agent';
 import { assembleDesign } from '../assemble.js';
 import type { SlotImage } from '../assemble.js';
-import type { BackgroundRemover } from '../cutout.js';
+import type { BackgroundRemover, RemoverKind } from '../cutout.js';
 import { BUNDLED_FONTS } from '../director/types.js';
 import type { ArtDirector, DirectorResult, UserImageInfo } from '../director/types.js';
 import { checkFactReplacement, createCopyGroundedRule } from '../grounding.js';
@@ -26,13 +26,20 @@ import {
 } from '../judge/rule.js';
 import type { JudgeVerdict, VisualJudge } from '../judge/types.js';
 import type { DesignPlan, ImageSlot } from '../plan.js';
+import {
+  MAX_SHADOW_OPACITY,
+  setContactShadow,
+  shadowIdFor,
+  syncContactShadows,
+} from '../shadow.js';
+import type { Footprint } from '../shadow.js';
 import type { GeneratedImage, ImageProvider, ImageRequest } from '../providers/types.js';
 import { candidateVariant, ctaShare, rankCandidates, roleShares, seedFrom } from '../select.js';
 import { BudgetExceededError, budgetedEditor, createMemoryLedger } from '../spend.js';
 import type { SpendLedger } from '../spend.js';
 import { AssetStore } from './assets.js';
 import type { ManifestEntry } from './assets.js';
-import { cutOutWithQualityCheck, estimateBackdrop } from './cutout.js';
+import { cutOutWithQualityCheck, estimateBackdrop, measureFootprint } from './cutout.js';
 import { createMockImageProvider } from './mock-provider.js';
 import { createWorkspace } from './workspace.js';
 import type { Workspace } from './workspace.js';
@@ -393,6 +400,9 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     return image;
   }
 
+  /** Cut-out subjects by src: where each touches the ground, for its contact shadow. */
+  const footprints = new Map<string, Footprint>();
+
   /** Generated images by src: where they came from, so the fix loop can regenerate them. */
   const generated = new Map<string, { slot: ImageSlot; brief: string }>();
 
@@ -431,6 +441,8 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     } as const;
     let stored: (SlotImage & { entry: ManifestEntry }) | undefined;
     let backdrop: [number, number, number] | undefined;
+    let cutoutSource: RemoverKind | undefined;
+    let footprint: Footprint | undefined;
     if (kind === 'subject' && options.remover) {
       const remover = options.remover;
       try {
@@ -475,6 +487,9 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
           'image/png',
         );
         backdrop = await estimateBackdrop(image.bytes);
+        cutoutSource = used.kind;
+        footprint = (await measureFootprint(cut.png)) ?? undefined;
+        if (footprint) footprints.set(stored.src, footprint);
       } catch (err) {
         warn(`Cutout failed for ${key}, keeping the plain backdrop: ${(err as Error).message}`);
       }
@@ -486,8 +501,19 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     emit({ type: 'image', entry: stored.entry });
     generated.set(stored.src, { slot, brief: args.brief });
     // Generated and stock images get the image checks; the user's own images never do.
-    workspace.markImage(stored.src, image.provider === 'pexels' ? 'stock' : 'generated', backdrop);
-    return { src: stored.src, width: stored.width, height: stored.height, costUsd: image.costUsd };
+    workspace.markImage(
+      stored.src,
+      image.provider === 'pexels' ? 'stock' : 'generated',
+      backdrop,
+      cutoutSource,
+    );
+    return {
+      src: stored.src,
+      width: stored.width,
+      height: stored.height,
+      costUsd: image.costUsd,
+      ...(footprint ? { footprint } : {}),
+    };
   }
 
   async function produce(
@@ -654,6 +680,30 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
             : `"${edit.elementId}" is not a text element.`;
         },
       },
+      shadows: {
+        subjects: (design) =>
+          design.elements.flatMap((el) =>
+            el.type === 'image' && footprints.has(el.src)
+              ? [
+                  {
+                    elementId: el.id,
+                    opacity: design.elements.find((s) => s.id === shadowIdFor(el.id))?.opacity ?? 0,
+                  },
+                ]
+              : [],
+          ),
+        apply: (design, edit) => {
+          const subject = design.elements.find((el) => el.id === edit.elementId);
+          const footprint = subject?.type === 'image' ? footprints.get(subject.src) : undefined;
+          if (!footprint) return `"${edit.elementId}" is not a cut-out subject.`;
+          // Off is opacity 0, not removal: the loop's guardrail forbids removing elements.
+          return setContactShadow(design, edit.elementId, footprint, {
+            enabled: true,
+            opacity: Math.max(0, Math.min(MAX_SHADOW_OPACITY, edit.opacity)),
+          });
+        },
+      },
+      normalize: (design) => syncContactShadows(design, (src) => footprints.get(src)),
     });
   };
 

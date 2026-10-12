@@ -1,12 +1,16 @@
 import { FORMAT_VERSION, heuristicMeasurer, layoutText, parseDesign } from '@simonlunay/redline';
 import type { Design, DesignElement, TextMeasurer } from '@simonlunay/redline';
 import type { DesignPlan } from './plan.js';
+import { setContactShadow } from './shadow.js';
+import type { Footprint } from './shadow.js';
 
 /** A produced image for a slot: where it is stored and its real pixel size. */
 export interface SlotImage {
   src: string;
   width: number;
   height: number;
+  /** For a cut-out subject: where it touches the ground (for its contact shadow). */
+  footprint?: Footprint;
 }
 
 /** The largest box with the image's aspect ratio that fits in `box`, centered in it. */
@@ -34,7 +38,8 @@ export function fitBox(
  * Backgrounds fill the canvas with `fit: cover` (any generated size works). Subjects, logos
  * and other images get a box fitted to their real aspect ratio inside the planned box, so they
  * are never stretched and the box matches the visible pixels (which matters for overlap and
- * attention). Throws if a slot has no image, since that is a pipeline bug.
+ * attention). A cut-out subject whose slot rests on a surface (`grounding: 'surface'`) gets a
+ * contact shadow. Throws if a slot has no image, since that is a pipeline bug.
  */
 export function assembleDesign(
   plan: DesignPlan,
@@ -78,6 +83,7 @@ export function assembleDesign(
         kind: el.shape,
         fill: el.fill,
         cornerRadius: Math.max(0, el.cornerRadius),
+        blur: 0,
         opacity: Math.min(1, Math.max(0, el.opacity)),
       };
     }
@@ -98,15 +104,21 @@ export function assembleDesign(
       fit: fullBleed ? 'cover' : 'contain',
     };
   });
-  return centerButtonLabels(
-    parseDesign({
-      version: FORMAT_VERSION,
-      name: name ?? layout.name,
-      canvas: { width: canvas.width, height: canvas.height, background: plan.palette.background },
-      elements,
-    }),
-    measurer,
-  );
+  let design = parseDesign({
+    version: FORMAT_VERSION,
+    name: name ?? layout.name,
+    canvas: { width: canvas.width, height: canvas.height, background: plan.palette.background },
+    elements,
+  });
+  for (const el of layout.elements) {
+    if (el.kind !== 'image') continue;
+    const slot = layout.imageSlots.find((s) => s.id === el.slot);
+    const footprint = images.get(el.slot)?.footprint;
+    if (slot?.kind !== 'subject' || slot.grounding !== 'surface' || !footprint) continue;
+    const shadowed = setContactShadow(design, el.id, footprint, { enabled: true });
+    if (typeof shadowed !== 'string') design = shadowed;
+  }
+  return centerButtonLabels(design, measurer);
 }
 
 /**

@@ -32,6 +32,15 @@ export interface CutoutMetrics {
   backdrop: [number, number, number];
 }
 
+/**
+ * What made a cutout. The thresholds were tuned on keyed cutouts; on cuts by a segmentation model
+ * (BiRefNet) they misread backdrop-colored subjects (a white cat, a white dropper bulb) as leftover
+ * backdrop and natural steps in an outline (a dropper bottle's collar, a laptop's hinge) as bites.
+ * None of the 7 flags on 21 hosted BiRefNet cuts in the phase 5b eval was a real defect, so a
+ * model cut's verdict is capped at a warning: reported, never an error.
+ */
+export type CutoutSource = 'model' | 'keyer';
+
 export type CutoutProblem =
   'bites' | 'see-through' | 'fragments' | 'leftover-backdrop' | 'uncut' | 'jagged-edges';
 
@@ -44,6 +53,8 @@ export interface CutoutVerdict {
     limit: number;
   }[];
   metrics: CutoutMetrics;
+  /** What made the cutout, when known. 'model' verdicts are capped at a warning. */
+  source?: CutoutSource;
 }
 
 /**
@@ -356,9 +367,13 @@ export function measureCutout(image: Rgba, backdrop?: [number, number, number]):
 
 /**
  * Applies the thresholds. Errors: any signal past its error level (leftover backdrop only with
- * another signal backing it up), two or more stray fragments, or two warnings at once.
+ * another signal backing it up), two or more stray fragments, or two warnings at once. For a
+ * cut made by a segmentation model (`source: 'model'`) every problem is capped at a warning.
  */
-export function judgeCutout(metrics: CutoutMetrics): CutoutVerdict {
+export function judgeCutout(
+  metrics: CutoutMetrics,
+  options: { source?: CutoutSource } = {},
+): CutoutVerdict {
   const problems: CutoutVerdict['problems'] = [];
   for (const [kind, t] of Object.entries(CUTOUT_THRESHOLDS) as [
     CutoutProblem,
@@ -380,11 +395,20 @@ export function judgeCutout(metrics: CutoutMetrics): CutoutVerdict {
   if (fragments && metrics.fragmentCount >= 2) fragments.severity = 'error';
   // Two warnings make an error, unless one of them is an uncorroborated leftover.
   const others = problems.filter((p) => p !== leftover || corroborated);
-  const severity =
+  let severity: CutoutVerdict['severity'] =
     problems.some((p) => p.severity === 'error') || others.length >= 2
       ? 'error'
       : problems.length
         ? 'warning'
         : 'ok';
-  return { severity, problems, metrics };
+  if (options.source === 'model') {
+    for (const p of problems) {
+      if (p.severity === 'error') {
+        p.severity = 'warning';
+        p.limit = CUTOUT_THRESHOLDS[p.kind].warning;
+      }
+    }
+    if (severity === 'error') severity = 'warning';
+  }
+  return { severity, problems, metrics, ...(options.source ? { source: options.source } : {}) };
 }

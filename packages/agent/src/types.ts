@@ -23,6 +23,32 @@ export interface ReplaceTextEdit {
   reason: string;
 }
 
+/**
+ * Generation mode only: add, darken, lighten or remove the contact shadow under a cut-out
+ * subject. `opacity` 0 turns it off. Which subjects can have one is decided by LoopOptions.shadows.
+ */
+export interface SetShadowEdit {
+  op: 'setShadow';
+  elementId: string;
+  opacity: number;
+  reason: string;
+}
+
+/** One setShadow attempt, recorded in history. */
+export interface ShadowEditRecord {
+  elementId: string;
+  opacity: number;
+  reason: string;
+  status: 'applied' | 'rejected';
+  note?: string;
+}
+
+/** A cut-out subject that can have a contact shadow, and its current one (opacity 0: none). */
+export interface ShadowableSubject {
+  elementId: string;
+  opacity: number;
+}
+
 /** One replaceText attempt, recorded in history. */
 export interface CopyEditRecord {
   elementId: string;
@@ -97,6 +123,8 @@ export interface EditRequest {
   regeneration?: { images: RegenerableImage[]; remaining: number; max: number };
   /** Generation mode: replaceText is available (for the copy problems the checker reports). */
   copyEdits?: boolean;
+  /** Generation mode: cut-out subjects that setShadow can give a contact shadow. */
+  shadows?: ShadowableSubject[];
 }
 
 export interface EditorResponse {
@@ -139,6 +167,8 @@ export interface IterationRecord {
   regenerations?: RegenerationRecord[];
   /** Generation mode: text replacements requested in this step. */
   copyEdits?: CopyEditRecord[];
+  /** Generation mode: contact-shadow changes requested in this step. */
+  shadowEdits?: ShadowEditRecord[];
   /** Why a step was rolled back or invalid. */
   note?: string;
   usage?: TokenUsage;

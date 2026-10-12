@@ -14,6 +14,9 @@ import type {
   RegeneratedImage,
   RegenerationRecord,
   ReplaceTextEdit,
+  SetShadowEdit,
+  ShadowableSubject,
+  ShadowEditRecord,
   StopReason,
   TokenUsage,
 } from './types.js';
@@ -50,6 +53,17 @@ export interface CopyEditOptions {
   check: (edit: ReplaceTextEdit, design: Design) => string | null;
 }
 
+/**
+ * Generation mode: contact shadows under cut-out subjects. The pipeline owns their geometry; the
+ * editor only sets how dark each one is (setShadow, opacity 0 = off).
+ */
+export interface ShadowOptions {
+  /** The subjects of `design` that can have a contact shadow, with their current opacity. */
+  subjects: (design: Design) => ShadowableSubject[];
+  /** Applies one setShadow edit, or says why it can't apply. */
+  apply: (design: Design, edit: SetShadowEdit) => Design | string;
+}
+
 export interface LoopOptions {
   editor: DesignEditor;
   /** Checks a design. Async so slow rules (e.g. a future saliency model) fit in. */
@@ -68,6 +82,13 @@ export interface LoopOptions {
   regenerate?: RegenerateOptions;
   /** Generation mode only: allow replaceText edits that pass this check. */
   copy?: CopyEditOptions;
+  /** Generation mode only: allow setShadow edits on cut-out subjects. */
+  shadows?: ShadowOptions;
+  /**
+   * Re-derives elements that depend on others after each step's edits, before the check (in
+   * generation mode: contact shadows follow their subject when it moves or is regenerated).
+   */
+  normalize?: (design: Design) => Design;
 }
 
 /** Fields every iteration record shares, known before the edits are applied. */
@@ -205,8 +226,13 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
             }
           : {}),
         ...(options.copy ? { copyEdits: true } : {}),
+        ...(options.shadows ? { shadows: options.shadows.subjects(current.design) } : {}),
       };
-      const parseOptions = { regenerate: Boolean(regen), copy: Boolean(options.copy) };
+      const parseOptions = {
+        regenerate: Boolean(regen),
+        copy: Boolean(options.copy),
+        shadow: Boolean(options.shadows),
+      };
       response = await options.editor.proposeEdits(request);
       stepCalls++;
       addUsage(stepUsage, response.usage);
@@ -264,6 +290,7 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
     const edits = response.edits;
     const regenerations: RegenerationRecord[] = [];
     const copyEdits: CopyEditRecord[] = [];
+    const shadowEdits: ShadowEditRecord[] = [];
     const finish = (r: StepOutcome) =>
       record({
         ...common,
@@ -271,13 +298,15 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
         summary: response.summary,
         ...(regenerations.length > 0 ? { regenerations } : {}),
         ...(copyEdits.length > 0 ? { copyEdits } : {}),
+        ...(shadowEdits.length > 0 ? { shadowEdits } : {}),
         durationMs: Date.now() - stepStarted,
       });
 
     if (
       edits.length === 0 &&
       response.regenerations.length === 0 &&
-      response.copyEdits.length === 0
+      response.copyEdits.length === 0 &&
+      response.shadowEdits.length === 0
     ) {
       const note = 'The editor proposed no edits.';
       attempts.push({ iteration, outcome: 'no-edits', message: note });
@@ -395,7 +424,36 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
       });
     }
 
-    const applied = applyFixes(working, edits.map(toFix));
+    // Contact shadows (generation mode): the pipeline places them; the editor sets their opacity.
+    let stepShadowed = 0;
+    for (const s of response.shadowEdits) {
+      const base = { elementId: s.elementId, opacity: s.opacity, reason: s.reason };
+      const result = options.shadows
+        ? options.shadows.apply(working, s)
+        : 'Contact shadows are only available in generation mode.';
+      if (typeof result === 'string') {
+        shadowEdits.push({ ...base, status: 'rejected', note: result });
+        continue;
+      }
+      working = result;
+      stepShadowed++;
+      shadowEdits.push({ ...base, status: 'applied' });
+    }
+    const rejectedShadows = shadowEdits.filter((s) => s.status === 'rejected');
+    if (rejectedShadows.length > 0) {
+      attempts.push({
+        iteration,
+        outcome: 'rejected-edits',
+        message: `${rejectedShadows.length} shadow edit(s) were refused: ${rejectedShadows
+          .map((s) => `${s.elementId}: ${s.note}`)
+          .join('; ')}`,
+      });
+    }
+
+    const fixed = applyFixes(working, edits.map(toFix));
+    const applied = options.normalize
+      ? { ...fixed, design: options.normalize(fixed.design) }
+      : fixed;
     const violations = protectedFieldViolations(
       initialDesign,
       applied.design,
@@ -425,7 +483,12 @@ export async function runFixLoop(input: unknown, options: LoopOptions): Promise<
     }
 
     let rollback: string | null = null;
-    if (applied.applied.length === 0 && stepRegenerated.size === 0 && stepRewritten.size === 0) {
+    if (
+      applied.applied.length === 0 &&
+      stepRegenerated.size === 0 &&
+      stepRewritten.size === 0 &&
+      stepShadowed === 0
+    ) {
       rollback = 'None of the edits could be applied.';
     } else if (violations.length > 0) {
       rollback = `Guardrail violation: ${violations.join('; ')}.`;

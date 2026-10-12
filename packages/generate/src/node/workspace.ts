@@ -1,6 +1,7 @@
 import { attentionRules, builtinRules, checkAsync, imageRules } from '@simonlunay/redline';
 import type {
   AnyRule,
+  CutoutSource,
   Design,
   ImageOrigin,
   RedlineConfig,
@@ -39,8 +40,16 @@ export interface Workspace {
    * marked with markImage are analyzed: generated and stock images, never the user's own.
    */
   imageAnalysis?: ImageAnalyzer;
-  /** Records where an image came from (and a cutout's backdrop color) so it gets analyzed. */
-  markImage(src: string, origin: ImageOrigin, backdrop?: [number, number, number]): void;
+  /**
+   * Records where an image came from so it gets analyzed, and for a cutout its backdrop color
+   * and what cut it (a model cut's cutout-quality verdict is capped at a warning).
+   */
+  markImage(
+    src: string,
+    origin: ImageOrigin,
+    backdrop?: [number, number, number],
+    cutoutSource?: CutoutSource,
+  ): void;
   /** Loads (and analyzes) any image of the design that isn't loaded yet. */
   ensure(design: Design): Promise<void>;
   /** Checks with the built-in (and attention) rules plus any extra ones, e.g. copy-grounded. */
@@ -78,7 +87,10 @@ export async function createWorkspace(
       : options.imageChecks
         ? createImageAnalyzer()
         : undefined;
-  const marks = new Map<string, { origin: ImageOrigin; backdrop?: [number, number, number] }>();
+  const marks = new Map<
+    string,
+    { origin: ImageOrigin; backdrop?: [number, number, number]; cutoutSource?: CutoutSource }
+  >();
 
   async function ensure(design: Design) {
     for (const el of design.elements) {
@@ -112,8 +124,12 @@ export async function createWorkspace(
     attention,
     ...(saliency ? { saliency } : {}),
     ...(imageAnalysis ? { imageAnalysis } : {}),
-    markImage(src, origin, backdrop) {
-      marks.set(src, { origin, ...(backdrop ? { backdrop } : {}) });
+    markImage(src, origin, backdrop, cutoutSource) {
+      marks.set(src, {
+        origin,
+        ...(backdrop ? { backdrop } : {}),
+        ...(cutoutSource ? { cutoutSource } : {}),
+      });
     },
     ensure,
     async check(design, extraRules = []) {

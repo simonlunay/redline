@@ -79,6 +79,11 @@ export const ImageSlotSchema = z.object({
     .string()
     .describe('Visual style, e.g. "editorial photo, soft daylight" or "flat 3D render"'),
   stockQuery: z.string().describe('3-6 word stock photo search query for this slot ("" for user)'),
+  grounding: z
+    .enum(['surface', 'floating'])
+    .describe(
+      'Subjects: "surface" when it rests on something in the scene (a table, floor, pedestal, ground, counter): it gets a soft contact shadow so it sits there instead of floating. "floating" when it is meant to hover or has nothing under it (a flying sneaker, a badge, a subject cropped by the frame). Backgrounds and user images: "floating".',
+    ),
   userImageId: z.string().describe('For user slots: the id of the supplied image; otherwise ""'),
 });
 

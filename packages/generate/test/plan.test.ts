@@ -86,6 +86,7 @@ describe('design plan validation', () => {
       calmAreas: '',
       style: '',
       stockQuery: '',
+      grounding: 'floating',
       userImageId: 'nope',
     });
     const problems = validatePlan(p, { ...ctx, layouts: 1 }).join('\n');

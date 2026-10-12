@@ -1,7 +1,7 @@
 import { FixSchema } from '@simonlunay/redline';
 import type { Design } from '@simonlunay/redline';
 import { z } from 'zod';
-import type { Edit, RegenerateEdit, ReplaceTextEdit } from './types.js';
+import type { Edit, RegenerateEdit, ReplaceTextEdit, SetShadowEdit } from './types.js';
 
 /** Hard cap per response, so one runaway answer can't rewrite the whole design. */
 export const MAX_EDITS_PER_RESPONSE = 25;
@@ -57,6 +57,22 @@ export const ReplaceTextEditSchema = z.object({
   reason: z.string().describe('One short sentence: which issue this fixes'),
 });
 
+/**
+ * Generation mode only: the contact shadow under a cut-out subject. The shadow's shape and place
+ * are computed from the subject (and follow it when it moves); the editor only sets how dark it
+ * is, or turns it off.
+ */
+export const SetShadowEditSchema = z.object({
+  op: z.literal('setShadow'),
+  elementId: z.string().describe('Id of a cut-out subject image (listed in the request)'),
+  opacity: z
+    .number()
+    .describe(
+      '0 removes the shadow; 0.25-0.5 is a natural contact shadow, up to 0.7 for a hard surface',
+    ),
+  reason: z.string().describe('One short sentence: which issue this fixes'),
+});
+
 /** The submit_edits input in generation mode: layout edits, image regenerations, copy fixes. */
 export const GenerationEditResponseSchema = z.object({
   summary: z.string().describe('One or two sentences: the plan for this iteration'),
@@ -66,6 +82,7 @@ export const GenerationEditResponseSchema = z.object({
         ...EditSchema.options,
         RegenerateImageEditSchema,
         ReplaceTextEditSchema,
+        SetShadowEditSchema,
       ]),
     )
     .describe(
@@ -78,18 +95,20 @@ export type EditResponse = {
   edits: Edit[];
   regenerations: RegenerateEdit[];
   copyEdits: ReplaceTextEdit[];
+  shadowEdits: SetShadowEdit[];
 };
 
 export type ParseResult = { ok: true; value: EditResponse } | { ok: false; error: string };
 
 /**
  * Validates raw editor output. Error text is written to be fed back to the LLM on retry.
- * Generation mode: `regenerate: true` also accepts regenerateImage ops and `copy: true`
- * replaceText ops; otherwise they fail validation like any unknown op.
+ * Generation mode: `regenerate: true` also accepts regenerateImage ops, `copy: true`
+ * replaceText ops and `shadow: true` setShadow ops; otherwise they fail validation like any
+ * unknown op.
  */
 export function parseEditResponse(
   raw: unknown,
-  options: { regenerate?: boolean; copy?: boolean } = {},
+  options: { regenerate?: boolean; copy?: boolean; shadow?: boolean } = {},
 ): ParseResult {
   if (raw === undefined) {
     return {
@@ -97,21 +116,19 @@ export function parseEditResponse(
       error: 'No submit_edits tool call was made. Call submit_edits exactly once.',
     };
   }
+  const extra = [
+    ...(options.regenerate ? [RegenerateImageEditSchema] : []),
+    ...(options.copy ? [ReplaceTextEditSchema] : []),
+    ...(options.shadow ? [SetShadowEditSchema] : []),
+  ];
   const schema =
-    options.regenerate && options.copy
-      ? GenerationEditResponseSchema
-      : options.regenerate || options.copy
-        ? EditResponseSchema.extend({
-            edits: z
-              .array(
-                z.discriminatedUnion('op', [
-                  ...EditSchema.options,
-                  options.regenerate ? RegenerateImageEditSchema : ReplaceTextEditSchema,
-                ]),
-              )
-              .describe(GenerationEditResponseSchema.shape.edits.description ?? ''),
-          })
-        : EditResponseSchema;
+    extra.length === 0
+      ? EditResponseSchema
+      : EditResponseSchema.extend({
+          edits: z
+            .array(z.discriminatedUnion('op', [...EditSchema.options, ...extra]))
+            .describe(GenerationEditResponseSchema.shape.edits.description ?? ''),
+        });
   const result = schema.safeParse(raw);
   if (!result.success) {
     const details = result.error.issues
@@ -122,7 +139,7 @@ export function parseEditResponse(
   }
   const data = result.data as {
     summary: string;
-    edits: (Edit | RegenerateEdit | ReplaceTextEdit)[];
+    edits: (Edit | RegenerateEdit | ReplaceTextEdit | SetShadowEdit)[];
   };
   if (data.edits.length > MAX_EDITS_PER_RESPONSE) {
     return {
@@ -130,16 +147,18 @@ export function parseEditResponse(
       error: `Too many edits (${data.edits.length}); send at most ${MAX_EDITS_PER_RESPONSE}, most important first.`,
     };
   }
-  type Any = Edit | RegenerateEdit | ReplaceTextEdit;
+  type Any = Edit | RegenerateEdit | ReplaceTextEdit | SetShadowEdit;
   const isRegen = (e: Any): e is RegenerateEdit => e.op === 'regenerateImage';
   const isCopy = (e: Any): e is ReplaceTextEdit => e.op === 'replaceText';
+  const isShadow = (e: Any): e is SetShadowEdit => e.op === 'setShadow';
   return {
     ok: true,
     value: {
       summary: data.summary,
-      edits: data.edits.filter((e): e is Edit => !isRegen(e) && !isCopy(e)),
+      edits: data.edits.filter((e): e is Edit => !isRegen(e) && !isCopy(e) && !isShadow(e)),
       regenerations: data.edits.filter(isRegen),
       copyEdits: data.edits.filter(isCopy),
+      shadowEdits: data.edits.filter(isShadow),
     },
   };
 }

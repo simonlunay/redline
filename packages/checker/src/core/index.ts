@@ -54,7 +54,12 @@ export type {
   TextRegion,
 } from './image-analysis.js';
 export { CUTOUT_THRESHOLDS, judgeCutout, measureCutout } from './cutout-quality.js';
-export type { CutoutMetrics, CutoutProblem, CutoutVerdict } from './cutout-quality.js';
+export type {
+  CutoutMetrics,
+  CutoutProblem,
+  CutoutSource,
+  CutoutVerdict,
+} from './cutout-quality.js';
 export { visibleTextRegions } from './rules/image-text.js';
 export { defineRule } from './types.js';
 export type {

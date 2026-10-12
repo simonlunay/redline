@@ -8,8 +8,9 @@ import { isBelow, label, paintOrder } from './util.js';
 
 /**
  * A decoration that sits behind content (a headline panel, a CTA backing, a scrim added by the
- * fix loop) is part of that content, not a competitor: attention spilling from the text onto
- * its panel must not be counted against the panel.
+ * fix loop, a contact shadow under a product) is part of that content, not a competitor:
+ * attention spilling from the content onto it must not be counted against it. Behind means
+ * painted below, and either containing the content's box or in the same group.
  */
 export function isBacking(design: Design, decoration: DesignElement): boolean {
   return design.elements.some(
@@ -18,7 +19,8 @@ export function isBacking(design: Design, decoration: DesignElement): boolean {
       el.role !== 'decoration' &&
       el.role !== 'background' &&
       isBelow(design, decoration, el) &&
-      containsRect(rectOf(decoration), rectOf(el)),
+      (containsRect(rectOf(decoration), rectOf(el)) ||
+        (decoration.groupId !== undefined && decoration.groupId === el.groupId)),
   );
 }
 

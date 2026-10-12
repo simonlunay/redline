@@ -11,7 +11,9 @@ import {
   renderAnnotatedPng,
   renderPng,
 } from '../src/node/index.js';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { check } from '../src/core/check.js';
+import { parseDesign } from '../src/core/schema.js';
 
 const FIXTURES = fileURLToPath(new URL('../../../fixtures/', import.meta.url));
 const CLI = fileURLToPath(new URL('../src/cli.ts', import.meta.url));
@@ -90,6 +92,42 @@ describe('renderer', () => {
     const annotated = pngSize(renderAnnotatedPng(loaded.design, report, { images: env.images }));
     expect(annotated.width).toBe(1080);
     expect(annotated.height).toBeGreaterThan(1080);
+  });
+
+  it('blurs shapes with a blur radius (soft contact shadows); blur defaults to 0', async () => {
+    const ellipse = (blur?: number) =>
+      parseDesign({
+        version: '0.1',
+        canvas: { width: 200, height: 100, background: '#ffffff' },
+        elements: [
+          {
+            id: 's',
+            type: 'shape',
+            kind: 'ellipse',
+            x: 40,
+            y: 35,
+            width: 120,
+            height: 30,
+            fill: '#000000',
+            ...(blur === undefined ? {} : { blur }),
+          },
+        ],
+      });
+    expect((ellipse().elements[0] as { blur: number }).blur).toBe(0);
+    const row = async (blur?: number) => {
+      const img = await loadImage(renderPng(ellipse(blur)));
+      const c = createCanvas(200, 100);
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const d = ctx.getImageData(0, 50, 200, 1).data;
+      return (x: number) => d[x * 4]!; // red channel along the middle row
+    };
+    const sharp = await row();
+    const soft = await row(10);
+    expect(sharp(30)).toBe(255); // white outside, black inside, a hard edge
+    expect(sharp(100)).toBe(0);
+    expect(soft(30)).toBeLessThan(255); // the blur spreads past the edge...
+    expect(soft(100)).toBeGreaterThan(0); // ...and softens the center
   });
 });
 

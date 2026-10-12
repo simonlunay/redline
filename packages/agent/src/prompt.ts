@@ -37,7 +37,7 @@ All coordinates are canvas pixels, origin top-left. Every edit needs a short "re
 # Hard rules
 - You cannot and must not change text content, font family or image sources. Only layout and styling.${
     options.generation
-      ? ' Exceptions (generation mode): images listed as regenerable can be replaced with regenerateImage, and facts flagged by copy-grounded can be replaced with placeholders with replaceText.'
+      ? ' Exceptions (generation mode): images listed as regenerable can be replaced with regenerateImage, facts flagged by copy-grounded can be replaced with placeholders with replaceText, and cut-out subjects can get a contact shadow with setShadow.'
       : ''
   }
 - Use only element ids that exist in the design (or ids created by your insertShape edits, which are reported back).
@@ -77,9 +77,14 @@ Limits: regenerations are capped per run (the remaining count is in the request)
 # Generation mode: defects in the images themselves
 Some issues come from the pixels of an image, so layout edits can't really fix them; regenerateImage is the expected fix:
 - image-text: the image model drew lettering, a fake sign, label or button into the image. Regenerate it with the same brief plus "absolutely no text, lettering, signs, labels, buttons or interface elements anywhere". Hiding it under a panel is a fallback only where a panel belongs anyway.
-- cutout-quality: a subject was cut out of its backdrop badly (bites, see-through patches, stray bits, leftover backdrop). Regenerate the subject with its brief plus "isolated on a plain, evenly lit mid-grey seamless backdrop, fully opaque, no reflections, no cast shadow". A cutout-quality warning alone is not worth a regeneration.
+- cutout-quality: a subject was cut out of its backdrop badly (bites, see-through patches, stray bits, leftover backdrop). Regenerate the subject with its brief plus "isolated on a plain, evenly lit mid-grey seamless backdrop, fully opaque, no reflections, no cast shadow". A cutout-quality warning alone is not worth a regeneration: on cuts made by a segmentation model it is always a warning and often a false alarm (a white subject, a stepped outline), so only act on it if the render or the reviewer shows real damage.
 - visual-judge: findings of an independent reviewer who looked at the rendered design. When a finding is about an image's content (artifacts, fake text, a bad cutout), regenerate that image with a brief that avoids the problem; when it's about the layout (awkward cropping, overlap, clashing colours, something that looks off), use layout edits. The reviewer looks again after your edits.
 Never hide, fade out, remove or push off-canvas a product, headline, CTA or logo to get rid of an issue about it: that is not a fix, and key-element-visible makes it an error. If no regenerations are left and a layout edit can't help, leave the issue.
+
+# Generation mode: contact shadows
+A cut-out subject pasted onto a scene can look like a sticker floating above it. Subjects that rest on something get a soft contact shadow under them: a blurred, semi-transparent ellipse (id "<subject id>-shadow") whose shape and place are computed from the subject and follow it when it moves. You control it with one more edit op:
+- setShadow {elementId, opacity, reason}: sets the contact shadow under a cut-out subject (listed in the request). opacity 0 removes it; 0.25-0.5 is a natural contact shadow; up to 0.7 on a hard, bright surface. It adds the shadow if there is none.
+When the reviewer says a subject floats, hovers, has no contact shadow or no ground contact, or looks pasted on, use setShadow on it (darker if it already has one), and if needed move the subject so its bottom edge sits on a surface in the background (a table top, the floor, a pedestal). Don't move or resize the shadow element itself; move the subject. Remove the shadow only when the subject is meant to fly or hover.
 
 # Generation mode: invented facts
 The copy was written by an AI art director, which sometimes invents specifics the user never gave (a date, a venue, a price, a website). The copy-grounded rule flags them as errors, because they would ship wrong. Fix each one with:
@@ -113,7 +118,7 @@ export function layoutTable(design: Design): string {
         el.type === 'text'
           ? `${el.fontSize}px/${el.fontWeight} ${el.color} align=${el.align} "${el.content.slice(0, 40)}"`
           : el.type === 'shape'
-            ? `${el.kind} ${el.fill}${el.opacity < 1 ? ` opacity=${el.opacity}` : ''}`
+            ? `${el.kind} ${el.fill}${el.opacity < 1 ? ` opacity=${el.opacity}` : ''}${el.blur > 0 ? ` blur=${el.blur}` : ''}`
             : `natural ${el.naturalWidth}x${el.naturalHeight} fit=${el.fit}`;
       return `- ${el.id} [${el.type}${el.role ? `, ${el.role}` : ''}] z=${el.zIndex} ${box} ${extra}`;
     });
@@ -139,6 +144,16 @@ export function buildUserMessage(req: EditRequest): string {
             )
             .join('\n')}`
         : `# Regenerable images\nNo regenerations left; use layout edits only.`,
+    );
+  }
+  if (req.shadows && req.shadows.length > 0) {
+    sections.push(
+      `# Cut-out subjects (setShadow)\n${req.shadows
+        .map(
+          (s) =>
+            `- ${s.elementId}: ${s.opacity > 0 ? `contact shadow at opacity ${s.opacity}` : 'no contact shadow'}`,
+        )
+        .join('\n')}`,
     );
   }
   if (req.attempts.length > 0) {

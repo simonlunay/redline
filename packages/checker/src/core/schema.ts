@@ -71,6 +71,11 @@ export const ShapeElementSchema = BaseElementSchema.extend({
   kind: z.enum(['rect', 'ellipse']),
   fill: ColorSchema,
   cornerRadius: z.number().nonnegative().default(0),
+  /**
+   * Gaussian blur radius in px (0 = sharp). For soft shapes such as a contact shadow under a
+   * cut-out product. Rules still use the shape's box; only the rendering is soft.
+   */
+  blur: z.number().nonnegative().default(0),
 });
 
 export const ElementSchema = z.discriminatedUnion('type', [

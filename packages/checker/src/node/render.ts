@@ -65,6 +65,7 @@ function drawElement(
 
   if (el.type === 'shape') {
     ctx.fillStyle = el.fill;
+    if (el.blur > 0) ctx.filter = `blur(${el.blur}px)`;
     ctx.beginPath();
     if (el.kind === 'ellipse') {
       ctx.ellipse(
@@ -80,6 +81,7 @@ function drawElement(
       ctx.roundRect(el.x, el.y, el.width, el.height, el.cornerRadius);
     }
     ctx.fill();
+    ctx.filter = 'none';
   } else if (el.type === 'image') {
     drawImageElement(ctx, el, images.get(el.src));
   } else {

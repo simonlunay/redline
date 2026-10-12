@@ -4,7 +4,8 @@ import { createScriptedEditor, createSuggestedFixesEditor } from '@simonlunay/re
 import { createImageAnalyzer, loadDesign } from '@simonlunay/redline/node';
 import { describe, expect, it } from 'vitest';
 import { createTemplateArtDirector, templatePlan } from '../src/director/template.js';
-import { createBackdropKeyRemover } from '../src/node/cutout.js';
+import { createCanvas } from '@napi-rs/canvas';
+import { assessCutout, createBackdropKeyRemover } from '../src/node/cutout.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
 import { generateDesign } from '../src/node/pipeline.js';
 import type { GenerateEvent } from '../src/node/pipeline.js';
@@ -370,6 +371,80 @@ describe(
       expect(sub?.type === 'text' && sub.content).toBe('Charity 5K · [Date] · [Venue]');
       expect(result.final.report.issues.filter((i) => i.ruleId === 'copy-grounded')).toEqual([]);
       expect(result.final.report.score).toBeGreaterThan(winner.score);
+    });
+
+    it('gives a subject on a surface a contact shadow that setShadow adjusts and moves follow', async () => {
+      const editor = createScriptedEditor([
+        {
+          summary: 'Ground the product, darker, and sit it lower.',
+          edits: [
+            { op: 'setShadow', elementId: 'subject', opacity: 0.5, reason: 'it floats' },
+            { op: 'move', elementId: 'subject', dx: 0, dy: 40, reason: 'sit on the surface' },
+          ],
+        },
+      ]);
+      const { result } = await run(tempDir(), {
+        editor,
+        candidates: 1,
+        layouts: 1,
+        maxIterations: 1,
+        maxRegenerations: 0,
+        target: 101,
+      });
+      const start = result.candidates[0]!.design;
+      const shadowAt = (d: typeof start) => d.elements.find((e) => e.id === 'subject-shadow');
+      const ids = start.elements.map((e) => e.id);
+      expect(ids.indexOf('subject-shadow')).toBe(ids.indexOf('subject') - 1);
+      expect(shadowAt(start)).toMatchObject({ type: 'shape', role: 'decoration', opacity: 0.35 });
+      expect(editor.requests[0]!.shadows).toEqual([{ elementId: 'subject', opacity: 0.35 }]);
+
+      const step = result.loop.history[1]!;
+      expect(step.shadowEdits).toEqual([
+        { elementId: 'subject', opacity: 0.5, reason: 'it floats', status: 'applied' },
+      ]);
+      // The shadow followed the subject down (the loop re-syncs shadows after the edits).
+      expect(shadowAt(step.design)).toMatchObject({ opacity: 0.5 });
+      expect(shadowAt(step.design)!.y).toBeCloseTo(shadowAt(start)!.y + 40, 0);
+    });
+
+    it('never re-cuts a damaged model cut; it is reported as a warning only', async () => {
+      // A segmentation model whose cut is torn: eight narrow tears across the top of a disc.
+      const c = createCanvas(200, 200);
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#e8701a';
+      ctx.beginPath();
+      ctx.arc(100, 100, 70, 0, Math.PI * 2);
+      ctx.fill();
+      for (let x = 50; x < 150; x += 12) ctx.clearRect(x, 0, 5, 65);
+      const torn = new Uint8Array(await c.encode('png'));
+      // Without the model cap this cut is an error.
+      expect((await assessCutout(torn)).severity).toBe('error');
+      const model = {
+        id: 'birefnet',
+        kind: 'model' as const,
+        model: 'birefnet@test',
+        license: 'test',
+        remove: async () => ({ png: torn, width: 200, height: 200, coverage: 0.4 }),
+      };
+      const dir = tempDir();
+      const { result } = await run(dir, {
+        remover: model,
+        candidates: 1,
+        layouts: 1,
+        maxIterations: 0,
+        workspace: await createWorkspace(dir, {
+          attention: false,
+          imageChecks: createImageAnalyzer({ detector: null }),
+        }),
+      });
+      const manifest = JSON.parse(readFileSync(result.manifestFile, 'utf8'));
+      const subject = manifest.images.find((i: { kind: string }) => i.kind === 'subject');
+      expect(subject.cutout).toMatchObject({ remover: 'birefnet', quality: 'warning' });
+      expect(subject.cutout.recuts).toBeUndefined();
+      const issues = result.candidates[0]!.report.issues.filter(
+        (i) => i.ruleId === 'cutout-quality',
+      );
+      expect(issues.map((i) => i.severity)).toEqual(['warning']);
     });
   },
 );

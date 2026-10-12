@@ -130,6 +130,7 @@ function slots(prompt: string, calmAreas: string, subject: boolean): ImageSlot[]
       calmAreas,
       style: 'editorial photograph, soft natural light',
       stockQuery: prompt.split(/[,.]/)[0]!.split(/\s+/).slice(-4).join(' '),
+      grounding: 'floating',
       userImageId: '',
     },
   ];
@@ -141,6 +142,7 @@ function slots(prompt: string, calmAreas: string, subject: boolean): ImageSlot[]
       calmAreas: '',
       style: 'clean product photograph',
       stockQuery: '',
+      grounding: 'surface',
       userImageId: '',
     });
   }
@@ -249,6 +251,7 @@ export function templatePlan(brief: CreativeBrief): DesignPlan {
           calmAreas: '',
           style: '',
           stockQuery: '',
+          grounding: 'floating',
           userImageId: logo.id,
         },
       ]

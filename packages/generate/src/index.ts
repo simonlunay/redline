@@ -36,7 +36,17 @@ export {
   worstCaseLlmCallUsd,
 } from './spend.js';
 export type { SpendEntry, SpendLedger } from './spend.js';
-export type { BackgroundRemover, Cutout } from './cutout.js';
+export type { BackgroundRemover, Cutout, RemoverKind } from './cutout.js';
+export {
+  DEFAULT_SHADOW_OPACITY,
+  MAX_SHADOW_OPACITY,
+  MIN_SHADOW_OPACITY,
+  contactShadow,
+  setContactShadow,
+  shadowIdFor,
+  syncContactShadows,
+} from './shadow.js';
+export type { Footprint } from './shadow.js';
 export { closestAspectRatio } from './providers/types.js';
 export type {
   FetchLike,

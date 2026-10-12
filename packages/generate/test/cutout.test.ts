@@ -205,6 +205,46 @@ describe('quality-checked cutouts', () => {
     expect((await assessCutout(result.cut.png, await estimateBackdrop(shot))).severity).toBe('ok');
   });
 
+  it('never replaces a model cut with a keyed re-cut; its verdict is a warning at most', async () => {
+    const shot = await studioShot();
+    // The same damaged (uncut) result, but from a segmentation model: kept, only reported.
+    const model: BackgroundRemover = {
+      id: 'birefnet',
+      kind: 'model',
+      model: 'birefnet@test',
+      license: 'test',
+      remove: async (bytes) => ({ png: bytes, width: 240, height: 240, coverage: 1 }),
+    };
+    const result = await cutOutWithQualityCheck(model, shot);
+    expect(result.recuts).toEqual([]);
+    expect(result.kept).toBeUndefined();
+    expect(result.cut.png).toBe(shot);
+    expect(result.verdict).toMatchObject({ severity: 'warning', source: 'model' });
+  });
+
+  it("goes by the cut's own kind when the auto remover made it", async () => {
+    const shot = await studioShot();
+    const hosted: BackgroundRemover = {
+      id: 'replicate-birefnet',
+      kind: 'model',
+      model: 'hosted@test',
+      license: 'test',
+      remove: async (bytes) => ({ png: bytes, width: 240, height: 240, coverage: 1 }),
+    };
+    const auto = createAutoRemover({ hosted, forceHosted: true });
+    const result = await cutOutWithQualityCheck(auto, shot);
+    expect(result.cut.remover).toMatchObject({ id: 'replicate-birefnet', kind: 'model' });
+    expect(result.recuts).toEqual([]);
+    expect(result.verdict.severity).toBe('warning');
+  });
+
+  it('labels every built-in remover with its kind', () => {
+    expect(createBackdropKeyRemover().kind).toBe('keyer');
+    expect(
+      createReplicateBiRefNetRemover({ client: createReplicateClient({ token: 't' }) }).kind,
+    ).toBe('model');
+  });
+
   it('estimates the backdrop from the border', async () => {
     expect(await estimateBackdrop(await studioShot())).toEqual([211, 211, 211]);
   });

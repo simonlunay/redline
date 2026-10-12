@@ -5,8 +5,9 @@ import type { PinnedModelFile } from '@simonlunay/redline/node';
 import type * as OrtModule from 'onnxruntime-node';
 import { judgeCutout, measureCutout } from '@simonlunay/redline';
 import type { CutoutVerdict } from '@simonlunay/redline';
-import type { BackgroundRemover, Cutout } from '../cutout.js';
+import type { BackgroundRemover, Cutout, RemoverKind } from '../cutout.js';
 import type { ReplicateClient } from '../providers/replicate-client.js';
+import type { Footprint } from '../shadow.js';
 import type { SpendLedger } from '../spend.js';
 
 /**
@@ -141,6 +142,7 @@ export function createBiRefNetRemover(
 
   return {
     id: 'birefnet',
+    kind: 'model',
     model: BIREFNET_LITE.id,
     license: BIREFNET_LITE.license,
     remove: (bytes) => exclusive(() => removeWith(bytes)),
@@ -239,6 +241,7 @@ export function createReplicateBiRefNetRemover(options: {
   const what = 'cutout (BiRefNet on Replicate)';
   return {
     id: REPLICATE_BIREFNET.id,
+    kind: 'model',
     model: REPLICATE_BIREFNET.model,
     license: REPLICATE_BIREFNET.license,
     async remove(bytes) {
@@ -309,17 +312,52 @@ export function borderMedian(rgba: {
   ];
 }
 
+/**
+ * Where a cut-out subject touches the ground: the horizontal extent of its opaque pixels in the
+ * bottom 6% of its height, and its lowest opaque row. For its contact shadow. Null when the
+ * image has no opaque pixels.
+ */
+export async function measureFootprint(png: Uint8Array): Promise<Footprint | null> {
+  const { width, height, data } = await decode(png);
+  const opaque = (x: number, y: number) => data[(y * width + x) * 4 + 3]! >= 128;
+  let bottom = -1;
+  for (let y = height - 1; y >= 0 && bottom < 0; y--) {
+    for (let x = 0; x < width; x++) {
+      if (opaque(x, y)) {
+        bottom = y;
+        break;
+      }
+    }
+  }
+  if (bottom < 0) return null;
+  const top = Math.max(0, bottom - Math.max(1, Math.round(height * 0.06)));
+  let left = width;
+  let right = -1;
+  for (let y = top; y <= bottom; y++) {
+    for (let x = 0; x < width; x++) {
+      if (!opaque(x, y)) continue;
+      if (x < left) left = x;
+      if (x > right) right = x;
+    }
+  }
+  return { left: left / width, right: (right + 1) / width, bottom: (bottom + 1) / height };
+}
+
 /** The backdrop color of an encoded studio shot (border median). */
 export async function estimateBackdrop(bytes: Uint8Array): Promise<[number, number, number]> {
   return borderMedian(await decode(bytes));
 }
 
-/** Measures an encoded cutout PNG against the backdrop it was cut from. */
+/**
+ * Measures an encoded cutout PNG against the backdrop it was cut from. `source: 'model'` caps
+ * the verdict at a warning (see CutoutSource).
+ */
 export async function assessCutout(
   png: Uint8Array,
   backdrop?: [number, number, number],
+  source?: RemoverKind,
 ): Promise<CutoutVerdict> {
-  return judgeCutout(measureCutout(await decode(png), backdrop));
+  return judgeCutout(measureCutout(await decode(png), backdrop), source ? { source } : {});
 }
 
 const SEVERITY_RANK = { ok: 0, warning: 1, error: 2 } as const;
@@ -342,10 +380,15 @@ export interface QualityCutout {
 }
 
 /**
- * Cuts out a subject and checks the cut (cutout-quality). If it's damaged, re-cuts it with the
- * alternatives (no API cost, a second or two each) and keeps whichever measures best. With the
- * keyer that means a tighter and a looser tolerance: tighter bites less out of light subjects,
+ * Cuts out a subject and checks the cut (cutout-quality). A keyed cut that measures as damaged
+ * is re-cut with the alternatives (no API cost, a second or two each) and the best-measuring one
+ * is kept: a tighter and a looser tolerance, where tighter bites less out of light subjects and
  * looser removes more leftover backdrop.
+ *
+ * A cut by a segmentation model (BiRefNet, local or hosted) is never re-cut: the keyer is only a
+ * fallback for when no model cut is available. In the phase 5b eval a keyed re-cut "beat" a
+ * clean BiRefNet cut of a dropper bottle by keying its white dropper away. Its verdict is capped
+ * at a warning instead.
  */
 export async function cutOutWithQualityCheck(
   remover: BackgroundRemover,
@@ -357,19 +400,28 @@ export async function cutOutWithQualityCheck(
 ): Promise<QualityCutout> {
   const backdrop = await estimateBackdrop(bytes);
   const cut = await remover.remove(bytes);
-  const verdict = await assessCutout(cut.png, backdrop);
-  if (verdict.severity !== 'error') return { cut, verdict, recuts: [] };
+  const kind = cut.remover?.kind ?? remover.kind;
+  const verdict = await assessCutout(cut.png, backdrop, kind);
+  if (verdict.severity !== 'error' || kind === 'model') return { cut, verdict, recuts: [] };
   let best = { cut, verdict, name: '' };
   const recuts: QualityCutout['recuts'] = [];
   for (const alt of alternatives) {
     try {
       const c = await alt.remove(bytes);
-      const v = await assessCutout(c.png, backdrop);
+      const v = await assessCutout(c.png, backdrop, alt.kind);
       const name = `${alt.id}:${alt.model}`;
       recuts.push({ remover: name, severity: v.severity });
       if (cutoutBadness(v) < cutoutBadness(best.verdict)) {
         best = {
-          cut: { ...c, remover: { id: alt.id, model: alt.model, license: alt.license } },
+          cut: {
+            ...c,
+            remover: {
+              id: alt.id,
+              model: alt.model,
+              license: alt.license,
+              ...(alt.kind ? { kind: alt.kind } : {}),
+            },
+          },
           verdict: v,
           name,
         };
@@ -396,6 +448,7 @@ export function createBackdropKeyRemover(options: { tolerance?: number } = {}): 
   const tolerance = options.tolerance ?? 30;
   return {
     id: 'backdrop-key',
+    kind: 'keyer',
     model:
       tolerance === 30 ? 'backdrop-flood-key-v1' : `backdrop-flood-key-v1 (tolerance ${tolerance})`,
     license: 'Part of Redline (MIT)',
@@ -477,7 +530,12 @@ export function createAutoRemover(
   const minFree =
     options.minFreeBytes ?? (envMin > 0 ? envMin * 1024 ** 2 : DEFAULT_MIN_FREE_BYTES);
   const freeMemory = options.freeMemory ?? freemem;
-  const info = (r: BackgroundRemover) => ({ id: r.id, model: r.model, license: r.license });
+  const info = (r: BackgroundRemover) => ({
+    id: r.id,
+    model: r.model,
+    license: r.license,
+    ...(r.kind ? { kind: r.kind } : {}),
+  });
   const first = (primary ?? hosted)!;
   const fallbacks = [...(primary && hosted ? [hosted] : []), fallback].map((r) => r.model);
   let broken: string | undefined;

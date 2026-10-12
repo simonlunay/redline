@@ -138,6 +138,7 @@ function applyOne(elements: DesignElement[], fix: Fix, insertedIds: string[]): s
         fill: fix.fill,
         opacity: clamp(fix.opacity, 0, 1),
         cornerRadius: Math.max(0, fix.cornerRadius),
+        blur: 0,
         rotation: 0,
         // Same zIndex as the target, inserted right before it in the array: it paints above
         // everything that was under the target and directly below the target itself.
