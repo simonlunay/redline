@@ -1072,7 +1072,9 @@ The cause was ONNX Runtime's CPU arena keeping BiRefNet's ~6 GB inference peak f
 - **Attention:** the gallery build ran MSI-Net on every recorded design and stored the attention rules' results plus a small heatmap. The browser replays those results for an unedited design, so its score is exactly what was measured. Once you edit, the attention rules pause (the page says so) until you undo back.
 - **Image rules:** each image's text detection and cutout analysis is stored with the run, since editing never changes an image.
 
-A unit test re-checks every stored snapshot with the browser's rule set and gets the stored report exactly. An end-to-end test does the same for all 22 samples in Chromium, where text is measured by the browser's own canvas.
+A unit test re-checks every stored snapshot with the browser's rule set and gets the stored report exactly. An end-to-end test does the same for all 22 samples in Chromium, where text is measured by the browser's own canvas. It runs on Windows and on Linux (CI).
+
+**Text is measured unhinted.** The canvases that measure and draw design text use `textRendering = 'geometricPrecision'`. Without it, Linux Chromium hints glyphs and rounds each advance to a whole pixel, so a label measured 90 px instead of the CLI's 87.69 and wrapped in its 88 px button (hard-leaderboard scored 50 instead of 79). After the fonts load, the page measures one probe string per Inter weight against the CLI's widths. If a face didn't load or a width is off by more than 0.02 px, the run and check pages say so instead of showing different scores without explanation.
 
 ### Running it locally
 
