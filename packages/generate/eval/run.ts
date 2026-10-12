@@ -30,7 +30,12 @@ import { createAnthropicArtDirector } from '../src/director/anthropic.js';
 import { DEFAULT_JUDGE_MODEL, createAnthropicJudge } from '../src/judge/anthropic.js';
 import { createTemplateArtDirector } from '../src/director/template.js';
 import { ArtDirectorError } from '../src/director/types.js';
-import { createAutoRemover, createBackdropKeyRemover } from '../src/node/cutout.js';
+import {
+  createAutoRemover,
+  createBackdropKeyRemover,
+  createBiRefNetRemover,
+  createReplicateBiRefNetRemover,
+} from '../src/node/cutout.js';
 import { parseSize, renderGenerationSteps } from '../src/node/generate-command.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
 import { generateDesign } from '../src/node/pipeline.js';
@@ -38,6 +43,7 @@ import type { GenerationResult } from '../src/node/pipeline.js';
 import { createFileLedger } from '../src/node/spend-file.js';
 import { createWorkspace } from '../src/node/workspace.js';
 import { createReplicateFluxProvider } from '../src/providers/replicate.js';
+import { createReplicateClient } from '../src/providers/replicate-client.js';
 import { ctaShare } from '../src/select.js';
 import { BudgetExceededError, withRunBudget } from '../src/spend.js';
 
@@ -68,6 +74,7 @@ const { values } = parseArgs({
     offline: { type: 'boolean' },
     'no-save': { type: 'boolean' },
     label: { type: 'string' },
+    cutout: { type: 'string' },
   },
 });
 
@@ -107,7 +114,38 @@ const ledgerAtStart = ledger.spentUsd();
 /** Below this much free memory no new prompt is started; the run stops and reports instead. */
 const minFreeMb = Number(values['min-free-mb'] ?? 1500);
 let stopped: string | undefined;
-const remover = offline ? createBackdropKeyRemover() : createAutoRemover();
+/**
+ * --cutout auto (default): local BiRefNet with enough free memory, else BiRefNet on Replicate,
+ * else the keyer. hosted: always Replicate. local: local BiRefNet only. key: the keyer only.
+ * Offline runs always key (no downloads, no spend).
+ */
+const cutoutMode = offline ? 'key' : (values.cutout ?? 'auto');
+// Replicate allows 6 predictions/minute (burst 1) on accounts with under $5 credit.
+const replicateInterval = Number(process.env.REPLICATE_MIN_INTERVAL_MS ?? 10_500);
+const hostedRemover = () =>
+  createReplicateBiRefNetRemover({
+    client: createReplicateClient({
+      token: process.env.REPLICATE_API_TOKEN!,
+      minIntervalMs: replicateInterval,
+    }),
+    ledger,
+    tag: 'cutout',
+  });
+const remover =
+  cutoutMode === 'key'
+    ? createBackdropKeyRemover()
+    : cutoutMode === 'local'
+      ? createBiRefNetRemover()
+      : cutoutMode === 'hosted'
+        ? createAutoRemover({ hosted: hostedRemover(), forceHosted: true })
+        : cutoutMode === 'auto'
+          ? createAutoRemover({ hosted: hostedRemover() })
+          : (() => {
+              console.error(
+                pc.red(`Unknown --cutout "${cutoutMode}" (auto | hosted | local | key)`),
+              );
+              process.exit(2);
+            })();
 const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 const runLabel = values.label ?? (offline ? 'offline' : model);
 const outRoot = join(ROOT, 'out', 'eval-generate', `${stamp}_${runLabel}`);
@@ -211,8 +249,7 @@ async function evalPrompt(p: (typeof PROMPTS)[number]): Promise<Row> {
         ? createMockImageProvider()
         : createReplicateFluxProvider({
             token: process.env.REPLICATE_API_TOKEN!,
-            // Replicate allows 6 predictions/minute (burst 1) on accounts with under $5 credit.
-            minIntervalMs: Number(process.env.REPLICATE_MIN_INTERVAL_MS ?? 10_500),
+            minIntervalMs: replicateInterval,
           }),
       remover,
       editor: offline
@@ -395,7 +432,7 @@ console.error(
     `redline eval:generate: ${selected.length} prompts · ${candidates} candidates · target ${target} · max ${maxIterations} it · ${maxRegenerations} regen`,
   ) +
     pc.dim(
-      ` · ${offline ? 'offline (template + mock + suggested)' : `${model} (${effort}) + FLUX.1 schnell`} · ledger $${ledger.spentUsd().toFixed(2)} of $${ledger.capUsd.toFixed(2)}`,
+      ` · ${offline ? 'offline (template + mock + suggested)' : `${model} (${effort}) + FLUX.1 schnell · cutout ${cutoutMode}`} · ledger $${ledger.spentUsd().toFixed(2)} of $${ledger.capUsd.toFixed(2)}`,
     ),
 );
 const started = Date.now();
@@ -445,6 +482,10 @@ const summary = {
     cutoutCandidates: ok.reduce((s, r) => s + (r.candidatesCutout ?? 0), 0),
     candidates: ok.reduce((s, r) => s + (r.candidates?.length ?? 0), 0),
   },
+  /** Which remover made the final cut of every subject image, across all prompts. */
+  cutoutsBy: ok
+    .flatMap((r) => r.cutouts ?? [])
+    .reduce<Record<string, number>>((m, id) => ({ ...m, [id]: (m[id] ?? 0) + 1 }), {}),
   recuts: ok.reduce((s, r) => s + (r.recuts ?? 0), 0),
   recutsKept: ok.reduce((s, r) => s + (r.recutsKept ?? 0), 0),
   loopRan: ok.filter((r) => (r.iterations ?? 0) > 0).length,
@@ -525,7 +566,11 @@ for (const r of rows.filter((x) => !x.ok && !x.skipped))
   console.log(pc.red(`  ${r.id}: ${r.error}`));
 console.log(
   pc.dim(
-    `  catches on winners: image-text ${summary.catches.imageTextWinners} · cutout-quality ${summary.catches.cutoutWinners} · judge ${summary.catches.judgeWinners} (candidates: image-text ${summary.catches.imageTextCandidates}, cutout ${summary.catches.cutoutCandidates} of ${summary.catches.candidates}) · re-cuts ${summary.recuts} (${summary.recutsKept} kept)` +
+    `  catches on winners: image-text ${summary.catches.imageTextWinners} · cutout-quality ${summary.catches.cutoutWinners} · judge ${summary.catches.judgeWinners} (candidates: image-text ${summary.catches.imageTextCandidates}, cutout ${summary.catches.cutoutCandidates} of ${summary.catches.candidates}) · re-cuts ${summary.recuts} (${summary.recutsKept} kept) · cutouts by ${
+      Object.entries(summary.cutoutsBy)
+        .map(([k, n]) => `${k} ${n}`)
+        .join(', ') || 'none'
+    }` +
       `\n  fix loop ran on ${summary.loopRan}/${ok.length} · regenerations ${summary.totalRegenerations} (${summary.regenerationReasons.join(', ') || 'none'})` +
       (summary.judge.reviews
         ? `\n  judge (${summary.judge.model}): ${summary.judge.reviews} reviews · flagged what the rules passed ${summary.judge.flaggedRulesPassed} · passed what the rules flagged ${summary.judge.passedRulesFlagged} · both flagged ${summary.judge.bothFlagged} · both passed ${summary.judge.bothPassed} · final ship ${summary.judge.finalShip}/${ok.length} · $${summary.judge.costUsd}`
@@ -562,6 +607,7 @@ if (!values['no-save']) {
           maxIterations,
           maxRegenerations,
           imageModel: offline ? 'mock' : 'black-forest-labs/flux-schnell',
+          cutout: cutoutMode,
           imageChecks,
           judge: judgeName === 'anthropic' ? { model: judgeModel, rounds: judgeRounds } : null,
         },

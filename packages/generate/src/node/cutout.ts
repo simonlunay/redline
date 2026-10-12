@@ -6,6 +6,8 @@ import type * as OrtModule from 'onnxruntime-node';
 import { judgeCutout, measureCutout } from '@simonlunay/redline';
 import type { CutoutVerdict } from '@simonlunay/redline';
 import type { BackgroundRemover, Cutout } from '../cutout.js';
+import type { ReplicateClient } from '../providers/replicate-client.js';
+import type { SpendLedger } from '../spend.js';
 
 /**
  * BiRefNet_lite (Zheng et al., "Bilateral Reference for High-Resolution Dichotomous Image
@@ -196,6 +198,90 @@ export function createBiRefNetRemover(
   }
 }
 
+/**
+ * BiRefNet on Replicate (men1scus/birefnet), pinned by version. It's the same model family as the
+ * local path, so the cuts stay comparable. Code: github.com/ZhengPeng7/BiRefNet (MIT). Weights:
+ * huggingface.co/ZhengPeng7/BiRefNet-legacy (MIT), per the model page (checked 2026-10-11). It
+ * runs on an A100 80GB, billed per second ($0.0014/s on replicate.com/pricing, checked
+ * 2026-10-11). A 900x600 probe took 0.51 s, about $0.0007.
+ */
+export const REPLICATE_BIREFNET = {
+  id: 'replicate-birefnet',
+  model: 'men1scus/birefnet@f74986db',
+  version: 'f74986db0355b58403ed20963af156525e2891ea3c2d499bfbfb2a28cd87c5d7',
+  license: 'MIT (BiRefNet by Peng Zheng et al.; weights ZhengPeng7/BiRefNet-legacy)',
+  usdPerSecond: 0.0014,
+  /** What the spend guard reserves per cutout: ~7 s of GPU time, well above the usual 0.5-2 s. */
+  estimateUsd: 0.01,
+};
+
+/** Image media type from the file's magic bytes (FLUX subjects are PNG; stock may be JPEG). */
+function sniffImageType(bytes: Uint8Array): string {
+  if (bytes[0] === 0x89 && bytes[1] === 0x50) return 'image/png';
+  if (bytes[0] === 0xff && bytes[1] === 0xd8) return 'image/jpeg';
+  if (bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50)
+    return 'image/webp';
+  return 'application/octet-stream';
+}
+
+/**
+ * Hosted BiRefNet, for machines without the ~8 GB free the local model needs. The subject is
+ * uploaded to Replicate's file store (deleted again afterwards) and cut there. Only the returned
+ * alpha is kept: it's applied to the original pixels and trimmed exactly like a local cut. Every
+ * call is guarded by and recorded in the spend ledger.
+ */
+export function createReplicateBiRefNetRemover(options: {
+  client: ReplicateClient;
+  ledger?: SpendLedger;
+  tag?: string;
+}): BackgroundRemover {
+  const { client, ledger } = options;
+  const what = 'cutout (BiRefNet on Replicate)';
+  return {
+    id: REPLICATE_BIREFNET.id,
+    model: REPLICATE_BIREFNET.model,
+    license: REPLICATE_BIREFNET.license,
+    async remove(bytes) {
+      ledger?.guard(REPLICATE_BIREFNET.estimateUsd, what);
+      const type = sniffImageType(bytes);
+      const file = await client.upload(bytes, `subject.${type.split('/')[1] ?? 'bin'}`, type);
+      let run: Awaited<ReturnType<ReplicateClient['run']>>;
+      try {
+        run = await client.run('/predictions', {
+          version: REPLICATE_BIREFNET.version,
+          input: { image: file.url },
+        });
+      } finally {
+        await file.remove();
+      }
+      const seconds = run.prediction.metrics?.predict_time;
+      ledger?.record({
+        kind: 'image',
+        what,
+        model: REPLICATE_BIREFNET.model,
+        // No metrics (shouldn't happen once it succeeded): count the reserved estimate, not zero.
+        costUsd:
+          typeof seconds === 'number'
+            ? Number((seconds * REPLICATE_BIREFNET.usdPerSecond).toFixed(6))
+            : REPLICATE_BIREFNET.estimateUsd,
+        ...(options.tag ? { tag: options.tag } : {}),
+      });
+
+      const rgba = await decode(bytes);
+      const cut = await loadImage(Buffer.from(run.output));
+      // The model returns an RGBA PNG at the input size; scale it if it ever doesn't.
+      const canvas = createCanvas(rgba.width, rgba.height);
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(cut, 0, 0, rgba.width, rgba.height);
+      const px = ctx.getImageData(0, 0, rgba.width, rgba.height).data;
+      const alpha = new Uint8ClampedArray(rgba.width * rgba.height);
+      for (let i = 0; i < alpha.length; i++) alpha[i] = px[i * 4 + 3]!;
+      return applyMaskAndTrim(rgba, alpha);
+    },
+  };
+}
+
 /** Per-channel median of an image's border pixels: the backdrop color of a studio shot. */
 export function borderMedian(rgba: {
   width: number;
@@ -360,55 +446,85 @@ export function createBackdropKeyRemover(options: { tolerance?: number } = {}): 
 }
 
 /**
- * BiRefNet when it can be loaded (onnxruntime-node installed, model downloadable) and the machine
- * has memory to spare, otherwise the backdrop keyer. Each cutout says which one made it
- * (`remover`, `fallbackReason`); `lastUsed()` is kept for single-generation callers.
+ * Local BiRefNet when it can be loaded (onnxruntime-node installed, model downloadable) and the
+ * machine has memory to spare. Otherwise the hosted remover when one is given (BiRefNet on
+ * Replicate), and the backdrop keyer as the last resort. `forceHosted` skips the local model.
+ * Each cutout says which one made it (`remover`, `fallbackReason`); `lastUsed()` is kept for
+ * single-generation callers.
  */
 export function createAutoRemover(
   options: {
     onProgress?: (message: string) => void;
-    onFallback?: (reason: string) => void;
-    /** Below this much free memory a cutout uses the keyer (also: REDLINE_CUTOUT_MIN_FREE_MB). */
+    /** Called when a cutout didn't come from the first choice: why, and which remover made it. */
+    onFallback?: (reason: string, used: BackgroundRemover) => void;
+    /** Below this much free memory a cutout skips local BiRefNet (or REDLINE_CUTOUT_MIN_FREE_MB). */
     minFreeBytes?: number;
+    /** Used instead of the keyer when local BiRefNet can't run (always, with forceHosted). */
+    hosted?: BackgroundRemover;
+    forceHosted?: boolean;
     /** Injected in tests. */
     primary?: BackgroundRemover;
     freeMemory?: () => number;
   } = {},
 ): BackgroundRemover & { lastUsed(): BackgroundRemover | undefined } {
-  const primary = options.primary ?? createBiRefNetRemover({ onProgress: options.onProgress });
+  const { hosted, forceHosted = false } = options;
+  if (forceHosted && !hosted) throw new Error('forceHosted needs a hosted remover');
+  const primary = forceHosted
+    ? undefined
+    : (options.primary ?? createBiRefNetRemover({ onProgress: options.onProgress }));
   const fallback = createBackdropKeyRemover();
   const envMin = Number(process.env.REDLINE_CUTOUT_MIN_FREE_MB);
   const minFree =
     options.minFreeBytes ?? (envMin > 0 ? envMin * 1024 ** 2 : DEFAULT_MIN_FREE_BYTES);
   const freeMemory = options.freeMemory ?? freemem;
   const info = (r: BackgroundRemover) => ({ id: r.id, model: r.model, license: r.license });
+  const first = (primary ?? hosted)!;
+  const fallbacks = [...(primary && hosted ? [hosted] : []), fallback].map((r) => r.model);
   let broken: string | undefined;
   let last: BackgroundRemover | undefined;
   return {
     id: 'auto',
-    model: `${primary.model} (fallback ${fallback.model})`,
-    license: primary.license,
+    model: `${first.model} (fallback ${fallbacks.join(', then ')})`,
+    license: first.license,
     lastUsed: () => last,
     async remove(bytes) {
-      let reason = broken;
-      if (!reason) {
-        const free = freeMemory();
-        if (free < minFree) {
-          // Not sticky: memory may be back for the next cutout.
-          reason = `only ${Math.round(free / 1024 ** 2)} MB of memory free (BiRefNet needs ~6 GB at its peak)`;
-          options.onFallback?.(reason);
-        } else {
-          try {
-            const result = await primary.remove(bytes);
-            last = primary;
-            return { ...result, remover: info(primary) };
-          } catch (err) {
-            broken = reason = err instanceof Error ? err.message : String(err);
-            options.onFallback?.(broken);
+      let reason: string | undefined;
+      if (primary) {
+        reason = broken;
+        if (!reason) {
+          const free = freeMemory();
+          if (free < minFree) {
+            // Not sticky: memory may be back for the next cutout.
+            reason = `only ${Math.round(free / 1024 ** 2)} MB of memory free (BiRefNet needs ~6 GB at its peak)`;
+          } else {
+            try {
+              const result = await primary.remove(bytes);
+              last = primary;
+              return { ...result, remover: info(primary) };
+            } catch (err) {
+              broken = reason = err instanceof Error ? err.message : String(err);
+            }
           }
         }
       }
+      if (hosted) {
+        try {
+          const result = await hosted.remove(bytes);
+          last = hosted;
+          if (reason) options.onFallback?.(reason, hosted);
+          return {
+            ...result,
+            remover: info(hosted),
+            ...(reason ? { fallbackReason: reason } : {}),
+          };
+        } catch (err) {
+          // Not sticky either: a timeout or the spend cap may only hit this one cutout.
+          const message = `hosted cutout failed: ${err instanceof Error ? err.message : String(err)}`;
+          reason = reason ? `${reason}; ${message}` : message;
+        }
+      }
       last = fallback;
+      options.onFallback?.(reason!, fallback);
       return { ...(await fallback.remove(bytes)), remover: info(fallback), fallbackReason: reason };
     },
   };

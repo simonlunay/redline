@@ -19,11 +19,17 @@ import { DEFAULT_JUDGE_MODEL, createAnthropicJudge } from '../judge/anthropic.js
 import type { VisualJudge } from '../judge/types.js';
 import { createPexelsProvider } from '../providers/pexels.js';
 import { createReplicateFluxProvider } from '../providers/replicate.js';
+import { createReplicateClient } from '../providers/replicate-client.js';
 import type { ImageProvider } from '../providers/types.js';
 import { createMemoryLedger } from '../spend.js';
 import type { BackgroundRemover } from '../cutout.js';
 import { renderContactSheet } from './contact-sheet.js';
-import { createAutoRemover, createBackdropKeyRemover, createBiRefNetRemover } from './cutout.js';
+import {
+  createAutoRemover,
+  createBackdropKeyRemover,
+  createBiRefNetRemover,
+  createReplicateBiRefNetRemover,
+} from './cutout.js';
 import {
   formatCandidate,
   formatGenerateHeader,
@@ -62,7 +68,11 @@ Options
   --provider <name>        replicate (FLUX.1 schnell) | pexels (stock) | mock (offline).
                            Default: replicate if REPLICATE_API_TOKEN is set, else pexels if
                            PEXELS_API_KEY is set, else mock
-  --cutout <name>          auto (BiRefNet, falls back to keying) | birefnet | key | none
+  --cutout <name>          auto (default): local BiRefNet; with too little free memory (or no
+                           onnxruntime-node), BiRefNet on Replicate when REPLICATE_API_TOKEN is
+                           set and --provider isn't mock, else backdrop keying.
+                           hosted: always BiRefNet on Replicate (≈ $0.001 a cutout, in the budget).
+                           birefnet: local only. key | none
   --director <name>        anthropic (default) | template (offline, deterministic)
   --editor <name>          anthropic (default) | suggested (offline)
   --model <id>             Claude model for art director and fix loop (default ${DEFAULT_MODEL})
@@ -253,7 +263,10 @@ export async function runGenerateCommand(
     } else throw new GenerateUsageError(`Unknown --director "${directorName}"`);
   }
 
-  // Images
+  // Images. One Replicate client for FLUX and the hosted cutout, so they share a learned rate limit.
+  const replicate = env.REPLICATE_API_TOKEN
+    ? createReplicateClient({ token: env.REPLICATE_API_TOKEN })
+    : undefined;
   let provider = io.provider;
   const providerName =
     values.provider ??
@@ -261,7 +274,7 @@ export async function runGenerateCommand(
   if (!provider) {
     if (providerName === 'replicate') {
       if (!env.REPLICATE_API_TOKEN) throw new GenerateUsageError('REPLICATE_API_TOKEN is not set.');
-      provider = createReplicateFluxProvider({ token: env.REPLICATE_API_TOKEN });
+      provider = createReplicateFluxProvider({ token: env.REPLICATE_API_TOKEN, client: replicate });
     } else if (providerName === 'pexels') {
       if (!env.PEXELS_API_KEY) throw new GenerateUsageError('PEXELS_API_KEY is not set.');
       provider = createPexelsProvider({ apiKey: env.PEXELS_API_KEY });
@@ -273,11 +286,28 @@ export async function runGenerateCommand(
   const warnings: string[] = [];
   let remover = io.remover;
   if (!remover) {
+    const onFallback = (reason: string, used: BackgroundRemover) =>
+      warnings.push(
+        `${used.id === 'backdrop-key' ? 'Backdrop keying' : 'BiRefNet on Replicate'} used for a cutout instead of local BiRefNet: ${reason}`,
+      );
     if (cutoutName === 'auto') {
+      // Offline runs (mock images) never spend money on cutouts.
+      const hosted =
+        replicate && providerName !== 'mock'
+          ? createReplicateBiRefNetRemover({ client: replicate, ledger })
+          : undefined;
       remover = createAutoRemover({
         onProgress: (m) => io.stderr(m),
-        onFallback: (reason) =>
-          warnings.push(`Backdrop keying used for a cutout instead of BiRefNet: ${reason}`),
+        onFallback,
+        ...(hosted ? { hosted } : {}),
+      });
+    } else if (cutoutName === 'hosted') {
+      if (!replicate)
+        throw new GenerateUsageError('REPLICATE_API_TOKEN is not set (needed by --cutout hosted).');
+      remover = createAutoRemover({
+        hosted: createReplicateBiRefNetRemover({ client: replicate, ledger }),
+        forceHosted: true,
+        onFallback: (reason) => warnings.push(`Backdrop keying used for a cutout: ${reason}`),
       });
     } else if (cutoutName === 'birefnet')
       remover = createBiRefNetRemover({ onProgress: (m) => io.stderr(m) });

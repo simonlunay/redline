@@ -83,6 +83,26 @@ image licenses are not all confirmed to allow commercial use. Get a legal
 review before commercial use.
 
 ------------------------------------------------------------------------------
+BiRefNet on Replicate (used by `redline generate` for subject cutouts when
+local BiRefNet_lite can't run, or with --cutout hosted; called as an API, no
+weights downloaded or stored)
+------------------------------------------------------------------------------
+Model:   men1scus/birefnet on Replicate, version
+         f74986db0355b58403ed20963af156525e2891ea3c2d499bfbfb2a28cd87c5d7
+         (a community wrapper; its packaging source is not published)
+Source:  Same paper and code as above.
+         Weights: https://huggingface.co/ZhengPeng7/BiRefNet-legacy (MIT), as
+         named on the Replicate model page
+         Code:    https://github.com/ZhengPeng7/BiRefNet (MIT), the model's
+         license_url on Replicate
+License: MIT (checked 2026-10-11 on the Replicate model page, the GitHub
+         LICENSE and the Hugging Face model card).
+Training-data caveat (not legal advice): BiRefNet-legacy was trained on
+DIS5K, DUTS, HRSOD, UHRSD and HRS10K; as above, their image licenses are not
+all confirmed to allow commercial use. Get a legal review before commercial
+use.
+
+------------------------------------------------------------------------------
 PaddleOCR PP-OCRv5 mobile text detection and English recognition models (used
 by the image-text check: `redline generate`, and `--image-checks` on check and
 fix; downloaded on first use from Hugging Face, not stored in this repository

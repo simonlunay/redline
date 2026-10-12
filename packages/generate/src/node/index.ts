@@ -21,10 +21,12 @@ export type { Manifest, ManifestEntry } from './assets.js';
 export { MOCK_BACKDROP, createMockImageProvider, prng } from './mock-provider.js';
 export {
   BIREFNET_LITE,
+  REPLICATE_BIREFNET,
   applyMaskAndTrim,
   createAutoRemover,
   createBackdropKeyRemover,
   createBiRefNetRemover,
+  createReplicateBiRefNetRemover,
 } from './cutout.js';
 export { createWorkspace } from './workspace.js';
 export type { Workspace } from './workspace.js';

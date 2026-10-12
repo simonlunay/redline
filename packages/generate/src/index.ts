@@ -50,7 +50,12 @@ export {
   FLUX_SCHNELL,
   createReplicateFluxProvider,
 } from './providers/replicate.js';
-export type { ReplicateOptions } from './providers/replicate.js';
+export { createReplicateClient } from './providers/replicate-client.js';
+export type {
+  Prediction,
+  ReplicateClient,
+  ReplicateOptions,
+} from './providers/replicate-client.js';
 export { PEXELS_LICENSE, createPexelsProvider } from './providers/pexels.js';
 export type { PexelsOptions } from './providers/pexels.js';
 export { ArtDirectorError, BUNDLED_FONTS } from './director/types.js';

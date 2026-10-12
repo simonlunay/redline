@@ -441,7 +441,9 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
         const cut = checked?.cut ?? (await cutoutLock(() => remover.remove(image.bytes)));
         const used = cut.remover ?? remover;
         if (cut.fallbackReason)
-          warn(`Cutout for ${key} used ${used.id} instead of BiRefNet: ${cut.fallbackReason}`);
+          warn(
+            `Cutout for ${key} used ${used.id} instead of local BiRefNet: ${cut.fallbackReason}`,
+          );
         if (checked?.recuts.length) {
           warn(
             `Cutout for ${key} was damaged (${checked.verdict.problems.map((p) => p.kind).join(', ') || 'fixed'} after re-cutting); ${checked.kept ? `kept the re-cut ${checked.kept}` : 'no re-cut was better'}.`,

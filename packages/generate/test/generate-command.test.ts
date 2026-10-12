@@ -171,6 +171,15 @@ describe('redline generate', () => {
     await expect(
       runGenerateCommand(['x', '--director', 'template', '--provider', 'replicate'], testIO),
     ).rejects.toThrow(/REPLICATE_API_TOKEN is not set/);
+    await expect(
+      runGenerateCommand(
+        ['x', '--director', 'template', '--provider', 'mock', '--cutout', 'hosted'],
+        testIO,
+      ),
+    ).rejects.toThrow(/REPLICATE_API_TOKEN is not set \(needed by --cutout hosted\)/);
+    await expect(
+      runGenerateCommand(['x', '--director', 'template', '--cutout', 'magic'], testIO),
+    ).rejects.toThrow(/Unknown --cutout "magic"/);
   });
 
   it('parses sizes and slugs', () => {
