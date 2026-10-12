@@ -205,3 +205,13 @@ Nothing is merged or pushed; you do that.
 3. **Rules-only "Fix it" in the browser:** run the real fix loop with the checker's own suggestions (no AI, free, instant), labeled clearly as rules-only, with the eval's numbers for what the AI adds (rules loop 81.8 vs Sonnet 98.8 in the strict mean)? I think it makes the editor much more fun, but it's scope you didn't ask for.
 4. **Gallery selection:** all 14 phase 5b part 2 prompts plus the 3 tuned re-runs (est. 8–10 MB), and about 8 fix runs?
 5. **Demo:** which run should the README GIF show? I'd suggest a generate run where the loop and the judge visibly change something, e.g. yoga-retreat after shadow tuning, where the judge goes from fix to ship.
+
+## Approval (2026-10-12)
+
+Approved with these answers:
+
+1. **Hosting:** GitHub Pages at `simonlunay.github.io/redline` for now. The README documents the switch to `redline.simonlunay.com` (CNAME record and config change); it isn't set up.
+2. **Fix runs:** a one-time local re-run of about 6 fixtures with `redline fix`, capped at $0.50 by the ledger, to capture full histories. Those are the gallery's fix replays.
+3. **Rules-only "Fix it":** yes, clearly labeled as no AI. Where a gallery run exists for the same design, the rules-only result is shown next to the AI result.
+4. **Gallery:** the proposed list, ordered with the strongest runs first and the judge-rejected or unsolved ones later, labeled honestly.
+5. **Demo GIF:** yoga-retreat.
