@@ -57,18 +57,32 @@ Image `src` paths are resolved relative to the design file.
 ## `redline fix`
 
 ```
-$ redline fix fixtures/worst.json --out fixed.json --render-steps steps/
+$ redline fix fixtures/worst.json --target 100 --max-iterations 5 --attention --out fixed.json
 
- redline fix  fixtures/worst.json  target 90 · max 4 · claude-sonnet-5-5 (medium)
+ redline fix  fixtures/worst.json  target 100 · max 5 · claude-sonnet-5-5 (medium) · attention on
 
-  #0  start          6  █░░░░░░░░░       11 errors · 3 warnings
-  #1  accepted      94  █████████░  +88  0 errors · 2 warnings
-        Reflow the layout: headline on top, subheading below it, product at its natural ratio, ...
-        ...
+  #0  start          5  █░░░░░░░░░       11 errors · 4 warnings
+  #1  accepted      97  ██████████  +92  0 errors · 1 warning
+        Restack the layout so the headline sits on top, the subheading is smaller, and nothing overlaps. Recolor text for contrast, fix the product ratio, and pull the logo and legal text inside the margins.
+        • move logo by (-180, +24) — bring on canvas with margins
+        • set headline color to #0f172a — contrast
+        • set headline font size to 72px — most prominent
+        • move headline by (+0, -120) — clear product overlap
+        • resize headline to 900x90 — fit text
+        • set subheading font size to 40px — below headline in hierarchy, fits one line
+        • set subheading font weight to 600 — calmer
+        • set subheading color to #7c4a03 — contrast
+        … 11 more
+  #2  accepted     100  ██████████  +3   0 errors · 0 warnings
+        Align legal text left edge with headline at x=60.
+        • move legal by (+6, +0) — Align left edge with headline and body
 
-  ✔ 6 → 94 in 1 iteration · errors 11 → 0 · stop: target reached
-    1 LLM call · 8.9k in (0 cached) / 1.6k out tokens · ≈ $0.036 · 20.2s
+  ✔ 5 → 100 in 2 iterations · errors 11 → 0 · stop: no issues left
+    2 LLM calls · 21.6k in (5.5k cached) / 1.8k out tokens · ≈ $0.054 · 22.6s
+    wrote fixed.json (best version: iteration 2)
 ```
+
+This is a recorded run (the same one the [web app](web-app.md) replays), printed by the tool as is.
 
 | Option                 | Description                                                                                                                  |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------- |

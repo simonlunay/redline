@@ -191,7 +191,7 @@ Every paid call goes through a persistent spend ledger (`--ledger`, default `pac
 | 3   | 2026-10-11 | Hosted BiRefNet cutouts          | 8 of 14          |
 | 4   | 2026-10-12 | Model cuts kept, contact shadows | **9 of 14**      |
 
-"Judge would ship" is the judge's verdict on the design that shipped. The eval's own `finalShip` counter uses the last verdict instead, so it reads lower when the final pick kept an earlier round's design (jazz-night in run 2, saas-banner in run 4).
+"Judge would ship" counts the judge's verdict on the design that shipped, which isn't always the last review: the final pick can keep an earlier round's design (jazz-night in run 2, saas-banner in run 4: ship, then fix, and round 0's design shipped). Each result row records it as `judgeShipped` and `judgeShippedRound`, and `summary.judge.finalShip` counts it. Results saved before the counter worked this way were recounted from their stored `.generation.json` records with `npm run eval:recount-shipped -w packages/generate`, with no new API calls.
 
 ### Generation run 1: baseline pipeline
 

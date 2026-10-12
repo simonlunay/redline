@@ -46,6 +46,7 @@ import { createReplicateFluxProvider } from '../src/providers/replicate.js';
 import { createReplicateClient } from '../src/providers/replicate-client.js';
 import { ctaShare } from '../src/select.js';
 import { BudgetExceededError, withRunBudget } from '../src/spend.js';
+import { countShipped, shippedStats } from './shipped.js';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const RESULTS = fileURLToPath(new URL('./results/', import.meta.url));
@@ -212,6 +213,9 @@ interface Row {
   judgeUsd?: number;
   /** visual-judge issues left on the final design. */
   visualJudgeFinal?: number;
+  /** The review of the design that shipped (absent when no review saw it): round and verdict. */
+  judgeShippedRound?: number;
+  judgeShipped?: string;
   /** Regenerations by the rule the editor named as the reason. */
   regenerationReasons?: string[];
 }
@@ -397,6 +401,7 @@ function judgeStats(result: GenerationResult) {
     judgeRulesPassed: result.judgments.map((j) => j.rulesErrors === 0 && j.rulesScore >= target),
     judgeUsd: Number(result.judgments.reduce((s, j) => s + (j.costUsd ?? 0), 0).toFixed(4)),
     visualJudgeFinal: issuesOf(result.final.report, 'visual-judge'),
+    ...shippedStats(result),
   };
 }
 
@@ -505,7 +510,8 @@ const summary = {
       passedRulesFlagged: reviews.filter((x) => !x.flags && !x.rulesPassed).length,
       bothFlagged: reviews.filter((x) => x.flags && !x.rulesPassed).length,
       bothPassed: reviews.filter((x) => !x.flags && x.rulesPassed).length,
-      finalShip: ok.filter((r) => r.judgeVerdicts?.at(-1) === 'ship').length,
+      // The verdict on the design that shipped: the final pick can keep an earlier round's design.
+      finalShip: countShipped(ok),
       costUsd: Number(ok.reduce((s, r) => s + (r.judgeUsd ?? 0), 0).toFixed(4)),
     };
   })(),
@@ -573,7 +579,7 @@ console.log(
     }` +
       `\n  fix loop ran on ${summary.loopRan}/${ok.length} · regenerations ${summary.totalRegenerations} (${summary.regenerationReasons.join(', ') || 'none'})` +
       (summary.judge.reviews
-        ? `\n  judge (${summary.judge.model}): ${summary.judge.reviews} reviews · flagged what the rules passed ${summary.judge.flaggedRulesPassed} · passed what the rules flagged ${summary.judge.passedRulesFlagged} · both flagged ${summary.judge.bothFlagged} · both passed ${summary.judge.bothPassed} · final ship ${summary.judge.finalShip}/${ok.length} · $${summary.judge.costUsd}`
+        ? `\n  judge (${summary.judge.model}): ${summary.judge.reviews} reviews · flagged what the rules passed ${summary.judge.flaggedRulesPassed} · passed what the rules flagged ${summary.judge.passedRulesFlagged} · both flagged ${summary.judge.bothFlagged} · both passed ${summary.judge.bothPassed} · shipped design judged ship ${summary.judge.finalShip}/${ok.length} · $${summary.judge.costUsd}`
         : ''),
   ),
 );

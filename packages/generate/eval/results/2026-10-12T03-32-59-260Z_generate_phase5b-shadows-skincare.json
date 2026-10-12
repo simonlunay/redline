@@ -157,7 +157,9 @@
         false
       ],
       "judgeUsd": 0.0192,
-      "visualJudgeFinal": 1
+      "visualJudgeFinal": 1,
+      "judgeShippedRound": 0,
+      "judgeShipped": "fix"
     }
   ]
 }

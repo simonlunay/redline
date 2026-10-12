@@ -160,7 +160,10 @@ export interface GenerationResult {
   final: { design: Design; report: Report };
   /** The vision judge's reviews, in order (empty without a judge). */
   judgments: Judgment[];
-  /** With a judge: which review's design was shipped (see pickJudged). */
+  /**
+   * With a judge: the round of the review whose design was shipped (see pickJudged). Absent when
+   * the shipped design was never reviewed (no judge, or the judge failed after the loop changed it).
+   */
   finalJudgeRound?: number;
   judge?: string;
   out: string;
@@ -201,6 +204,43 @@ export function pickJudged(judgments: Judgment[]): number {
     best = i; // equal: prefer the later round
   });
   return best;
+}
+
+type LoopRecord = { history: { status: string; design: Design }[] } & (
+  { best: { iteration: number } } | { bestIteration: number }
+);
+
+/**
+ * The design a judge round reviewed, recovered from the loop history: round 0 saw the start of the
+ * first loop, round k the start of loop k, and a review after the last loop saw that loop's best
+ * (merged loops keep the last loop's best).
+ */
+export function reviewedDesign(loop: LoopRecord, round: number): Design | undefined {
+  const starts = loop.history.flatMap((h, i) => (h.status === 'initial' ? [i] : []));
+  const bestIteration = 'best' in loop ? loop.best.iteration : loop.bestIteration;
+  return loop.history[round < starts.length ? starts[round]! : bestIteration]?.design;
+}
+
+/**
+ * The judge's review of the design that was shipped, or undefined if no review saw it. Works on a
+ * live result and on a stored `.generation.json`, including records from before `finalJudgeRound`
+ * was always set: then the shipped design is matched to the reviewed ones, and when several
+ * reviews saw it, the latest counts (as in the final report).
+ */
+export function shippedJudgment(record: {
+  judgments: Judgment[];
+  finalJudgeRound?: number | null;
+  final: { design: Design };
+  loop: LoopRecord;
+}): Judgment | undefined {
+  const { judgments, loop } = record;
+  if (typeof record.finalJudgeRound === 'number')
+    return judgments.find((j) => j.round === record.finalJudgeRound);
+  const shipped = designFingerprint(record.final.design);
+  return [...judgments].reverse().find((j) => {
+    const design = reviewedDesign(loop, j.round);
+    return design !== undefined && designFingerprint(design) === shipped;
+  });
 }
 
 /** Long side of the render the judge sees: detailed enough, about 1.4k image tokens. */
@@ -774,6 +814,9 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
   const finalDesign = chosen ? chosen.design : loop.best.design;
   if (chosen) judgeStore.record(chosen.design, chosen.verdict);
   const finalReport = reviewed.length > 1 ? await check(finalDesign) : loop.best.report;
+  // With one review, the shipped design is the loop's best: reviewed only if the loop changed nothing.
+  const shippedReview =
+    chosen ?? reviewed.find((r) => designFingerprint(r.design) === designFingerprint(finalDesign));
   if (chosen && chosen !== reviewed.at(-1)) {
     warn(
       `Kept the design from judge round ${chosen.judgment.round}: the later fixes didn't hold up on review.`,
@@ -802,7 +845,7 @@ export async function generateDesign(options: GenerateOptions): Promise<Generati
     winner: winner.index,
     loop,
     final: { design: finalDesign, report: finalReport },
-    ...(chosen ? { finalJudgeRound: chosen.judgment.round } : {}),
+    ...(shippedReview ? { finalJudgeRound: shippedReview.judgment.round } : {}),
     judgments,
     ...(options.judge ? { judge: options.judge.name } : {}),
     out,

@@ -15,7 +15,7 @@ import { createScriptedJudge } from '../src/judge/scripted.js';
 import type { JudgeVerdict } from '../src/judge/types.js';
 import { createBackdropKeyRemover } from '../src/node/cutout.js';
 import { createMockImageProvider } from '../src/node/mock-provider.js';
-import { generateDesign, pickJudged } from '../src/node/pipeline.js';
+import { generateDesign, pickJudged, shippedJudgment } from '../src/node/pipeline.js';
 import { createWorkspace } from '../src/node/workspace.js';
 import { buildSystemPrompt } from '@simonlunay/redline-agent';
 import { brightnessSaliency, tempDir } from './helpers.js';
@@ -383,6 +383,8 @@ describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
     expect(result.judgments).toHaveLength(3);
     expect(result.finalJudgeRound).toBe(0);
     expect(result.final.design).toEqual(result.candidates[result.winner]!.design);
+    // The shipped design's review counts, not the last one.
+    expect(shippedJudgment(result)).toBe(result.judgments[0]);
     expect(result.warnings.some((w) => /Kept the design from judge round 0/.test(w))).toBe(true);
   });
 
@@ -402,6 +404,26 @@ describe('generateDesign with a vision judge', { timeout: 60_000 }, () => {
     const result = await run(judge, createScriptedEditor([]));
     expect(judge.requests).toHaveLength(1);
     expect(result.judgments).toHaveLength(1);
+    // The one review saw the design that shipped.
+    expect(result.finalJudgeRound).toBe(0);
+    expect(shippedJudgment(result)?.verdict).toBe('fix');
+  });
+
+  it('records no shipped review when the judge fails after the loop changed the design', async () => {
+    const scripted = createScriptedJudge([verdict([fakeText(null)])]);
+    let calls = 0;
+    const flaky = {
+      ...scripted,
+      judge: async (req: Parameters<typeof scripted.judge>[0]) => {
+        if (calls++ > 0) throw new Error('boom');
+        return scripted.judge(req);
+      },
+    };
+    const result = await run(flaky as ReturnType<typeof createScriptedJudge>, nudger(2));
+    expect(result.judgments).toHaveLength(1);
+    expect(result.final.design).not.toEqual(result.candidates[result.winner]!.design);
+    expect(result.finalJudgeRound).toBeUndefined();
+    expect(shippedJudgment(result)).toBeUndefined();
   });
 
   it('keeps going without the judge if it fails', async () => {

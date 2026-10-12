@@ -84,7 +84,7 @@
       "passedRulesFlagged": 1,
       "bothFlagged": 11,
       "bothPassed": 7,
-      "finalShip": 4,
+      "finalShip": 5,
       "costUsd": 0.4412
     }
   },
@@ -175,7 +175,9 @@
         true
       ],
       "judgeUsd": 0.0378,
-      "visualJudgeFinal": 1
+      "visualJudgeFinal": 1,
+      "judgeShippedRound": 1,
+      "judgeShipped": "fix"
     },
     {
       "id": "coffee-latte",
@@ -282,7 +284,9 @@
         false
       ],
       "judgeUsd": 0.048,
-      "visualJudgeFinal": 2
+      "visualJudgeFinal": 2,
+      "judgeShippedRound": 2,
+      "judgeShipped": "reject"
     },
     {
       "id": "sneaker-drop",
@@ -372,7 +376,9 @@
         true
       ],
       "judgeUsd": 0.0316,
-      "visualJudgeFinal": 1
+      "visualJudgeFinal": 1,
+      "judgeShippedRound": 1,
+      "judgeShipped": "fix"
     },
     {
       "id": "saas-banner",
@@ -448,7 +454,9 @@
         true
       ],
       "judgeUsd": 0.0117,
-      "visualJudgeFinal": 0
+      "visualJudgeFinal": 0,
+      "judgeShippedRound": 1,
+      "judgeShipped": "ship"
     },
     {
       "id": "jazz-night",
@@ -530,7 +538,9 @@
         true
       ],
       "judgeUsd": 0.0385,
-      "visualJudgeFinal": 0
+      "visualJudgeFinal": 0,
+      "judgeShippedRound": 0,
+      "judgeShipped": "ship"
     },
     {
       "id": "summer-sale",
@@ -617,7 +627,9 @@
         true
       ],
       "judgeUsd": 0.0393,
-      "visualJudgeFinal": 1
+      "visualJudgeFinal": 1,
+      "judgeShippedRound": 1,
+      "judgeShipped": "fix"
     },
     {
       "id": "farmers-market",
@@ -708,7 +720,9 @@
         false
       ],
       "judgeUsd": 0.0367,
-      "visualJudgeFinal": 0
+      "visualJudgeFinal": 0,
+      "judgeShippedRound": 1,
+      "judgeShipped": "ship"
     },
     {
       "id": "headphones-launch",
@@ -811,7 +825,9 @@
         false
       ],
       "judgeUsd": 0.0262,
-      "visualJudgeFinal": 1
+      "visualJudgeFinal": 1,
+      "judgeShippedRound": 2,
+      "judgeShipped": "reject"
     },
     {
       "id": "yoga-retreat",
@@ -887,7 +903,9 @@
         true
       ],
       "judgeUsd": 0.0145,
-      "visualJudgeFinal": 0
+      "visualJudgeFinal": 0,
+      "judgeShippedRound": 1,
+      "judgeShipped": "ship"
     },
     {
       "id": "pizza-delivery",
@@ -978,7 +996,9 @@
         true
       ],
       "judgeUsd": 0.0294,
-      "visualJudgeFinal": 1
+      "visualJudgeFinal": 1,
+      "judgeShippedRound": 1,
+      "judgeShipped": "fix"
     },
     {
       "id": "tech-conference",
@@ -1055,7 +1075,9 @@
         true
       ],
       "judgeUsd": 0.0228,
-      "visualJudgeFinal": 0
+      "visualJudgeFinal": 0,
+      "judgeShippedRound": 1,
+      "judgeShipped": "ship"
     },
     {
       "id": "pet-adoption",
@@ -1161,7 +1183,9 @@
         false
       ],
       "judgeUsd": 0.0518,
-      "visualJudgeFinal": 2
+      "visualJudgeFinal": 2,
+      "judgeShippedRound": 2,
+      "judgeShipped": "fix"
     },
     {
       "id": "skincare-serum",
@@ -1269,7 +1293,9 @@
         true
       ],
       "judgeUsd": 0.0529,
-      "visualJudgeFinal": 1
+      "visualJudgeFinal": 1,
+      "judgeShippedRound": 1,
+      "judgeShipped": "fix"
     },
     {
       "id": "bookstore-event",

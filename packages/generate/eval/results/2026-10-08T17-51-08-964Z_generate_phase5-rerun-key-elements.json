@@ -182,7 +182,9 @@
         false
       ],
       "judgeUsd": 0.0569,
-      "visualJudgeFinal": 2
+      "visualJudgeFinal": 2,
+      "judgeShippedRound": 2,
+      "judgeShipped": "reject"
     },
     {
       "id": "yoga-retreat",
@@ -285,7 +287,9 @@
         false
       ],
       "judgeUsd": 0.0412,
-      "visualJudgeFinal": 3
+      "visualJudgeFinal": 3,
+      "judgeShippedRound": 2,
+      "judgeShipped": "reject"
     }
   ]
 }

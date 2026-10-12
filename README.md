@@ -50,17 +50,32 @@ On the deliberately broken `fixtures/worst.json`:
 - **Fix:** `npm install @simonlunay/redline-agent`, set `ANTHROPIC_API_KEY`, then `npx redline fix design.json --out fixed.json`.
 - **Generate** (from source; not on npm): clone the repo, `npm install`, fill in `.env`, then `npm run redline -- generate "poster for a charity 5K, energetic, blue and orange"`. See [Running generate from source](docs/generation.md#running-generate-from-source).
 
-`redline fix` on the same file:
+`redline fix` on the same file (a recorded run with the strict settings: target 100, attention on):
 
 ```
- redline fix  fixtures/worst.json  target 90 · max 4 · claude-sonnet-5-5 (medium)
+$ redline fix fixtures/worst.json --target 100 --max-iterations 5 --attention --out fixed.json
 
-  #0  start          6  █░░░░░░░░░       11 errors · 3 warnings
-  #1  accepted      94  █████████░  +88  0 errors · 2 warnings
-        ... (21 edits, each with a one-line reason)
+ redline fix  fixtures/worst.json  target 100 · max 5 · claude-sonnet-5-5 (medium) · attention on
 
-  ✔ 6 → 94 in 1 iteration · errors 11 → 0 · stop: target reached
-    1 LLM call · 8.9k in (0 cached) / 1.6k out tokens · ≈ $0.036 · 20.2s
+  #0  start          5  █░░░░░░░░░       11 errors · 4 warnings
+  #1  accepted      97  ██████████  +92  0 errors · 1 warning
+        Restack the layout so the headline sits on top, the subheading is smaller, and nothing overlaps. Recolor text for contrast, fix the product ratio, and pull the logo and legal text inside the margins.
+        • move logo by (-180, +24) — bring on canvas with margins
+        • set headline color to #0f172a — contrast
+        • set headline font size to 72px — most prominent
+        • move headline by (+0, -120) — clear product overlap
+        • resize headline to 900x90 — fit text
+        • set subheading font size to 40px — below headline in hierarchy, fits one line
+        • set subheading font weight to 600 — calmer
+        • set subheading color to #7c4a03 — contrast
+        … 11 more
+  #2  accepted     100  ██████████  +3   0 errors · 0 warnings
+        Align legal text left edge with headline at x=60.
+        • move legal by (+6, +0) — Align left edge with headline and body
+
+  ✔ 5 → 100 in 2 iterations · errors 11 → 0 · stop: no issues left
+    2 LLM calls · 21.6k in (5.5k cached) / 1.8k out tokens · ≈ $0.054 · 22.6s
+    wrote fixed.json (best version: iteration 2)
 ```
 
 From code, the checker is one pure function that also runs in the browser:

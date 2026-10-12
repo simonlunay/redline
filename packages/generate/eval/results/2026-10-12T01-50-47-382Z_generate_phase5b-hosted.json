@@ -163,7 +163,9 @@
         true
       ],
       "judgeUsd": 0.0159,
-      "visualJudgeFinal": 0
+      "visualJudgeFinal": 0,
+      "judgeShippedRound": 0,
+      "judgeShipped": "ship"
     },
     {
       "id": "saas-banner",
