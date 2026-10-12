@@ -950,6 +950,13 @@ npm run eval:replay -w packages/generate    # image rules + judge on a finished 
 
 There's also a summary row with means. Every paid call goes through a persistent ledger (`--ledger`, default `packages/generate/eval/results/spend-ledger.json`), which also enforces a cap. With the image checks and the judge on, it also reports what each check caught on the winners and candidates, re-cuts, what the regenerations were for, and the judge's agreement with the rules.
 
+**Phase 5b results (2026-10-11): hosted BiRefNet cutouts.** Same settings as phase 5, with `--cutout auto`. The machine had under 2 GB free, so every subject except one was cut by BiRefNet on Replicate. 12 of 14 prompts completed: the run was stopped for low system memory before skincare-serum and bookstore-event finished. Raw data: `packages/generate/eval/results/2026-10-12T01-50-47-382Z_generate_phase5b-hosted.json` (sneaker-drop) and `…T01-57-32-671Z_generate_phase5b-hosted-rest.reconstructed.json` (the other 11). Full analysis: [docs/phase-5b-report.md](docs/phase-5b-report.md).
+
+- **The judge would ship 7 of the 12** (5 of the same 12 in phase 5): headphones, pizza and sneaker are newly shipped. **None of the 5 it didn't ship has a cutout defect**; in phase 5 all of them did.
+- **What's left is compositing:** 3 of the 5 are a subject floating with no contact shadow (coffee, pet, saas). The other 2 are fake text on race bibs and a grey scrim the fixer added.
+- **Regenerations fell from 13 to 3** on these prompts, and cost per design fell from $0.114 to $0.085. 23 hosted cutouts cost $0.030 in total.
+- **`cutout-quality` on BiRefNet cuts:** its edge signals stay quiet on the soft matte. But all 5 of its flags on the 17 hosted cuts are false alarms: backdrop-colored subjects (`leftover-backdrop`), and natural steps in an outline (`bites`). One `bites` error made the pipeline swap a clean dropper-bottle cut for a keyed one missing its dropper. See the report for the recommended fix.
+
 **Phase 5 results (2026-10-08): image checks and judge on.** Same settings as the first run, plus the image rules and the Opus 5.5 judge (2 rounds), `--concurrency 1`. Raw data: `packages/generate/eval/results/2026-10-08T18-00-25-677Z_generate_phase5-final.json` (13 prompts) and `…T18-28-47-917Z_generate_phase5-final-bookstore.json` (bookstore-event, which the eval's low-memory guard had skipped). "Final (rules)" is the rules-only score of the design that shipped; the final score the CLI prints also counts the judge's findings. Full analysis: [docs/phase-5-report.md](docs/phase-5-report.md).
 
 | Prompt            | Size      | First | Best-of-4 (rules) | Image rules on winner | Judge verdicts           | Iterations | Regenerations | Re-cuts | Final (rules) | Final judge    | Cost   |
@@ -1023,7 +1030,8 @@ The cause was ONNX Runtime's CPU arena keeping BiRefNet's ~6 GB inference peak f
 
 - **The rules and the judge both have blind spots.** A design that passes every rule and that the judge ships is likely clean, not guaranteed: see the misses in [Image checks and the vision judge](#limits-1) and the phase 5 eval results above.
 - **Fonts:** only Inter is bundled. The art director can use other families only if you register them with `--font`.
-- **Cutouts** are as good as BiRefNet on a plain backdrop: fine for products, people and animals, weaker on thin structures. The keying fallback leaves halos on shadows.
+- **Cutouts** are as good as BiRefNet on a plain backdrop: fine for products, people and animals, weaker on thin structures. The keying fallback leaves halos on shadows. A cut subject gets no contact shadow, so on a scene background it can look pasted on.
+- **`cutout-quality` was tuned on keyed cutouts.** On BiRefNet cuts it raises false `leftover-backdrop` warnings on backdrop-colored subjects, and false `bites` on stepped outlines (a dropper bottle). A `bites` error can make the re-cut step replace a good BiRefNet cut with a worse keyed one.
 - **FLUX schnell** sometimes ignores parts of the brief, including "no text". The calm-area instruction is a request, not a guarantee, which is exactly what the regeneration op and the contrast rule are there to catch.
 - **The judge reviews only the winner.** Best-of-N still picks by rule score (now including the image rules), so two candidates that both score 100 are a tie broken by warnings and CTA attention. The judge then reviews whichever won.
 

@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-12T01:57:01.927Z",
+  "git": {
+    "commit": "aa1181671c678eb633081f3fa973afefdac5c185",
+    "dirty": true
+  },
+  "settings": {
+    "offline": false,
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "candidates": 4,
+    "target": 95,
+    "maxIterations": 4,
+    "maxRegenerations": 2,
+    "imageModel": "black-forest-labs/flux-schnell",
+    "cutout": "auto",
+    "imageChecks": true,
+    "judge": {
+      "model": "claude-opus-5-5",
+      "rounds": 2
+    }
+  },
+  "durationMs": 374605,
+  "outputs": "out\\eval-generate\\2026-10-12T01-50-47-382Z_phase5b-hosted",
+  "summary": {
+    "prompts": 14,
+    "failed": 13,
+    "meanFirst": 100,
+    "meanBestOfN": 100,
+    "meanFinal": 99,
+    "skipped": 11,
+    "stopped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)",
+    "reachedTarget": 1,
+    "firstAtTarget": 1,
+    "bestOfNAtTarget": 1,
+    "loopReachedTarget": 0,
+    "loopImproved": 0,
+    "directorRetriedForFacts": 0,
+    "copyGroundedWinners": 0,
+    "copyGroundedFinals": 0,
+    "copyEditsApplied": 0,
+    "runSpentUsd": 0.1266,
+    "meanIterations": 0,
+    "totalRegenerations": 0,
+    "regenerationsKept": 0,
+    "meanCtaBefore": 19.3,
+    "meanCtaAfter": 19.3,
+    "ctaBelowMinimumAfter": 0,
+    "totalCostUsd": 0.0628,
+    "meanCostUsd": 0.0628,
+    "ledgerTotalUsd": 0.1344,
+    "catches": {
+      "imageTextWinners": 0,
+      "cutoutWinners": 0,
+      "judgeWinners": 0,
+      "imageTextCandidates": 0,
+      "cutoutCandidates": 0,
+      "candidates": 4
+    },
+    "cutoutsBy": {
+      "replicate-birefnet": 2
+    },
+    "recuts": 0,
+    "recutsKept": 0,
+    "loopRan": 0,
+    "regenerationReasons": [],
+    "judge": {
+      "model": "claude-opus-5-5",
+      "reviews": 1,
+      "flaggedRulesPassed": 0,
+      "passedRulesFlagged": 0,
+      "bothFlagged": 0,
+      "bothPassed": 1,
+      "finalShip": 1,
+      "costUsd": 0.0159
+    }
+  },
+  "prompts": [
+    {
+      "id": "charity-5k",
+      "prompt": "poster for a charity 5K, energetic, blue and orange",
+      "size": "1080x1350",
+      "ok": false,
+      "error": "The art director's plan was invalid on all 3 tries.\nTry 1: The plan has problems:\n- layouts[0]: has no elements; list its texts, shapes and images\nTry 2: The plan has problems:\n- layouts[0]: has no elements; list its texts, shapes and images\nTry 3: The plan has problems:\n- layouts[0]: has no elements; list its texts, shapes and images",
+      "failure": "director-failed"
+    },
+    {
+      "id": "coffee-latte",
+      "prompt": "Instagram post announcing a new oat milk latte at a neighborhood coffee shop, cozy, warm morning light",
+      "size": "1080x1080",
+      "ok": false,
+      "error": "Replicate prediction rtryrnehj1rnr0d15q78nmws74 failed: Director: unexpected error handling prediction (E9828)",
+      "failure": "other"
+    },
+    {
+      "id": "sneaker-drop",
+      "prompt": "story ad for a limited sneaker drop, bold streetwear style, neon green on black",
+      "size": "1080x1920",
+      "ok": true,
+      "first": 100,
+      "bestOfN": 100,
+      "final": 99,
+      "candidates": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "winnerErrors": 0,
+      "finalErrors": 0,
+      "iterations": 0,
+      "regenerations": 0,
+      "regenerationsKept": 0,
+      "ctaBefore": 0.1933,
+      "ctaAfter": 0.1933,
+      "ctaBelowMinimumAfter": false,
+      "stopReason": "target-reached",
+      "costUsd": 0.0628,
+      "llmUsd": 0.0425,
+      "imageUsd": 0.0202,
+      "directorRetried": true,
+      "directorCalls": 2,
+      "directorRetriedForFacts": false,
+      "firstAtTarget": true,
+      "bestOfNAtTarget": true,
+      "copyGroundedWinner": 0,
+      "copyGroundedFinal": 0,
+      "copyEditsApplied": 0,
+      "acceptedIterations": 0,
+      "cutouts": [
+        "replicate-birefnet",
+        "replicate-birefnet"
+      ],
+      "durationMs": 105483,
+      "out": "out\\eval-generate\\2026-10-12T01-50-47-382Z_phase5b-hosted\\sneaker-drop\\sneaker-drop.json",
+      "failingRules": [],
+      "warnings": [
+        "Cutout for layout1/sub1 used replicate-birefnet instead of local BiRefNet: only 701 MB of memory free (BiRefNet needs ~6 GB at its peak)",
+        "Cutout for layout2/sub2 used replicate-birefnet instead of local BiRefNet: only 689 MB of memory free (BiRefNet needs ~6 GB at its peak)"
+      ],
+      "winnerImageText": 0,
+      "winnerCutout": 0,
+      "candidatesImageText": 0,
+      "candidatesCutout": 0,
+      "recuts": 0,
+      "recutsKept": 0,
+      "regenerationReasons": [],
+      "judgeVerdicts": [
+        "ship"
+      ],
+      "judgeFindings": [
+        {
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "categories": [
+            "composition"
+          ]
+        }
+      ],
+      "judgeRulesPassed": [
+        true
+      ],
+      "judgeUsd": 0.0159,
+      "visualJudgeFinal": 0
+    },
+    {
+      "id": "saas-banner",
+      "prompt": "LinkedIn banner ad for a project management SaaS, clean, trustworthy, minimal, free trial",
+      "size": "1200x628",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "jazz-night",
+      "prompt": "poster for a late-night jazz concert in a small club, moody, deep purple and gold, vintage",
+      "size": "1080x1350",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "summer-sale",
+      "prompt": "summer sale social post for a beachwear brand, 40% off, bright and playful, turquoise and coral",
+      "size": "1080x1080",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "farmers-market",
+      "prompt": "story for a Saturday farmers market, fresh vegetables, friendly, natural greens and earthy tones",
+      "size": "1080x1920",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "headphones-launch",
+      "prompt": "wide web banner launching premium wireless headphones, sleek, dark studio look, silver accents",
+      "size": "1500x500",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "yoga-retreat",
+      "prompt": "ad for a weekend yoga retreat in the mountains, calm, airy, soft pastel colors",
+      "size": "1080x1350",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "pizza-delivery",
+      "prompt": "Facebook ad for a pizza delivery app, free delivery this week, appetizing, red and cream, fun",
+      "size": "1200x628",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "tech-conference",
+      "prompt": "square post for a developer conference, futuristic, flat geometric illustration style, indigo and cyan",
+      "size": "1080x1080",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "pet-adoption",
+      "prompt": "poster for a pet adoption day at the local animal shelter, heartwarming, friendly, sunny yellow",
+      "size": "1080x1350",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "skincare-serum",
+      "prompt": "story ad for a vitamin C face serum, luxurious, minimal, soft peach and white, product hero",
+      "size": "1080x1920",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    },
+    {
+      "id": "bookstore-event",
+      "prompt": "wide banner for an author reading night at an independent bookstore, literary, warm lamplight, deep green",
+      "size": "1500x500",
+      "ok": false,
+      "skipped": "stopped before saas-banner: only 764 MB of memory free (minimum 1000 MB)"
+    }
+  ]
+}
