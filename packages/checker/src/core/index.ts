@@ -44,6 +44,8 @@ export {
   textOverflow,
   unintendedOverlap,
 } from './rules/index.js';
+export { createContextMeasurer, createRasterSampler } from './environment.js';
+export type { MeasureContext } from './environment.js';
 export { paintDesign, paintElement } from './paint.js';
 export type { PaintContext, PaintImage, PaintOptions } from './paint.js';
 export { renderedTextBounds } from './rules/label-centered.js';

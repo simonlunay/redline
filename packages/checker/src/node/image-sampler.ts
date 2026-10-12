@@ -2,13 +2,8 @@ import { isAbsolute, resolve } from 'node:path';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import type { Image } from '@napi-rs/canvas';
 import type { Design } from '../core/schema.js';
-import type { ImageSampler } from '../core/types.js';
-
-interface Pixels {
-  width: number;
-  height: number;
-  data: Uint8ClampedArray;
-}
+import { createRasterSampler } from '../core/environment.js';
+import type { ImageSampler, RasterImage } from '../core/types.js';
 
 /** Resolves an image src relative to the design file. Data URLs and http(s) pass through. */
 export function resolveSrc(src: string, baseDir: string): string {
@@ -44,7 +39,7 @@ export async function loadDesignImages(design: Design, baseDir: string): Promise
  * This is what lets the core `check()` stay synchronous.
  */
 export function createImageSampler(images: Map<string, Image>): ImageSampler {
-  const pixels = new Map<string, Pixels>();
+  const pixels = new Map<string, RasterImage>();
   for (const [src, img] of images) {
     const canvas = createCanvas(img.width, img.height);
     const ctx = canvas.getContext('2d');
@@ -55,15 +50,5 @@ export function createImageSampler(images: Map<string, Image>): ImageSampler {
       data: ctx.getImageData(0, 0, img.width, img.height).data,
     });
   }
-  return {
-    has: (src) => pixels.has(src),
-    sample(src, u, v) {
-      const p = pixels.get(src);
-      if (!p) return null;
-      const x = Math.min(p.width - 1, Math.max(0, Math.floor(u * p.width)));
-      const y = Math.min(p.height - 1, Math.max(0, Math.floor(v * p.height)));
-      const i = (y * p.width + x) * 4;
-      return { r: p.data[i]!, g: p.data[i + 1]!, b: p.data[i + 2]!, a: p.data[i + 3]! / 255 };
-    },
-  };
+  return createRasterSampler(pixels);
 }

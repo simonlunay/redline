@@ -1,4 +1,5 @@
 import { createCanvas } from '@napi-rs/canvas';
+import { createContextMeasurer } from '../core/environment.js';
 import type { TextMeasurer } from '../core/text-measure.js';
 import { cssFont, registerBundledFonts } from './fonts.js';
 
@@ -9,19 +10,5 @@ import { cssFont, registerBundledFonts } from './fonts.js';
  */
 export function createFontMeasurer(): TextMeasurer {
   registerBundledFonts();
-  const ctx = createCanvas(1, 1).getContext('2d');
-  const cache = new Map<string, number>();
-  return {
-    measure(text, font) {
-      const css = cssFont(font);
-      const key = `${css}|${text}`;
-      let width = cache.get(key);
-      if (width === undefined) {
-        ctx.font = css;
-        width = ctx.measureText(text).width;
-        cache.set(key, width);
-      }
-      return width;
-    },
-  };
+  return createContextMeasurer(createCanvas(1, 1).getContext('2d'), cssFont);
 }
