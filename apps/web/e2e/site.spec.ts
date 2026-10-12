@@ -57,6 +57,51 @@ test('landing page: real numbers, the demo plays, nothing leaves the site', asyn
   expect(problems).toEqual([]);
 });
 
+test('the hero plays the generate pipeline, from the typed prompt to the candidates', async ({
+  page,
+}) => {
+  const problems = watch(page);
+  await page.goto('/');
+  const hero = page.locator('.hero-demo');
+  await expect(hero.locator('.prompt-line')).toContainText('ad for a weekend yoga retreat', {
+    timeout: 20_000,
+  });
+  await expect(hero.getByText(/4 candidates, scored by the rules/)).toBeVisible({
+    timeout: 20_000,
+  });
+  // The heatmap is on while the candidates are scored.
+  await expect(hero.locator('.stage .heat')).toHaveCSS('opacity', /0\.8/);
+  await expect(hero.getByText(/Vision judge/)).toBeVisible({ timeout: 20_000 });
+  expect(problems).toEqual([]);
+});
+
+test('How it works: every stage opens the replay at its moment', async ({ page }) => {
+  const problems = watch(page);
+  await page.goto('/');
+  const stages = page.locator('.pipeline > li');
+  await expect(stages).toHaveCount(8);
+  const expected: [number, RegExp][] = [
+    [0, /^The prompt$/],
+    [1, /^Art director/],
+    [3, /^Best of 4$/],
+    [5, /^Vision judge, review 1/],
+    [6, /^Fix 1 of 1$/],
+    [7, /^Result$/],
+  ];
+  // Collect the links first: following one leaves the landing page.
+  const hrefs = await stages
+    .locator('.pipeline-link')
+    .evaluateAll((links) => links.map((a) => a.getAttribute('href')));
+  expect(hrefs).toHaveLength(8);
+  for (const [i, label] of expected) {
+    const href = hrefs[i]!;
+    expect(href).toMatch(/^\/runs\/yoga-retreat-tuned\/\?frame=\d+/);
+    await page.goto(href);
+    await expect(page.locator('.player-side .label').first()).toHaveText(label);
+  }
+  expect(problems).toEqual([]);
+});
+
 test('gallery lists every run, strongest first, with honest labels', async ({ page }) => {
   const problems = watch(page);
   await page.goto('/gallery/');
@@ -74,8 +119,10 @@ test('a run replays: seek with the keyboard, the panel follows, the heatmap draw
   await page.goto('/runs/yoga-retreat-tuned/');
   const track = page.getByRole('slider', { name: 'Run timeline' });
   await expect(track).toHaveAttribute('aria-valuenow', '1');
-  await expect(page.getByRole('heading', { name: 'The plan' })).toBeVisible();
+  await expect(page.locator('.player-side .label').first()).toHaveText('The prompt');
   await track.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('heading', { name: 'The plan' })).toBeVisible();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('heading', { name: /Candidate 1 of 4/ })).toBeVisible();
   await page.keyboard.press('End');
@@ -90,9 +137,12 @@ test('a run replays: seek with the keyboard, the panel follows, the heatmap draw
 });
 
 test('every run page loads without errors', async ({ page }) => {
+  // 22 pages in one test: more than the default 60 s when the machine is busy.
+  test.setTimeout(180_000);
   const problems = watch(page);
   for (const run of index.runs) {
-    await page.goto(`/runs/${run.id}/?frame=${2}`);
+    // Frame 3 has a design on the stage in every run (generate runs open on the prompt and plan).
+    await page.goto(`/runs/${run.id}/?frame=3`);
     await expect(page.locator('.player-side .score-number').first()).toBeVisible();
   }
   expect(problems).toEqual([]);

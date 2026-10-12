@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CopyCommand } from '@/components/CopyCommand';
+import { HowItWorks } from '@/components/HowItWorks';
 import { Player } from '@/components/Player';
 import { RunCard } from '@/components/RunCard';
 import { readGalleryIndex, readRun } from '@/lib/gallery/read';
@@ -36,6 +37,7 @@ const FACTS = [
 
 export default function Home() {
   const index = readGalleryIndex();
+  const pipeline = readRun('yoga-retreat-tuned');
   const demo = readRun('fix-worst');
   return (
     <main className="page home">
@@ -45,10 +47,9 @@ export default function Home() {
             Redline checks a design against real layout rules, then an AI fixes what it finds.
           </h1>
           <p className="lede">
-            Every problem is tied to an element and comes with a fix a program can apply: contrast
-            measured against what&apos;s actually behind the text, a headline sliding under the
-            product, a button label that doesn&apos;t fit. Here, a test design goes from 5 to 100 in
-            two rounds.
+            Give it a design, or just a prompt. Every problem it finds is tied to an element and
+            comes with a fix a program can apply. Here, a one-line prompt goes through the whole
+            pipeline, replayed from the recorded run.
           </p>
           <div className="row">
             <Link className="button" href="/gallery/">
@@ -60,7 +61,41 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-demo">
-          <Player record={demo} autoplay loop compact />
+          <Player record={pipeline} autoplay loop compact />
+        </div>
+      </section>
+
+      <section className="how" aria-labelledby="how">
+        <div className="section-head">
+          <h2 id="how">How it works</h2>
+          <Link href={`/runs/${pipeline.id}/`}>Watch this run</Link>
+        </div>
+        <p className="section-lede">
+          The run above, stage by stage. Each thumbnail is from the recorded run and opens the
+          replay at that moment.
+        </p>
+        <HowItWorks record={pipeline} />
+      </section>
+
+      <section className="fix-demo" aria-labelledby="fix-demo">
+        <div className="fix-demo-text">
+          <h2 id="fix-demo">The fix loop, on any design</h2>
+          <p>
+            Hand Redline a broken design and the loop repairs it: Claude proposes edits, the checker
+            re-checks, and a step that makes things worse is rolled back. This test design goes from
+            5 to 100 in two rounds.
+          </p>
+          <div className="row">
+            <Link className="button secondary" href={`/runs/${demo.id}/`}>
+              Watch it step by step
+            </Link>
+            <Link className="button secondary" href="/check/?sample=worst">
+              Edit it yourself
+            </Link>
+          </div>
+        </div>
+        <div className="fix-demo-player">
+          <Player record={demo} autoplay="visible" loop compact />
         </div>
       </section>
 

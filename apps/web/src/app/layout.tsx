@@ -1,6 +1,7 @@
 import localFont from 'next/font/local';
 import './globals.css';
 import './pages.css';
+import './pipeline.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';

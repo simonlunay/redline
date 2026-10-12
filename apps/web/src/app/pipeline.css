@@ -1,0 +1,353 @@
+/* The landing page's pipeline: the hero caption, "How it works" and the fix-loop demo. */
+
+/* Hero caption under the stage */
+
+.compact-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  min-height: 96px;
+}
+
+.compact-info .score-number {
+  font-size: var(--t-36);
+}
+
+.caption {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-width: 0;
+}
+
+.caption-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--t-14);
+  font-weight: 700;
+}
+
+.caption-text {
+  font-size: var(--t-14);
+  color: var(--ink-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.caption-line {
+  font-size: var(--t-14);
+  color: var(--ink-2);
+}
+
+.prompt-line {
+  font-size: var(--t-18);
+  font-weight: 500;
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+  background: var(--paper-raised);
+  min-height: 2.6em;
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--ink);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.swatches.small .swatch {
+  width: 18px;
+  height: 18px;
+}
+
+.fan {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 10px;
+}
+
+.fan li {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  font-size: var(--t-12);
+  font-weight: 700;
+  animation: fan-in 320ms ease-out both;
+}
+
+.fan img {
+  display: block;
+  width: 44px;
+  height: auto;
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.fan li.current img {
+  outline-color: var(--ink);
+}
+
+.fan li.won img {
+  outline-color: var(--blue);
+}
+
+/* How it works */
+
+.how {
+  display: grid;
+  gap: 20px;
+  padding: 56px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.how h2,
+.fix-demo h2 {
+  font-size: var(--t-36);
+  font-stretch: var(--wide);
+}
+
+.section-lede {
+  color: var(--ink-2);
+}
+
+.pipeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 32px 24px;
+}
+
+.pipeline li {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+}
+
+.pipeline-visual {
+  display: grid;
+  place-items: center;
+  height: 180px;
+  padding: 14px;
+  border-radius: var(--radius-m);
+  background-color: var(--mat);
+  background-image:
+    linear-gradient(var(--mat-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mat-line) 1px, transparent 1px);
+  background-size: 16px 16px;
+  text-decoration: none;
+  overflow: hidden;
+  transition: background-color 160ms ease;
+}
+
+.pipeline-visual:hover {
+  background-color: var(--mat-line);
+}
+
+.pipeline-text {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.pipeline-text h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: var(--t-18);
+}
+
+.pipeline-n {
+  font-size: var(--t-14);
+  font-weight: 700;
+  color: var(--ink-3);
+  font-stretch: var(--wide);
+}
+
+.pipeline-text p {
+  font-size: var(--t-14);
+  color: var(--ink-2);
+}
+
+.pipeline-link {
+  font-size: var(--t-14);
+}
+
+/* A recorded design as a static thumbnail, with marks */
+.proof {
+  position: relative;
+  display: block;
+  /* The tile is 180px tall with 14px padding: an explicit height so the width follows the
+     design's aspect ratio (a percentage height doesn't resolve in the grid cell). */
+  height: 152px;
+  width: auto;
+  max-width: 100%;
+  box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.5);
+}
+
+.proof img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.proof.ring {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.proof .badge {
+  transform: scale(0.8);
+  transform-origin: top left;
+}
+
+.stage-prompt {
+  max-width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-s);
+  background: var(--paper-raised);
+  color: var(--ink);
+  font-size: var(--t-14);
+  font-weight: 500;
+}
+
+.stage-plan {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+  color: var(--mat-ink);
+  font-weight: 700;
+}
+
+.stage-images {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  height: 100%;
+  width: 100%;
+}
+
+.stage-images img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Cut-out subject on a checkerboard, so the transparency shows */
+.cutout {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #d9ddd6 25%, transparent 25%),
+    linear-gradient(-45deg, #d9ddd6 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d9ddd6 75%),
+    linear-gradient(-45deg, transparent 75%, #d9ddd6 75%);
+  background-size: 12px 12px;
+  background-position:
+    0 0,
+    0 6px,
+    6px -6px,
+    -6px 0;
+}
+
+.stage-fan {
+  display: flex;
+  gap: 8px;
+  height: 100%;
+  align-items: center;
+}
+
+.stage-fan {
+  width: 100%;
+}
+
+/* Four cards share the tile's width, whatever the designs' aspect ratio. */
+.fan-card {
+  position: relative;
+  flex: 1 1 0;
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  min-width: 0;
+}
+
+.fan-card .proof {
+  height: auto;
+  width: 100%;
+  max-height: 118px;
+}
+
+.fan-score {
+  color: var(--mat-ink);
+  font-size: var(--t-12);
+  font-weight: 700;
+}
+
+.stage-ship {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  height: 100%;
+}
+
+.stage-ship .verdict {
+  position: absolute;
+  bottom: 6px;
+}
+
+/* The fix-loop demo, further down */
+
+.fix-demo {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(24px, 5vw, 64px);
+  align-items: center;
+  padding: 56px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.fix-demo-text {
+  display: grid;
+  gap: 20px;
+}
+
+.fix-demo-text p {
+  color: var(--ink-2);
+  font-size: var(--t-18);
+}
+
+@media (max-width: 900px) {
+  .fix-demo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compact-info {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
