@@ -5,7 +5,7 @@ const src = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 
 export default defineConfig({
   test: {
-    include: ['packages/*/test/**/*.test.ts'],
+    include: ['packages/*/test/**/*.test.ts', 'apps/web/test/**/*.test.ts'],
     // Many tests render designs, spawn the CLI or run ONNX models; in a full parallel run on a
     // busy laptop some take 5-10 s, so the 5 s default made them flaky.
     testTimeout: 20_000,
@@ -23,6 +23,14 @@ export default defineConfig({
         replacement: src('./packages/agent/src/node/index.ts'),
       },
       { find: /^@simonlunay\/redline-agent$/, replacement: src('./packages/agent/src/index.ts') },
+      {
+        find: /^@simonlunay\/redline-generate\/node$/,
+        replacement: src('./packages/generate/src/node/index.ts'),
+      },
+      {
+        find: /^@simonlunay\/redline-generate$/,
+        replacement: src('./packages/generate/src/index.ts'),
+      },
     ],
   },
 });

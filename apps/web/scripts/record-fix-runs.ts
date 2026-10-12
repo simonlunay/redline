@@ -24,7 +24,7 @@ import {
   createSuggestedFixesEditor,
   runFixLoop,
 } from '@simonlunay/redline-agent';
-import type { LoopResult } from '@simonlunay/redline-agent';
+import type { Effort, LoopResult } from '@simonlunay/redline-agent';
 import { createFixSession, loadDotEnv } from '@simonlunay/redline-agent/node';
 import { budgetedEditor } from '@simonlunay/redline-generate';
 import { createFileLedger } from '@simonlunay/redline-generate/node';
@@ -50,7 +50,7 @@ const SETTINGS = {
   attention: true,
   vision: true,
   model: DEFAULT_MODEL,
-  effort: DEFAULT_EFFORT,
+  effort: DEFAULT_EFFORT as Effort,
 };
 
 const { values } = parseArgs({
